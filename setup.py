@@ -4,6 +4,7 @@ setup(
     name="NikGapps",
     version="0.1",
     packages=find_packages(),
+    include_package_data=True,
     author="Nikhil Menghani",
     author_email="nikgapps@gmail.com",
     description="A short description of your project",
