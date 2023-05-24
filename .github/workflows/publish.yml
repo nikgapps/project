@@ -29,6 +29,8 @@ jobs:
           VERSION=${{ github.ref }}
           VERSION=${VERSION#refs/tags/}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Update the version
+        run:
           python update_version.py
       - name: Build package
         run: python -m build
