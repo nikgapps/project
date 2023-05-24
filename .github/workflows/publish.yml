@@ -27,10 +27,10 @@ jobs:
       - name: Update version number
         run:
           if [[ "${{ github.event_name }}" == "release" ]]; then
-          VERSION=${{ github.ref }}
-          VERSION=${VERSION#refs/tags/}}
+            VERSION=${{ github.ref }}
+            VERSION=${VERSION#refs/tags/}}
           else
-          VERSION=${{ github.event.inputs.version }}
+            VERSION=${{ github.event.inputs.version }}
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           python update_version.py
