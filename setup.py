@@ -26,6 +26,11 @@ setup(
         'requests>=2.25.1',
         'GitPython>=3.1.31',
     ],
+    entry_points={
+        'console_scripts': [
+            'nikgapps=NikGapps.main:main',
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
