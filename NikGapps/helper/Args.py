@@ -1,8 +1,5 @@
 import argparse
-
 from .Statics import Statics
-
-
 # from helper.B64 import B64
 
 
@@ -10,24 +7,25 @@ class Args:
     def __init__(self) -> None:
         parser = argparse.ArgumentParser(
             description="NikGapps build command help!")
-        parser.add_argument(
-            '-U', '--userID', help="Telegram User Id", default='-1', type=str)
-        parser.add_argument(
-            '-C', '--config', help="byte64 value of nikgapps.config", type=str)
-        parser.add_argument(
-            '-N', '--configName', help="Name of custom nikgapps.config", type=str)
+        # parser.add_argument(
+        #     '-U', '--userID', help="Telegram User Id", default='-1', type=str)
+        # parser.add_argument(
+        #     '-C', '--config', help="byte64 value of nikgapps.config", type=str)
+        # parser.add_argument(
+        #     '-N', '--configName', help="Name of custom nikgapps.config", type=str)
+        # parser.add_argument(
+        #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
         parser.add_argument(
             '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
         parser.add_argument(
             '-S', '--enableGitClone', help="Include this to enable git clone operation", action="store_true")
         parser.add_argument(
-            '-F', '--forceRun', help="Overrides the release constraints and runs always", action="store_true")
+            '-F', '--skipForceRun', help="Overrides the release constraints and doesn't run the program",
+            action="store_true")
         parser.add_argument(
             '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
             default="-1",
             type=str)
-        parser.add_argument(
-            '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
         parser.add_argument(
             '-a', '--allVersions', help="Indicates we need the build for all supported android versions",
             action="store_true")

@@ -9,6 +9,7 @@ from NikGapps.helper.web.TelegramApi import TelegramApi
 
 
 def main():
+    args = Args()
     print("Start of the Program")
     SystemStat.show_stats()
 
@@ -18,8 +19,7 @@ def main():
     android_versions = [Config.TARGET_ANDROID_VERSION]
     package_list = Config.BUILD_PACKAGE_LIST
 
-    args = Args()
-    Config.OVERRIDE_RELEASE = args.forceRun
+    Config.OVERRIDE_RELEASE = not args.forceRun
     if len(args.get_package_list()) > 0:
         package_list = args.get_package_list()
 

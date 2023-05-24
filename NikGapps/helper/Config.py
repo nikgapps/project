@@ -21,9 +21,7 @@ if environment_type is not None:
 BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 
 # Send the zip to device after creation, Possible values are True and False
-SEND_ZIP_DEVICE = True
-if ENVIRONMENT_TYPE.__eq__("production"):
-    SEND_ZIP_DEVICE = True
+SEND_ZIP_DEVICE = False
 
 # This will allow the program to sign the zip
 SIGN_ZIP = False
@@ -38,10 +36,10 @@ if ENVIRONMENT_TYPE.__eq__("production"):
     DEBUG_MODE = False
 
 # True if we want the files to upload as soon as they get created
-UPLOAD_FILES = True
+UPLOAD_FILES = False
 
 # Override the execution if we re-trigger the workflow
-OVERRIDE_RELEASE = False
+OVERRIDE_RELEASE = True
 
 # Git Check enables controlled releases.
 # If this is set to True, new release will only happen when there is a change in the source repo or apk is updated
@@ -51,7 +49,7 @@ GIT_PUSH = False
 
 # Enabling this will enable the feature of building NikGapps using config file
 BUILD_CONFIG = True
-BUILD_EXCLUSIVE = (RELEASE_TYPE.lower().__eq__("stable1"))
+BUILD_EXCLUSIVE = (RELEASE_TYPE.lower().__eq__("stable"))
 EXCLUSIVE_FOLDER = "Elite"
 
 # Possible Values are ['fetch', 'build']
