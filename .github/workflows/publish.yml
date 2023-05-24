@@ -27,8 +27,10 @@ jobs:
       - name: Update version number
         run:
           VERSION=${{ github.ref }}
-          VERSION=${VERSION#refs/tags/}
+          VERSION=${VERSION#refs/tags/v}
+          echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION"
       - name: Update the version
         run:
           python update_version.py
