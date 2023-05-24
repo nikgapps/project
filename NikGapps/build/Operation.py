@@ -50,13 +50,13 @@ class Operation:
         # if nothing is true yet, it's already a new release
         return False
 
-    def build(self, android_versions, telegram: TelegramApi, git_check=Config.GIT_CHECK,
+    def build(self, android_versions, telegram: TelegramApi, git_clone=Config.GIT_CLONE_SOURCE,
               package_list=Config.BUILD_PACKAGE_LIST,
               commit_message=None, sign_zip=Config.SIGN_ZIP, send_zip_device=Config.SEND_ZIP_DEVICE,
               fresh_build=Config.FRESH_BUILD):
         release_repo = None
         source_last_commit_datetime = None
-        if git_check:
+        if git_clone:
             source_last_commit_datetime = GitOperations.get_last_commit_date(
                 branch="main" if Config.RELEASE_TYPE.__eq__("stable") else "dev")
             print(f"Last {str(Config.RELEASE_TYPE).capitalize()} Source Commit: " + str(source_last_commit_datetime))
@@ -70,7 +70,7 @@ class Operation:
             Config.TARGET_ANDROID_VERSION = android_version
             new_release = True
             # clone the apk repo if it doesn't exist
-            if git_check:
+            if git_clone:
                 release_datetime = None
                 if release_repo is not None:
                     release_datetime = release_repo.get_latest_commit_date(branch="master",
@@ -88,7 +88,7 @@ class Operation:
                 new_release = self.is_new_release(source_last_commit_datetime, apk_source_datetime, release_datetime)
             if Config.OVERRIDE_RELEASE or new_release:
                 Release.zip(package_list, android_version, sign_zip, send_zip_device, fresh_build, telegram, upload)
-                if release_repo is not None and git_check:
+                if release_repo is not None and git_clone:
                     release_repo.git_push(android_version_str + ": " + str(commit_message))
             # This needs readjusting
             # if Config.UPLOAD_FILES:
@@ -96,7 +96,7 @@ class Operation:
             #     ConfigOperations.upload_nikgapps_config(config, android_version, upload)
             upload.close_connection()
 
-        if git_check:
+        if git_clone:
             website_repo = GitOperations.get_website_repo_for_changelog()
             if website_repo is not None:
                 website_repo.update_changelog()

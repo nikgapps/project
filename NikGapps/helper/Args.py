@@ -19,6 +19,8 @@ class Args:
         parser.add_argument(
             '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
         parser.add_argument(
+            '-S', '--enableGitClone', help="Include this to enable git clone operation", action="store_true")
+        parser.add_argument(
             '-F', '--forceRun', help="Overrides the release constraints and runs always", action="store_true")
         parser.add_argument(
             '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
@@ -37,6 +39,7 @@ class Args:
         self.user_id = args.userID
         self.config_value = args.config
         self.enable_git_check = args.enableGitCheck
+        self.enable_git_clone = args.enableGitClone
         self.android_version = args.androidVersion
         self.package_list = args.packageList
         self.forceRun = args.forceRun
