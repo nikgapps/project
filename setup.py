@@ -5,6 +5,10 @@ setup(
     version="0.1",
     packages=find_packages(),
     include_package_data=True,
+    package_data={
+        '': ['*.sh', '*.yml'],
+        'NikGapps.helper': ['assets/*'],
+    },
     author="Nikhil Menghani",
     author_email="nikgapps@gmail.com",
     description="A short description of your project",
