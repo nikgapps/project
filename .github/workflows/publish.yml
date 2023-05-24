@@ -28,7 +28,7 @@ jobs:
         run:
           if [[ "${{ github.event_name }}" == "release" ]]; then
             VERSION=${{ github.ref }}
-            VERSION=${VERSION#refs/tags/}}
+            VERSION=${VERSION#refs/tags/}
           else
             VERSION=${{ github.event.inputs.version }}
           fi
