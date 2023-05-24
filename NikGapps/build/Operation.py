@@ -41,7 +41,7 @@ class Operation:
             #     ConfigOperations.upload_nikgapps_config(config, android_version, upload)
             upload.close_connection()
 
-        if git_clone:
-            website_repo = GitOperations.get_website_repo_for_changelog()
-            if website_repo is not None:
-                website_repo.update_changelog()
+        # if git_clone:
+        #     website_repo = GitOperations.get_website_repo_for_changelog()
+        #     if website_repo is not None:
+        #         website_repo.update_changelog()
