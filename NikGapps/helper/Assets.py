@@ -6,7 +6,8 @@ import platform
 
 
 class Assets:
-    assets_folder = str(pkg_resources.path('NikGapps.helper.assets', ''))
+    with pkg_resources.path('NikGapps.helper.assets', '') as asset_path:
+        assets_folder = str(asset_path)
     if not FileOp.dir_exists(assets_folder):
         assets_folder = os.path.join(os.getcwd(), 'assets')
     if not FileOp.dir_exists(assets_folder):
