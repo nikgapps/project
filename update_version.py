@@ -1,6 +1,6 @@
-import sys
+import os
+version = os.getenv('VERSION')
 
-version = sys.argv[1]
 version_line_index = 5
 
 with open('setup.py', 'r') as file:
