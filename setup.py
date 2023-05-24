@@ -24,6 +24,7 @@ setup(
         'psutil>=5.9.0',
         'setuptools>=65.5.1',
         'requests>=2.25.1',
+        'GitPython>=3.1.31',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
