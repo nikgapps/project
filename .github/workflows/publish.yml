@@ -26,12 +26,8 @@ jobs:
           pip install build
       - name: Update version number
         run:
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            VERSION=${{ github.ref }}
-            VERSION=${VERSION#refs/tags/}
-          else
-            VERSION=${{ github.event.inputs.version }}
-          fi
+          VERSION=${{ github.ref }}
+          VERSION=${VERSION#refs/tags/}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           python update_version.py
       - name: Build package
