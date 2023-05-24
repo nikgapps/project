@@ -1,13 +1,12 @@
-from NikGapps.helper.NikGappsConfig import NikGappsConfig
+# from NikGapps.helper.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.git.GitOperations import GitOperations
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.web.TelegramApi import TelegramApi
 from NikGapps.helper.web.Upload import Upload
-from Release import Release
+from NikGapps.build.Release import Release
 from NikGapps.helper.Config import FETCH_PACKAGE
 from NikGapps.helper import Config
 from colorama import Fore
-from ondemand.ConfigOperations import ConfigOperations
 
 
 class Operation:
@@ -91,9 +90,10 @@ class Operation:
                 Release.zip(package_list, android_version, sign_zip, send_zip_device, fresh_build, telegram, upload)
                 if release_repo is not None and git_check:
                     release_repo.git_push(android_version_str + ": " + str(commit_message))
-            if Config.UPLOAD_FILES:
-                config = NikGappsConfig(android_version=android_version)
-                ConfigOperations.upload_nikgapps_config(config, android_version, upload)
+            # This needs readjusting
+            # if Config.UPLOAD_FILES:
+            #     config = NikGappsConfig(android_version=android_version)
+            #     ConfigOperations.upload_nikgapps_config(config, android_version, upload)
             upload.close_connection()
 
         if git_check:
