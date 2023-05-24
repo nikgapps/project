@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install build
       - name: Update version number
-        run:
+        run: |
           VERSION=${{ github.ref }}
           echo "VERSION=${VERSION#refs/tags/v}" >> $GITHUB_ENV
       - name: Update the version
