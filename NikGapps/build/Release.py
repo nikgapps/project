@@ -1,11 +1,11 @@
 import os
+from NikGapps.build.Build import Build
 from NikGapps.helper import Config
-from Build import Build
 from NikGapps.helper.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
 from NikGapps.helper.web.Upload import Upload
-from NikGappsPackages import NikGappsPackages
+from NikGapps.build.NikGappsPackages import NikGappsPackages
 from NikGapps.helper.compression.Export import Export
 from NikGapps.helper.Cmd import Cmd
 from NikGapps.helper.AppSet import AppSet
@@ -35,10 +35,10 @@ class Release:
                 z = Export(file_name)
                 config_obj = NikGappsConfig(android_version=android_version)
                 result = z.zip(app_set_list=config_obj.config_package_list,
-                               config_string=config_obj.get_nikgapps_config(), android_version=android_version
-                               , sign_zip=sign_zip, send_zip_device=send_zip_device
-                               , fresh_build=fresh_build
-                               , telegram=telegram)
+                               config_string=config_obj.get_nikgapps_config(), android_version=android_version,
+                               sign_zip=sign_zip, send_zip_device=send_zip_device,
+                               fresh_build=fresh_build,
+                               telegram=telegram)
                 if result[1] and Config.UPLOAD_FILES:
                     print("Uploading " + str(result[0]))
                     execution_status = upload.upload(result[0], telegram=telegram)
@@ -62,8 +62,9 @@ class Release:
                             print("AppSet/Package Does not Exists: " + str(pkg_type))
                         else:
                             print("Building for " + str(app_set.title))
-                            package_name = release_directory + Statics.dir_sep + "addons" + Statics.dir_sep + "NikGapps-Addon-" + str(
-                                android_version) + "-" + app_set.title + "-" + str(T.get_current_time()) + ".zip"
+                            package_name = release_directory + Statics.dir_sep + "addons" + Statics.dir_sep + \
+                                           "NikGapps-Addon-" + str(android_version) + "-" + app_set.title + "-" + \
+                                           str(T.get_current_time()) + ".zip"
                             Release.zip_package(package_name, [app_set], android_version, sign_zip, send_zip_device,
                                                 fresh_build, telegram, upload=upload)
             os.environ['pkg_type'] = ''
@@ -84,9 +85,9 @@ class Release:
             config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version)
             print("Exporting " + str(file_name))
             z = Export(file_name)
-            result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config()
-                           , android_version=android_version, sign_zip=sign_zip, send_zip_device=send_zip_device
-                           , fresh_build=fresh_build, telegram=telegram)
+            result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config(),
+                           android_version=android_version, sign_zip=sign_zip, send_zip_device=send_zip_device,
+                           fresh_build=fresh_build, telegram=telegram)
             if result[1] and Config.UPLOAD_FILES:
                 print("Uploading " + str(result[0]))
                 execution_status = upload.upload(result[0], telegram=telegram)
