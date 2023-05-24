@@ -18,8 +18,7 @@ def main():
 
     android_versions = [Config.TARGET_ANDROID_VERSION]
     package_list = Config.BUILD_PACKAGE_LIST
-
-    Config.OVERRIDE_RELEASE = not args.forceRun
+    Config.UPLOAD_FILES = args.upload
     if len(args.get_package_list()) > 0:
         package_list = args.get_package_list()
 

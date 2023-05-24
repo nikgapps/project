@@ -9,19 +9,21 @@ class Args:
             description="NikGapps build command help!")
         # parser.add_argument(
         #     '-U', '--userID', help="Telegram User Id", default='-1', type=str)
-        # parser.add_argument(
-        #     '-C', '--config', help="byte64 value of nikgapps.config", type=str)
+        parser.add_argument(
+            '-C', '--config', help="byte64 value of nikgapps.config", type=str)
         # parser.add_argument(
         #     '-N', '--configName', help="Name of custom nikgapps.config", type=str)
         # parser.add_argument(
         #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
+        # parser.add_argument(
+        #     '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
         parser.add_argument(
-            '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
+            '-G', '--enableGitClone', help="Include this to enable git clone operation", action="store_true")
         parser.add_argument(
-            '-S', '--enableGitClone', help="Include this to enable git clone operation", action="store_true")
-        parser.add_argument(
-            '-F', '--skipForceRun', help="Overrides the release constraints and doesn't run the program",
-            action="store_true")
+            '-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
+        # parser.add_argument(
+        #     '-F', '--skipForceRun', help="Overrides the release constraints and doesn't run the program",
+        #     action="store_true")
         parser.add_argument(
             '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
             default="-1",
@@ -34,16 +36,17 @@ class Args:
 
         args = parser.parse_args()
 
-        self.user_id = args.userID
+        # self.user_id = args.userID
         self.config_value = args.config
-        self.enable_git_check = args.enableGitCheck
+        self.upload = args.upload
+        # self.enable_git_check = args.enableGitCheck
         self.enable_git_clone = args.enableGitClone
         self.android_version = args.androidVersion
         self.package_list = args.packageList
-        self.forceRun = args.forceRun
-        self.config_name = args.configName
+        # self.forceRun = args.forceRun
+        # self.config_name = args.configName
         self.all_versions = args.allVersions
-        self.oems = args.oems
+        # self.oems = args.oems
 
     def get_package_list(self):
         if self.config_value is None and self.package_list is not None:
@@ -56,12 +59,12 @@ class Args:
             pkg_list = []
         return pkg_list
 
-    def get_oems(self):
-        if self.oems != str(-1):
-            oems = self.oems.split(',')
-        else:
-            oems = []
-        return oems
+    # def get_oems(self):
+    #     if self.oems != str(-1):
+    #         oems = self.oems.split(',')
+    #     else:
+    #         oems = []
+    #     return oems
 
     def get_android_versions(self):
         if self.android_version != str(-1):
