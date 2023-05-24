@@ -32,6 +32,7 @@ class Operation:
             if git_clone:
                 GitOperations.clone_apk_repo(android_version, branch="main" if Config.RELEASE_TYPE.__eq__(
                     "stable") else "canary")
+                GitOperations.clone_overlay_repo(android_version)
             if Config.OVERRIDE_RELEASE:
                 Release.zip(package_list, android_version, sign_zip, send_zip_device, fresh_build, telegram, upload)
             # This needs readjusting
