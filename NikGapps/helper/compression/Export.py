@@ -131,7 +131,7 @@ class Export:
                 time_taken = sign_zip_time.taken("Total time taken to sign the zip")
                 if zip_execution_status:
                     telegram.message("- The zip signed in: " + str(round(time_taken)) + " seconds",
-                                       replace_last_message=True)
+                                     replace_last_message=True)
             if send_zip_device:
                 send_zip_device_time = T()
                 cmd = Cmd()
