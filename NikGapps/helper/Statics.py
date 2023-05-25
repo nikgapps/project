@@ -26,7 +26,7 @@ class Statics:
     cwd = os.getcwd()
     pwd = str(Path(cwd).parent)
     dir_sep = os.path.sep
-    release_directory = pwd + dir_sep + "Releases"
+    release_directory = cwd + dir_sep + "Releases"
     DELETE_FILES_NAME = "DeleteFilesData"
     meta_inf_dir = "META-INF/com/google/android/"
     nikgapps_config = "nikgapps.config"
@@ -41,7 +41,7 @@ class Statics:
         if export_directory is not None:
             output = export_directory + os.path.sep
         else:
-            output = Statics.pwd + os.path.sep + "Export" + os.path.sep + str(
+            output = Statics.cwd + os.path.sep + "Export" + os.path.sep + str(
                 target_version) + os.path.sep + T.get_london_date_time("%Y%m%d") + os.path.sep
         if app_set is not None:
             output += app_set + os.path.sep
@@ -70,7 +70,7 @@ class Statics:
 
     @staticmethod
     def get_temp_packages_directory(android_version):
-        return Statics.pwd + os.path.sep + "TempPackages" + os.path.sep + android_version
+        return Statics.cwd + os.path.sep + "TempPackages" + os.path.sep + android_version
 
     @staticmethod
     def get_release_directory(android_version):

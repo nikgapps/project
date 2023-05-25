@@ -18,7 +18,7 @@ class GitOperations:
     def clone_overlay_repo(android_version, fresh_clone=False, branch="master"):
         if float(android_version) > 12:
             android_code = Statics.get_android_code(android_version)
-            overlay_source_dir = Statics.pwd + Statics.dir_sep + f"overlays_{android_code}"
+            overlay_source_dir = Statics.cwd + Statics.dir_sep + f"overlays_{android_code}"
             overlay_source_repo = f"https://github.com/nikgapps/overlays_{android_code}.git"
             repository = Git(overlay_source_dir)
             result = repository.clone_repo(repo_url=overlay_source_repo, fresh_clone=fresh_clone, branch=branch)
@@ -29,7 +29,7 @@ class GitOperations:
 
     @staticmethod
     def clone_apk_repo(android_version, fresh_clone=False, branch="main"):
-        apk_source_directory = Statics.pwd + Statics.dir_sep + str(android_version)
+        apk_source_directory = Statics.cwd + Statics.dir_sep + str(android_version)
         apk_source_repo = GitStatics.apk_source_repo + str(android_version) + ".git"
         repository = Git(apk_source_directory)
         result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)

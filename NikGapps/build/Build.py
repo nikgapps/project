@@ -13,7 +13,7 @@ class Build:
     # Just provide the package list, and it will pick them up from the directory and build them for you
     @staticmethod
     def build_from_directory(app_set_build_list, android_version):
-        source_directory = Statics.pwd + Statics.dir_sep + android_version
+        source_directory = Statics.cwd + Statics.dir_sep + android_version
         cmd = Cmd()
         app_set_list = []
         for app_set in app_set_build_list:
@@ -36,7 +36,7 @@ class Build:
                 delete_overlay_list = []
                 # copy over any overlay.apk that exists to pkg_path!
                 overlay_android_version = f"overlays_{Statics.get_android_code(android_version)}"
-                overlay_directory = Statics.pwd + os.path.sep + overlay_android_version
+                overlay_directory = Statics.cwd + os.path.sep + overlay_android_version
                 overlay_dir = overlay_directory + Statics.dir_sep + f"{package_title}Overlay"
                 if FileOp.dir_exists(overlay_dir):
                     for file in Path(overlay_dir).rglob("*.apk"):

@@ -61,7 +61,7 @@ class Package:
                 permissions_list.append(perm)
         permissions_path = "/etc/permissions/" + str(self.package_name) + ".xml"
         import_path = Statics.get_import_path(app_set, self.package_title, permissions_path, android_version,
-                                        pkg_path)
+                                              pkg_path)
         self.file_dict[import_path] = "etc/permissions/" + str(self.package_name) + ".xml"
         XmlOp(self.package_name, permissions_list, import_path)
 
