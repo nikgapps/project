@@ -1,3 +1,4 @@
+from ..P import P
 from ..FileOp import FileOp
 from ..Assets import Assets
 from ..Package import Package
@@ -102,7 +103,7 @@ class Export:
             self.z.add_file(Assets.module_path, "module.prop")
             self.z.add_file(Assets.busybox, "busybox")
             zip_execution_status = True
-            print('The zip ' + self.file_name + ' is created successfully!')
+            P.green('The zip ' + self.file_name + ' is created successfully!')
         except Exception as e:
             print("Exception occurred while creating the zip " + str(e))
         finally:
