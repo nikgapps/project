@@ -18,7 +18,7 @@ class Args:
         # parser.add_argument(
         #     '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
         parser.add_argument(
-            '-G', '--enableGitClone', help="Include this to enable git clone operation", action="store_true")
+            '-G', '--disableGitClone', help="Include this to disable git clone operation", action="store_true")
         parser.add_argument(
             '-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
         # parser.add_argument(
@@ -40,7 +40,7 @@ class Args:
         self.config_value = args.config
         self.upload = args.upload
         # self.enable_git_check = args.enableGitCheck
-        self.enable_git_clone = args.enableGitClone
+        self.enable_git_clone = not args.disableGitClone
         self.android_version = args.androidVersion
         self.package_list = args.packageList
         # self.forceRun = args.forceRun

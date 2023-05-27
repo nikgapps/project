@@ -70,11 +70,11 @@ class Statics:
 
     @staticmethod
     def get_temp_packages_directory(android_version):
-        return Statics.cwd + os.path.sep + "TempPackages" + os.path.sep + android_version
+        return Statics.cwd + os.path.sep + "TempPackages" + os.path.sep + str(android_version)
 
     @staticmethod
     def get_release_directory(android_version):
-        return Statics.release_directory + os.path.sep + android_version
+        return Statics.release_directory + os.path.sep + str(android_version)
 
     @staticmethod
     def get_android_code(android_version):
