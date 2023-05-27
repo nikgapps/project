@@ -20,6 +20,8 @@ class Args:
         parser.add_argument(
             '-G', '--disableGitClone', help="Include this to disable git clone operation", action="store_true")
         parser.add_argument(
+            '-W', '--updateWebsite', help="Include this to update nikgapps website with changelog", action="store_true")
+        parser.add_argument(
             '-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
         # parser.add_argument(
         #     '-F', '--skipForceRun', help="Overrides the release constraints and doesn't run the program",
@@ -46,6 +48,7 @@ class Args:
         # self.forceRun = args.forceRun
         # self.config_name = args.configName
         self.all_versions = args.allVersions
+        self.update_website = args.updateWebsite
         # self.oems = args.oems
 
     def get_package_list(self):

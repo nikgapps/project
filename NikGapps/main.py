@@ -5,6 +5,7 @@ from NikGapps.helper import Config
 from NikGapps.helper.SystemStat import SystemStat
 from NikGapps.helper.P import P
 from NikGapps.helper.T import T
+from NikGapps.helper.git.GitOperations import GitOperations
 from NikGapps.helper.web.TelegramApi import TelegramApi
 
 
@@ -34,6 +35,10 @@ def main():
     telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
     operation.build(git_clone=args.enable_git_clone, android_versions=android_versions,
                     package_list=package_list, telegram=telegram)
+    if args.update_website:
+        website_repo = GitOperations.get_website_repo_for_changelog()
+        if website_repo is not None:
+            website_repo.update_changelog()
 
     t.taken("Total time taken by the program")
 
