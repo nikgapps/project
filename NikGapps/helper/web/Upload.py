@@ -15,6 +15,8 @@ class Upload:
         self.host = "frs.sourceforge.net"
         self.username = "nikhilmenghani"
         self.password = os.environ.get('SF_PWD')
+        self.release_dir = Statics.get_sourceforge_release_directory(release_type)
+        self.release_date = T.get_london_date_time("%d-%b-%Y")
         if self.password is None or self.password.__eq__(""):
             self.password = ""
             self.sftp = None
@@ -24,8 +26,6 @@ class Upload:
         except Exception as e:
             print("Exception while connecting to SFTP: " + str(e))
             self.sftp = None
-        self.release_dir = Statics.get_sourceforge_release_directory(release_type)
-        self.release_date = T.get_london_date_time("%d-%b-%Y")
 
     def set_release_dir(self, release_dir):
         self.release_dir = release_dir
@@ -47,10 +47,11 @@ class Upload:
         print("Upload Dir: " + self.release_dir + "/" + folder_name)
         return self.release_dir + "/" + folder_name + "/" + self.release_date
 
-    def upload(self, file_name, telegram: TelegramApi, remote_directory=None):
+    def upload(self, file_name, telegram: TelegramApi = None, remote_directory=None):
         system_name = platform.system()
         execution_status = False
-        telegram.message("- The zip is uploading...")
+        if telegram is not None:
+            telegram.message("- The zip is uploading...")
         if self.sftp is not None and system_name != "Windows" and self.upload_files:
             t = T()
             file_type = "gapps"
@@ -80,12 +81,13 @@ class Upload:
             time_taken = t.taken(f"Total time taken to upload file with size {file_size_mb} MB ("
                                  f"{file_size_kb} Kb)")
             if execution_status:
-                telegram.message(
-                    f"- The zip {file_size_mb} MB uploaded in {str(round(time_taken))} seconds\n",
-                    replace_last_message=True)
-                if download_link is not None:
-                    telegram.message(f"*Note:* Download link should start working in 10 minutes", escape_text=False,
-                                     ur_link={f"Download": f"{download_link}"})
+                if telegram is not None:
+                    telegram.message(
+                        f"- The zip {file_size_mb} MB uploaded in {str(round(time_taken))} seconds\n",
+                        replace_last_message=True)
+                    if download_link is not None:
+                        telegram.message(f"*Note:* Download link should start working in 10 minutes", escape_text=False,
+                                         ur_link={f"Download": f"{download_link}"})
         else:
             print("System incompatible or upload disabled or connection failed!")
         return execution_status

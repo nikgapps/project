@@ -1,9 +1,13 @@
+import json
+from . import Config
 from .ConfigObj import ConfigObj
 from .FileOp import FileOp
 from .AppSet import AppSet
 from .Package import Package
 from NikGapps.build.NikGappsPackages import NikGappsPackages
 from .Statics import Statics
+from .git.GitOperations import GitOperations
+from .web.Upload import Upload
 
 
 class NikGappsConfig:
@@ -202,3 +206,77 @@ class NikGappsConfig:
                     result += f"- {package.package_title}\n"
                 result += "\n"
         return result.strip()
+
+    def upload_nikgapps_config(self):
+        analytics_dict = {}
+        key = "config_version_" + Statics.get_android_code(self.android_version)
+        analytics_dict[key] = str(self.config_version)
+        tracker_repo = GitOperations.setup_tracker_repo()
+        repo_dir = tracker_repo.working_tree_dir
+        if FileOp.dir_exists(repo_dir):
+            print(f"{repo_dir} exists!")
+            config_version_json = repo_dir + Statics.dir_sep + "config_version.json"
+            if FileOp.file_exists(config_version_json):
+                print("File Exists!")
+                custom_builds_json_string = ""
+                for line in FileOp.read_string_file(config_version_json):
+                    custom_builds_json_string += line
+                print(custom_builds_json_string)
+                print()
+                decoded_hand = json.loads(custom_builds_json_string)
+                if decoded_hand.get(key) is not None:
+                    version_on_server = decoded_hand[key]
+                    print("version on server is: " + version_on_server)
+                    if int(version_on_server) < int(self.config_version):
+                        print("server needs updating")
+                        if self.upload():
+                            decoded_hand[key] = str(self.config_version)
+                            with open(config_version_json, "w") as file:
+                                json.dump(decoded_hand, file, indent=2)
+                        else:
+                            print("Cannot update the tracker since config file failed to upload")
+                    elif int(version_on_server) == int(self.config_version):
+                        print("server is in sync")
+                    else:
+                        print("server is on higher version")
+                else:
+                    print(f"{key} key doesn't exist! creating the file with the key")
+                    if self.upload():
+                        decoded_hand[key] = str(self.config_version)
+                        with open(config_version_json, 'w') as f:
+                            json.dump(decoded_hand, f, indent=2)
+                            print(f"{config_version_json} file is created")
+                    else:
+                        print("Cannot update the tracker since config file failed to upload")
+
+            else:
+                print(config_version_json + " doesn't exist! creating the file")
+                if self.upload():
+                    with open(config_version_json, 'w') as f:
+                        json.dump(analytics_dict, f, indent=2)
+                        print(f"{config_version_json} file is created")
+                else:
+                    print("Cannot update the tracker since config file failed to upload")
+            if tracker_repo.due_changes():
+                print("Updating the config version to v" + str(self.config_version))
+                tracker_repo.git_push("Updating config version to v" + str(self.config_version),
+                                      push_untracked_files=True)
+            else:
+                print("There is no change in config version to update!")
+        else:
+            print(f"{repo_dir} doesn't exist!")
+
+    def upload(self):
+        execution_status = False
+        # create nikgapps.config file and upload to sourceforge
+        temp_nikgapps_config_location = Statics.get_temp_packages_directory(
+            self.android_version) + Statics.dir_sep + "nikgapps.config"
+        FileOp.write_string_in_lf_file(self.get_nikgapps_config(), temp_nikgapps_config_location)
+        if FileOp.file_exists(temp_nikgapps_config_location):
+            release_dir = "Releases/Config"
+            u = Upload(android_version=self.android_version, release_type=release_dir, upload_files=Config.UPLOAD_FILES)
+            file_type = "config"
+            remote_directory = u.get_cd(file_type) + "/v" + str(self.config_version)
+            u.upload(file_name=temp_nikgapps_config_location, remote_directory=remote_directory)
+            u.close_connection()
+        return execution_status

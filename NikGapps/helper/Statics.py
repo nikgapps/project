@@ -81,14 +81,14 @@ class Statics:
         return Statics.android_versions[str(android_version)]['code']
 
     @staticmethod
-    def get_sourceforge_release_directory(release_type, release_dir=None):
+    def get_sourceforge_release_directory(release_dir):
         sourceforge_root_directory = "/home/frs/project/nikgapps"
-        if release_dir is not None:
-            return f"{sourceforge_root_directory}/" + release_dir
-        match release_type:
+        match release_dir:
             case ("config"):
                 return f"{sourceforge_root_directory}/Config-Releases"
             case ("canary"):
                 return f"{sourceforge_root_directory}/Canary-Releases"
             case ("stable"):
                 return f"{sourceforge_root_directory}/Releases"
+            case _:
+                return f"{sourceforge_root_directory}/{release_dir}"

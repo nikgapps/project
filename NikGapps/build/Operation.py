@@ -1,4 +1,5 @@
 # from NikGapps.helper.NikGappsConfig import NikGappsConfig
+from NikGapps.helper.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.git.GitOperations import GitOperations
 from NikGapps.helper.web.TelegramApi import TelegramApi
 from NikGapps.helper.web.Upload import Upload
@@ -35,8 +36,8 @@ class Operation:
                 GitOperations.clone_overlay_repo(android_version)
             if Config.OVERRIDE_RELEASE:
                 Release.zip(package_list, android_version, sign_zip, send_zip_device, fresh_build, telegram, upload)
-            # This needs readjusting
-            # if Config.UPLOAD_FILES:
-            #     config = NikGappsConfig(android_version=android_version)
-            #     ConfigOperations.upload_nikgapps_config(config, android_version, upload)
             upload.close_connection()
+            if Config.UPLOAD_FILES:
+                config = NikGappsConfig(android_version=android_version)
+                config.upload_nikgapps_config()
+
