@@ -1,4 +1,4 @@
-- date: 3rd May 2023 (Android 10-13)
+- date: 29th May 2023 (Android 10-13)
   changes:
       - item: Fixed the incorrect calculation of space after the installation was finished
       - item: Delete stuff before restoring the files to make space for gapps during OTA

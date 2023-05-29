@@ -40,4 +40,3 @@ class Operation:
             if Config.UPLOAD_FILES:
                 config = NikGappsConfig(android_version=android_version)
                 config.upload_nikgapps_config()
-
