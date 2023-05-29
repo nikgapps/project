@@ -41,6 +41,7 @@ class NikGappsConfig:
             print(self.describe_nikgapps_config())
             print("-------------------------------------------------------------------------------------")
         self.exclusive = False
+        self.creator = "Nikhil Menghani"
 
     def build_config_objects(self):
         android_version = ConfigObj("AndroidVersion", self.android_version)

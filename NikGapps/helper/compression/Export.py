@@ -1,3 +1,4 @@
+from ..NikGappsConfig import NikGappsConfig
 from ..P import P
 from ..FileOp import FileOp
 from ..Assets import Assets
@@ -18,8 +19,11 @@ class Export:
         self.file_name = file_name
         self.z = Zip(file_name)
 
-    def zip(self, app_set_list, config_string, android_version, sign_zip, send_zip_device, fresh_build,
-            telegram: TelegramApi, compression_mode=Modes.DEFAULT):
+    def zip(self, config_obj: NikGappsConfig, sign_zip, send_zip_device, fresh_build, telegram: TelegramApi,
+            compression_mode=Modes.DEFAULT):
+        app_set_list = config_obj.config_package_list
+        config_string = config_obj.get_nikgapps_config()
+        android_version = config_obj.android_version
         total_packages = 0
         print_progress = ""
         build_zip = T()
@@ -99,6 +103,7 @@ class Export:
             self.z.add_file(Assets.mount_path, "common/mount.sh")
             self.z.add_file(Assets.unmount_path, "common/unmount.sh")
             self.z.add_string(os.path.basename(os.path.splitext(self.file_name)[0]), "zip_name.txt")
+            self.z.add_string(config_obj.creator, "creator.txt")
             self.z.add_string(self.get_customize_sh(self.file_name), "customize.sh")
             self.z.add_file(Assets.module_path, "module.prop")
             self.z.add_file(Assets.busybox, "busybox")

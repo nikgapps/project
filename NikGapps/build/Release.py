@@ -34,11 +34,8 @@ class Release:
                     T.get_current_time()) + ".zip"
                 z = Export(file_name)
                 config_obj = NikGappsConfig(android_version=android_version)
-                result = z.zip(app_set_list=config_obj.config_package_list,
-                               config_string=config_obj.get_nikgapps_config(), android_version=android_version,
-                               sign_zip=sign_zip, send_zip_device=send_zip_device,
-                               fresh_build=fresh_build,
-                               telegram=telegram)
+                result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,
+                               fresh_build=fresh_build, telegram=telegram)
                 if result[1] and Config.UPLOAD_FILES:
                     print("Uploading " + str(result[0]))
                     execution_status = upload.upload(result[0], telegram=telegram)
@@ -85,8 +82,7 @@ class Release:
             config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version)
             print("Exporting " + str(file_name))
             z = Export(file_name)
-            result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config(),
-                           android_version=android_version, sign_zip=sign_zip, send_zip_device=send_zip_device,
+            result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,
                            fresh_build=fresh_build, telegram=telegram)
             if result[1] and Config.UPLOAD_FILES:
                 print("Uploading " + str(result[0]))
