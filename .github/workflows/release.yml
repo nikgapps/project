@@ -13,24 +13,15 @@ jobs:
       - name: Check for keyword in commit messages
         id: keyword-check
         run: |
-          git log --format=%B -n 1 ${{ github.sha }}
-          if git log --format=%B -n 1 ${{ github.sha }} | grep -iq 'Release:'; then
+          commit_message=$(curl -s -H "Authorization: token ${{ secrets.TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}" | \
+            jq -r '.commit.message')
+
+          if echo "$commit_message" | grep -iq 'Release:'; then
             echo "::set-output name=keyword_found::true"
           else
             echo "::set-output name=keyword_found::false"
           fi
-
-      - name: Get latest release tag
-        id: get-latest-tag
-        run: echo ::set-output name=latest_tag::$(git describe --abbrev=0 --tags)
-
-      - name: Increment release tag
-        id: increment-tag
-        run: |
-          latest_tag=${{ steps.get-latest-tag.outputs.latest_tag }}
-          IFS='.' read -r major minor <<< "$latest_tag"
-          incremented_minor=$(echo "$minor + 0.01" | bc)
-          echo "::set-output name=incremented_tag::${major}.${incremented_minor}"
 
       - name: Create Release
         if: steps.keyword-check.outputs.keyword_found == 'true'
@@ -38,7 +29,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          tag_name: ${{ steps.increment-tag.outputs.incremented_tag }}
-          release_name: Release ${{ steps.increment-tag.outputs.incremented_tag }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
