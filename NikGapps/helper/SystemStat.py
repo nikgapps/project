@@ -1,3 +1,4 @@
+import os
 import platform
 import psutil
 from .P import P
@@ -13,6 +14,7 @@ class SystemStat:
         total_ram_in_gb = round(mem.total / 1073741824, 2)
         P.green("---------------------------------------")
         P.green("Ram: " + str(total_ram_in_bytes) + " bytes, " + str(total_ram_in_gb) + " Gb")
+        P.green(f"# of CPUs: {os.cpu_count()}")
         P.green("---------------------------------------")
         P.green("Running on system: " + platform.system())
         P.green("---------------------------------------")
