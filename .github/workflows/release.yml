@@ -23,13 +23,20 @@ jobs:
             echo "KEYWORD_FOUND=false" >> $GITHUB_ENV
           fi
 
+      - name: Get the version
+        if: env.KEYWORD_FOUND == 'true'
+        run: |
+          VERSION=${{ github.ref }}
+          VERSION=${VERSION#refs/tags/}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
       - name: Create Release
         if: env.KEYWORD_FOUND == 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ env.VERSION }}
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
