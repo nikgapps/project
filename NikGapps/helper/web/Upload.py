@@ -3,6 +3,7 @@ import platform
 from pathlib import Path
 import pysftp
 from ..FileOp import FileOp
+from ..P import P
 from ..Statics import Statics
 from ..T import T
 from .TelegramApi import TelegramApi
@@ -66,9 +67,16 @@ class Upload:
             remote_filename = Path(file_name).name
             try:
                 self.sftp.chdir(remote_directory)
-            except IOError:
-                self.sftp.makedirs(remote_directory)
-                self.sftp.chdir(remote_directory)
+            except IOError as ie:
+                P.red("Exception while creating directory: " + str(ie))
+                try:
+                    self.sftp.makedirs(remote_directory)
+                    self.sftp.chdir(remote_directory)
+                except Exception as e:
+                    P.red("Exception while creating directory: " + str(e))
+                    self.close_connection()
+                    self.sftp = pysftp.Connection(host=self.host, username=self.username, password=self.password)
+                    return execution_status
             putinfo = self.sftp.put(file_name, remote_filename)
             print(putinfo)
             print(f'File uploaded successfully to {remote_directory}/{remote_filename}')
