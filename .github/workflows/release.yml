@@ -18,13 +18,13 @@ jobs:
             jq -r '.commit.message')
 
           if echo "$commit_message" | grep -iq 'Release:'; then
-            echo "::set-output name=keyword_found::true"
+            echo "KEYWORD_FOUND=true" >> $GITHUB_ENV
           else
-            echo "::set-output name=keyword_found::false"
+            echo "KEYWORD_FOUND=false" >> $GITHUB_ENV
           fi
 
       - name: Create Release
-        if: steps.keyword-check.outputs.keyword_found == 'true'
+        if: env.KEYWORD_FOUND == 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
