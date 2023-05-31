@@ -537,7 +537,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             NikGappsPackages.get_youtube_music(),
             NikGappsPackages.get_google_play_books(),
             # AddonSet.get_google_tts(),
-            # AddonSet.get_pixel_setup_wizard(),
+            NikGappsPackages.get_pixel_setup_wizard(),
             NikGappsPackages.get_google_talkback()
         ]
         # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
