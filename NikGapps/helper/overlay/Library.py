@@ -111,6 +111,7 @@ class Library:
             'com.google.android.gms/com.google.android.gms.update.SystemUpdateService.Receiver',
             'com.google.android.gms/com.google.android.gms.update.SystemUpdateService.SecretCodeReceiver',
             'com.google.android.gms/com.google.android.gms.chimera.GmsIntentOperationService$GmsExternalReceiver']))
+        return r
 
     @staticmethod
     def get_google_location_history_resources():

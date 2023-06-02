@@ -305,7 +305,7 @@ fi
 
     @staticmethod
     def get_basic_package(android_version):
-        app_set_list = NikGappsPackages.get_core_package()
+        app_set_list = NikGappsPackages.get_core_package(android_version)
         digital_wellbeing = Package("WellbeingPreBuilt", "com.google.android.apps.wellbeing", Statics.is_priv_app,
                                     "DigitalWellbeing")
         if float(android_version) >= 12.1:
