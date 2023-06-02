@@ -14,6 +14,8 @@ class Library:
         r.add(String('dialer_default_class', 'com.google.android.dialer.extensions.GoogleDialtactsActivity',
                      comment='Class name for the default main Dialer activity'))
         r.add(String('incall_default_class', 'com.android.incallui.InCallServiceImpl'))
+        r.add(String('config_defaultCallRedirection', 'com.google.android.dialer'))
+        r.add(String('config_defaultCallScreening', 'com.google.android.dialer'))
         r.add(Bool('grant_location_permission_enabled', True,
                    comment='Determines if the granting of temporary location permission to the default dialer '
                            'during an emergency call should be allowed.'))
