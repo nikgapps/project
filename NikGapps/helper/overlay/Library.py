@@ -131,6 +131,7 @@ class Library:
     def get_google_photos_resources():
         r = Resources()
         r.add(String('config_systemGallery', 'com.google.android.apps.photos'))
+        r.add(String('config_defaultGallery', 'com.google.android.apps.photos'))
         return r
 
     @staticmethod
@@ -397,4 +398,16 @@ class Library:
             'com.google.android.as/com.google.intelligence.sense.ambientmusic.AmbientMusicSettingsActivity',
             'com.google.android.as/com.google.intelligence.sense.ambientmusic.AmbientMusicNotificationsSettingsActivity',
             'com.google.android.as/com.google.intelligence.sense.ambientmusic.AmbientMusicSetupWizardActivity']))
+        return r
+
+    @staticmethod
+    def get_settings_services_resources():
+        r = Resources()
+        r.add(String('config_systemSettingsIntelligence', 'google'))
+        return r
+
+    @staticmethod
+    def get_google_clock_resources():
+        r = Resources()
+        r.add(String('widget_default_package_name', 'com.google.android.deskclock'))
         return r

@@ -56,7 +56,7 @@ class NikGappsPackages:
                         for package in app_set.package_list:
                             if str(package.package_title).lower() == str(package_type).lower():
                                 return [AppSet(package.package_title, [package])]
-                for app_set in NikGappsPackages.get_go_package():
+                for app_set in NikGappsPackages.get_go_package(android_version):
                     if str(app_set.title).lower() == str(package_type).lower():
                         return [app_set]
                     elif len(app_set.package_list) > 1:
@@ -355,6 +355,12 @@ fi
         app_set_list.append(AppSet("CarrierServices", [carrier_services]))
         google_clock = Package("PrebuiltDeskClockGoogle", "com.google.android.deskclock", Statics.is_system_app,
                                "GoogleClock")
+        if float(android_version) >= 12.1:
+            google_clock_overlay = Overlay(apkName=google_clock.package_title,
+                                           package_name="com.nikgapps.overlay.googleclock",
+                                           android_version=android_version,
+                                           resources=Library.get_google_clock_resources())
+            google_clock.add_overlay(google_clock_overlay)
         google_clock.delete("DeskClock")
         google_clock.clean_flash_only = True
         app_set_list.append(AppSet("GoogleClock", [google_clock]))
@@ -733,6 +739,11 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             settings_services = Package("SettingsIntelligenceGooglePrebuilt",
                                         "com.google.android.settings.intelligence",
                                         Statics.is_priv_app, "SettingsServices")
+            if float(android_version) >= 12.1:
+                settings_services_overlay = Overlay(settings_services.package_title,
+                                                    "com.nikgapps.overlay.settingsintelligence", android_version,
+                                                    Library.get_settings_services_resources())
+                settings_services.add_overlay(settings_services_overlay)
             device_intelligence_network_prebuilt = Package("DeviceIntelligenceNetworkPrebuilt",
                                                            "com.google.android.as.oss",
                                                            Statics.is_priv_app, "PrivateComputeServices")
