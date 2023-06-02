@@ -7,24 +7,22 @@ class XmlOp:
         self.doc = SubElement(self.root, "privapp-permissions", package=package_name)
         for permission in permissions_list:
             SubElement(self.doc, "permission", name=permission)
-        self.root = XmlOp.indent(self.root)
+        XmlOp.indent(self.root)
         self.tree = ElementTree(self.root)
         self.tree.write(import_path)
 
     @staticmethod
     def indent(elem, level=0):
         i = "\n" + level * "  "
-        j = "\n" + (level - 1) * "  "
         if len(elem):
             if not elem.text or not elem.text.strip():
                 elem.text = i + "  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-            for subelem in elem:
-                XmlOp.indent(subelem, level + 1)
+            for elem in elem:
+                XmlOp.indent(elem, level + 1)
             if not elem.tail or not elem.tail.strip():
-                elem.tail = j
+                elem.tail = i
         else:
             if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = j
-        return elem
+                elem.tail = i

@@ -104,6 +104,7 @@ class Build:
                     delete_overlay_list.append(delete_overlay)
                 pkg.delete_overlay_list = delete_overlay_list
                 pkg.validation_script = pkg_to_build.validation_script
+                pkg.overlay_list = pkg_to_build.overlay_list
                 package_list.append(pkg)
             if package_list.__len__() > 0:
                 app_set_to_build = AppSet(app_set.title, package_list)

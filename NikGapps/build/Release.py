@@ -21,7 +21,7 @@ class Release:
             print("Currently Working on " + pkg_type)
             os.environ['pkg_type'] = str(pkg_type)
             if str(pkg_type).__contains__("addons"):
-                for app_set in NikGappsPackages.get_packages(pkg_type):
+                for app_set in NikGappsPackages.get_packages(pkg_type, android_version):
                     print("Building for " + str(app_set.title))
                     package_name = release_directory + Statics.dir_sep + str(
                         "addons") + Statics.dir_sep + "NikGapps-Addon-" + str(
@@ -51,17 +51,17 @@ class Release:
                     # Build the packages from the directory
                     print("Building for " + str(pkg_type))
                     Release.zip_package(file_name,
-                                        NikGappsPackages.get_packages(pkg_type), android_version, sign_zip,
-                                        send_zip_device, fresh_build, telegram, upload=upload)
+                                        NikGappsPackages.get_packages(pkg_type, android_version), android_version,
+                                        sign_zip, send_zip_device, fresh_build, telegram, upload=upload)
                 else:
-                    for app_set in NikGappsPackages.get_packages(pkg_type):
+                    for app_set in NikGappsPackages.get_packages(pkg_type, android_version):
                         if app_set is None:
                             print("AppSet/Package Does not Exists: " + str(pkg_type))
                         else:
                             print("Building for " + str(app_set.title))
-                            package_name = release_directory + Statics.dir_sep + "addons" + Statics.dir_sep + \
-                                           "NikGapps-Addon-" + str(android_version) + "-" + app_set.title + "-" + \
-                                           str(T.get_current_time()) + ".zip"
+                            package_name = f"{release_directory}{Statics.dir_sep}addons" \
+                                           f"{Statics.dir_sep}NikGapps-Addon-{str(android_version)}-" \
+                                           f"{app_set.title}-{str(T.get_current_time())}.zip"
                             Release.zip_package(package_name, [app_set], android_version, sign_zip, send_zip_device,
                                                 fresh_build, telegram, upload=upload)
             os.environ['pkg_type'] = ''
@@ -109,7 +109,7 @@ class Release:
     @staticmethod
     def fetch_packages(fetch_package, android_version):
         # Get the list of packages that we want to pull from connected device
-        app_set_list = NikGappsPackages.get_packages(fetch_package)
+        app_set_list = NikGappsPackages.get_packages(fetch_package, android_version)
         # Fetch all the packages from the device
         # We will check for errors here (need to make sure we pulled all the files we were looking for
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

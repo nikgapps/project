@@ -92,9 +92,9 @@ class NikGappsConfig:
         # pprint.pprint(config_dict)
         app_set_list = []
         pre_defined_addons = []
-        for addons in NikGappsPackages.get_packages("addons"):
+        for addons in NikGappsPackages.get_packages("addons", self.android_version):
             pre_defined_addons.append(addons.title)
-        for app_set in NikGappsPackages.get_packages("all"):
+        for app_set in NikGappsPackages.get_packages("all", self.android_version):
             app_set: AppSet
             if app_set.title not in config_dict:
                 continue
@@ -147,7 +147,7 @@ class NikGappsConfig:
 
         nikgapps_config_lines += "# Following are the packages with default configuration\n"
 
-        for app_set in NikGappsPackages.get_packages("full"):
+        for app_set in NikGappsPackages.get_packages("full", self.android_version):
             if len(app_set.package_list) > 1:
                 nikgapps_config_lines += "\n# Set " + app_set.title + "=0 if you want to skip installing all " \
                                                                       "packages belonging to " \
@@ -170,7 +170,7 @@ class NikGappsConfig:
                 else:
                     for pkg in app_set.package_list:
                         nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n"
-        for app_set in NikGappsPackages.get_packages("go"):
+        for app_set in NikGappsPackages.get_packages("go", self.android_version):
             if len(app_set.package_list) > 1:
                 nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \
                                                                     "packages belonging to " \
@@ -188,7 +188,7 @@ class NikGappsConfig:
                     nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
         nikgapps_config_lines += "\n"
         nikgapps_config_lines += "# Following are the Addon packages NikGapps supports\n"
-        for app_set in NikGappsPackages.get_packages("addons"):
+        for app_set in NikGappsPackages.get_packages("addons", self.android_version):
             if self.config_dict is not None:
                 nikgapps_config_lines += app_set.title + "=" + self.get_dictionary_value(app_set.title) + "\n"
             else:

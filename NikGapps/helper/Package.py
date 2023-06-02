@@ -5,6 +5,7 @@ from .Statics import Statics
 from .XmlOp import XmlOp
 from .Cmd import Cmd
 from .FileOp import FileOp
+from .overlay.Overlay import Overlay
 
 
 class Package:
@@ -41,6 +42,12 @@ class Package:
         self.pkg_size = 0
         self.validation_script = None
         self.addon_index = "09"
+
+    def add_overlay(self, overlay: Overlay):
+        for overlay_item in self.overlay_list:
+            if overlay_item.apk_name == overlay.apk_name:
+                return
+        self.overlay_list.append(overlay)
 
     def delete_overlay(self, overlay):
         if overlay not in self.delete_overlay_list:

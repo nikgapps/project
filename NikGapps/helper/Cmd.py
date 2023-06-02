@@ -48,6 +48,13 @@ class Cmd:
     COMMAND_ZIPALIGN_APK = ["zipalign", "-p", "-f", "-v", "4", "infile.apk", "outfile.apk"]
     COMMAND_ZIPALIGN_VERIFY = ["zipalign", "-c", "-v", "4", "outfile.apk"]
 
+    def build_apk(self, input_directory, output_file):
+        try:
+            subprocess.check_call(['apktool', 'b', input_directory, '-o', output_file])
+            print('APK built successfully')
+        except subprocess.CalledProcessError as e:
+            print('Failed to build APK: ', e)
+
     def execute_adb_command(self, params):
         return self.execute_cmd(self.adb_path + params)
 

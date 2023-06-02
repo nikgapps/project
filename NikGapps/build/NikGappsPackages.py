@@ -2,52 +2,54 @@ from NikGapps.helper import Config
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.Package import Package
 from NikGapps.helper.AppSet import AppSet
+from NikGapps.helper.overlay.Library import Library
+from NikGapps.helper.overlay.Overlay import Overlay
 
 
 class NikGappsPackages:
     all_packages = "full"
 
     @staticmethod
-    def get_packages(package_type):
+    def get_packages(package_type, android_version):
         if str(package_type).lower() == "go":
-            return NikGappsPackages.get_go_package()
+            return NikGappsPackages.get_go_package(android_version)
         if str(package_type).lower() == "core":
-            return NikGappsPackages.get_core_package()
+            return NikGappsPackages.get_core_package(android_version)
         if str(package_type).lower() == "basic":
-            return NikGappsPackages.get_basic_package()
+            return NikGappsPackages.get_basic_package(android_version)
         if str(package_type).lower() == "omni":
-            return NikGappsPackages.get_omni_package()
+            return NikGappsPackages.get_omni_package(android_version)
         if str(package_type).lower() == "stock":
-            return NikGappsPackages.get_stock_package()
+            return NikGappsPackages.get_stock_package(android_version)
         if str(package_type).lower() == "full":
-            return NikGappsPackages.get_full_package()
+            return NikGappsPackages.get_full_package(android_version)
         if str(package_type).lower() == "all":
             all_package_list = []
-            for app_set in NikGappsPackages.get_full_package():
+            for app_set in NikGappsPackages.get_full_package(android_version):
                 all_package_list.append(app_set)
-            for app_set in NikGappsPackages.get_go_package():
+            for app_set in NikGappsPackages.get_go_package(android_version):
                 all_package_list.append(app_set)
-            for app_set in NikGappsPackages.get_addon_packages():
+            for app_set in NikGappsPackages.get_addon_packages(android_version):
                 all_package_list.append(app_set)
             return all_package_list
         if str(package_type).lower() == "addons":
-            addon_set_list = NikGappsPackages.get_addon_packages()
+            addon_set_list = NikGappsPackages.get_addon_packages(android_version)
             return addon_set_list
         if str(package_type).lower() == "addonsets":
             addon_set_list = []
-            for app_set in NikGappsPackages.get_full_package():
+            for app_set in NikGappsPackages.get_full_package(android_version):
                 if app_set.title in ['Core', 'Pixelize']:
                     continue
                 addon_set_list.append(app_set)
-            for app_set in NikGappsPackages.get_go_package():
+            for app_set in NikGappsPackages.get_go_package(android_version):
                 if app_set.title in ['CoreGo']:
                     continue
                 addon_set_list.append(app_set)
             return addon_set_list
         else:
-            addon_set_list = NikGappsPackages.get_addon_packages(package_type)
+            addon_set_list = NikGappsPackages.get_addon_packages(android_version, package_type)
             if addon_set_list is None:
-                for app_set in NikGappsPackages.get_full_package():
+                for app_set in NikGappsPackages.get_full_package(android_version):
                     if str(app_set.title).lower() == str(package_type).lower():
                         return [app_set]
                     elif len(app_set.package_list) > 1:
@@ -74,91 +76,95 @@ class NikGappsPackages:
         return AppSet(name, [pkg])
 
     @staticmethod
-    def get_go_package():
+    def get_go_package(android_version):
         extra_files_go = Package("ExtraFilesGo", None, None)
         extra_files_go.additional_installer_script = """script_text="<permissions>
-                            <!-- Shared library required on the device to get Google Dialer updates from
-                                 Play Store. This will be deprecated once Google Dialer play store
-                                 updates stop supporting pre-O devices. -->
-                            <library name=\\"com.google.android.dialer.support\\"
-                              file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
+    <!-- Shared library required on the device to get Google Dialer updates from
+         Play Store. This will be deprecated once Google Dialer play store
+         updates stop supporting pre-O devices. -->
+    <library name=\\"com.google.android.dialer.support\\"
+      file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
 
-                            <!-- Starting from Android O and above, this system feature is required for
-                                 getting Google Dialer play store updates. -->
-                            <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
-                            <!-- Feature for Google Dialer Call Recording -->
-                            <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
-                        </permissions>"
-                        echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
-                        set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
-                        installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                        if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-                          addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
-                        fi"""
+    <!-- Starting from Android O and above, this system feature is required for
+         getting Google Dialer play store updates. -->
+    <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
+    <!-- Feature for Google Dialer Call Recording -->
+    <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
+installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
+fi"""
         extra_files_go.additional_installer_script += """
-                        script_text="<permissions>
-                            <library name=\\"com.google.android.maps\\"
-                                    file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
-                        </permissions>"
-                        echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
-                        set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
-                        installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
-                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                        if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
-                          addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
-                        fi"""
+script_text="<permissions>
+    <library name=\\"com.google.android.maps\\"
+            file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
+installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
+fi"""
         extra_files_go.additional_installer_script += """
-                                script_text="<permissions>
-                    <library name=\\"com.google.widevine.software.drm\\"
-                        file=\\"/system/product/framework/com.google.widevine.software.drm.jar\\"/>
-                </permissions>"
-                                echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
-                                set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
-                                installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
-                                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                                if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
-                                  addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
-                                fi"""
+            script_text="<permissions>
+<library name=\\"com.google.widevine.software.drm\\"
+    file=\\"/system/product/framework/com.google.widevine.software.drm.jar\\"/>
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
+installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
+fi"""
         extra_files_go.additional_installer_script += """
-                                script_text="<permissions>
-                    <library name=\\"com.google.android.media.effects\\"
-                            file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
+script_text="<permissions>
+<library name=\\"com.google.android.media.effects\\"
+file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
 
-                </permissions>"
-                                echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
-                                set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
-                                installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
-                                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                                if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
-                                  addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
-                                fi"""
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
+installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
+fi"""
 
         core_go = AppSet("CoreGo")
         core_go.add_package(extra_files_go)
 
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Statics.is_priv_app, "GmsCore")
+        if float(android_version) >= 12.1:
+            prebuiltgmscore_overlay = Overlay(prebuiltgmscore.package_title, "com.nikgapps.overlay.gmscore",
+                                              android_version, Library.get_gms_core_resources())
+            prebuiltgmscore.add_overlay(prebuiltgmscore_overlay)
         prebuiltgmscore.delete("PrebuiltGmsCoreQt")
         prebuiltgmscore.delete("PrebuiltGmsCoreRvc")
         prebuiltgmscore.delete("GmsCore")
         prebuiltgmscore.additional_installer_script = """
-    gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
-    [ -z "$gms_optimization" ] && gms_optimization=0
-    if [ "$gms_optimization" = "1" ]; then
-        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
-        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
-    else
-        addToLog "- Battery Optimization not Enabled" "$package_title"
-    fi
-        """
+gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
+[ -z "$gms_optimization" ] && gms_optimization=0
+if [ "$gms_optimization" = "1" ]; then
+    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
+    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
+else
+    addToLog "- Battery Optimization not Enabled" "$package_title"
+fi
+    """
         core_go.add_package(prebuiltgmscore)
 
         phonesky = Package("Phonesky", "com.android.vending", Statics.is_priv_app, "GooglePlayStore")
@@ -199,88 +205,92 @@ class NikGappsPackages:
         return app_set_list
 
     @staticmethod
-    def get_core_package():
+    def get_core_package(android_version):
         files = Package("ExtraFiles", None, None)
         files.additional_installer_script = """script_text="<permissions>
-                    <!-- Shared library required on the device to get Google Dialer updates from
-                         Play Store. This will be deprecated once Google Dialer play store
-                         updates stop supporting pre-O devices. -->
-                    <library name=\\"com.google.android.dialer.support\\"
-                      file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
+    <!-- Shared library required on the device to get Google Dialer updates from
+         Play Store. This will be deprecated once Google Dialer play store
+         updates stop supporting pre-O devices. -->
+    <library name=\\"com.google.android.dialer.support\\"
+      file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
 
-                    <!-- Starting from Android O and above, this system feature is required for
-                         getting Google Dialer play store updates. -->
-                    <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
-                    <!-- Feature for Google Dialer Call Recording -->
-                    <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
-                </permissions>"
-                echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
-                set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
-                installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-                  addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
-                fi"""
+    <!-- Starting from Android O and above, this system feature is required for
+         getting Google Dialer play store updates. -->
+    <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
+    <!-- Feature for Google Dialer Call Recording -->
+    <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
+installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
+fi"""
         files.additional_installer_script += """
-                script_text="<permissions>
-                    <library name=\\"com.google.android.maps\\"
-                            file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
-                </permissions>"
-                echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
-                set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
-                installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
-                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
-                  addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
-                fi"""
+script_text="<permissions>
+    <library name=\\"com.google.android.maps\\"
+            file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
+installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
+fi"""
         files.additional_installer_script += """
-                        script_text="<permissions>
-            <library name=\\"com.google.widevine.software.drm\\"
-                file=\\"/system/product/framework/com.google.widevine.software.drm.jar\\"/>
-        </permissions>"
-                        echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
-                        set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
-                        installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
-                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                        if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
-                          addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
-                        fi"""
+script_text="<permissions>
+<library name=\\"com.google.widevine.software.drm\\"
+file=\\"/system/product/framework/com.google.widevine.software.drm.jar\\"/>
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
+installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
+fi"""
         files.additional_installer_script += """
-                        script_text="<permissions>
-            <library name=\\"com.google.android.media.effects\\"
-                    file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
+script_text="<permissions>
+<library name=\\"com.google.android.media.effects\\"
+file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
 
-        </permissions>"
-                        echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
-                        set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
-                        installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
-                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                        if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
-                          addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
-                        fi"""
+</permissions>"
+echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
+set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
+installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
+echo "install=$installPath" >> $TMPDIR/addon/$packagePath
+if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
+  addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
+fi"""
 
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Statics.is_priv_app, "GmsCore")
+        if float(android_version) >= 12.1:
+            prebuiltgmscore_overlay = Overlay(prebuiltgmscore.package_title, "com.nikgapps.overlay.gmscore",
+                                              android_version, Library.get_gms_core_resources())
+            prebuiltgmscore.add_overlay(prebuiltgmscore_overlay)
         prebuiltgmscore.delete("PrebuiltGmsCoreQt")
         prebuiltgmscore.delete("PrebuiltGmsCoreRvc")
         prebuiltgmscore.delete("GmsCore")
         prebuiltgmscore.additional_installer_script = """
-    gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
-    [ -z "$gms_optimization" ] && gms_optimization=0
-    if [ "$gms_optimization" = "1" ]; then
-        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
-        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
-    else
-        addToLog "- Battery Optimization not Enabled" "$package_title"
-    fi
-                """
+gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
+[ -z "$gms_optimization" ] && gms_optimization=0
+if [ "$gms_optimization" = "1" ]; then
+    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
+    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
+else
+    addToLog "- Battery Optimization not Enabled" "$package_title"
+fi
+            """
         phonesky = Package("Phonesky", "com.android.vending", Statics.is_priv_app, "GooglePlayStore")
         googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Statics.is_priv_app)
         googlecontactssyncadapter = Package("GoogleContactsSyncAdapter", "com.google.android.syncadapters.contacts",
@@ -294,13 +304,25 @@ class NikGappsPackages:
         return [AppSet("Core", gapps_list)]
 
     @staticmethod
-    def get_basic_package():
+    def get_basic_package(android_version):
         app_set_list = NikGappsPackages.get_core_package()
         digital_wellbeing = Package("WellbeingPreBuilt", "com.google.android.apps.wellbeing", Statics.is_priv_app,
                                     "DigitalWellbeing")
+        if float(android_version) >= 12.1:
+            digital_wellbeing_overlay = Overlay(apkName=digital_wellbeing.package_title,
+                                                package_name="com.nikgapps.overlay.wellbeing",
+                                                android_version=android_version,
+                                                resources=Library.get_digital_wellbeing_resources())
+            digital_wellbeing.overlay_list.append(digital_wellbeing_overlay)
         app_set_list.append(AppSet("DigitalWellbeing", [digital_wellbeing]))
         google_messages = Package("PrebuiltBugle", "com.google.android.apps.messaging", Statics.is_system_app,
                                   "GoogleMessages")
+        if float(android_version) >= 12.1:
+            google_messages_overlay = Overlay(apkName=google_messages.package_title,
+                                              package_name="com.nikgapps.overlay.messages",
+                                              android_version=android_version,
+                                              resources=Library.get_google_messages_resources())
+            google_messages.overlay_list.append(google_messages_overlay)
         google_messages.delete("RevengeMessages")
         google_messages.delete("messaging")
         google_messages.delete("Messaging")
@@ -309,11 +331,23 @@ class NikGappsPackages:
         app_set_list.append(AppSet("GoogleMessages", [google_messages]))
 
         google_dialer = Package("GoogleDialer", "com.google.android.dialer", Statics.is_priv_app)
+        if float(android_version) >= 12.1:
+            google_dialer_overlay = Overlay(apkName=google_dialer.package_title,
+                                            package_name="com.nikgapps.overlay.dialer",
+                                            android_version=android_version,
+                                            resources=Library.get_google_dialer_resources())
+            google_dialer.add_overlay(google_dialer_overlay)
         google_dialer.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
         google_dialer.delete("Dialer")
         app_set_list.append(AppSet("GoogleDialer", [google_dialer]))
 
         google_contacts = Package("GoogleContacts", "com.google.android.contacts", Statics.is_system_app)
+        if float(android_version) >= 12.1:
+            google_contacts_overlay = Overlay(apkName=google_contacts.package_title,
+                                              package_name="com.nikgapps.overlay.contacts",
+                                              android_version=android_version,
+                                              resources=Library.get_google_contacts_resources())
+            google_contacts.add_overlay(google_contacts_overlay)
         google_contacts.delete("Contacts")
         app_set_list.append(AppSet("GoogleContacts", [google_contacts]))
 
@@ -327,8 +361,8 @@ class NikGappsPackages:
         return app_set_list
 
     @staticmethod
-    def get_omni_package():
-        app_set_list = NikGappsPackages.get_basic_package()
+    def get_omni_package(android_version):
+        app_set_list = NikGappsPackages.get_basic_package(android_version)
         app_set_list.append(NikGappsPackages.get_setup_wizard())
         # Dropping pixelize support, need to keep it stock
         calculator = Package("CalculatorGooglePrebuilt", "com.google.android.calculator", Statics.is_system_app,
@@ -341,11 +375,23 @@ class NikGappsPackages:
         google_maps = Package("GoogleMaps", "com.google.android.apps.maps", Statics.is_priv_app)
         google_maps.delete("Maps")
         app_set_list.append(AppSet("GoogleMaps", [google_maps]))
-        if float(Config.TARGET_ANDROID_VERSION) >= 11:
+        if float(android_version) >= 11:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               Statics.is_system_app, "GoogleLocationHistory")
+            if float(android_version) >= 12.1:
+                google_location_history_overlay = Overlay(apkName=google_location_history.package_title,
+                                                          package_name="com.nikgapps.overlay.googlelocationhistory",
+                                                          android_version=android_version,
+                                                          resources=Library.get_google_location_history_resources())
+                google_location_history.add_overlay(google_location_history_overlay)
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
         google_photos = Package("Photos", "com.google.android.apps.photos", Statics.is_system_app, "GooglePhotos")
+        if float(android_version) >= 12.1:
+            google_photos_overlay = Overlay(apkName=google_photos.package_title,
+                                            package_name="com.nikgapps.overlay.googlephotos",
+                                            android_version=android_version,
+                                            resources=Library.get_google_photos_resources())
+            google_photos.add_overlay(google_photos_overlay)
         google_photos.delete("Gallery")
         google_photos.delete("SimpleGallery")
         google_photos.delete("Gallery2")
@@ -382,12 +428,12 @@ class NikGappsPackages:
         return app_set_list
 
     @staticmethod
-    def get_stock_package():
-        app_set_list = NikGappsPackages.get_omni_package()
+    def get_stock_package(android_version):
+        app_set_list = NikGappsPackages.get_omni_package(android_version)
         play_games = Package("PlayGames", "com.google.android.play.games", Statics.is_system_app)
         app_set_list.append(AppSet("PlayGames", [play_games]))
-        app_set_list.append(NikGappsPackages.get_pixel_launcher())
-        app_set_list.append(NikGappsPackages.get_google_files())
+        app_set_list.append(NikGappsPackages.get_pixel_launcher(android_version))
+        app_set_list.append(NikGappsPackages.get_google_files(android_version))
         google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", Statics.is_priv_app,
                                   "GoogleRecorder")
         google_recorder.delete("Recorder")
@@ -395,8 +441,14 @@ class NikGappsPackages:
         app_set_list.append(AppSet("GoogleRecorder", [google_recorder]))
         google_markup = Package("MarkupGoogle", "com.google.android.markup", Statics.is_system_app)
         app_set_list.append(AppSet("MarkupGoogle", [google_markup]))
-        app_set_list.append(NikGappsPackages.get_google_tts())
+        app_set_list.append(NikGappsPackages.get_google_tts(android_version))
         google_velvet = Package("Velvet", "com.google.android.googlequicksearchbox", Statics.is_priv_app)
+        if float(android_version) >= 12.1:
+            google_velvet_overlay = Overlay(apkName=google_velvet.package_title,
+                                            package_name="com.nikgapps.overlay.googlequicksearchbox",
+                                            android_version=android_version,
+                                            resources=Library.get_velvet_resources())
+            google_velvet.add_overlay(google_velvet_overlay)
         google_velvet.priv_app_permissions.append("android.permission.EXPAND_STATUS_BAR")
         google_velvet.priv_app_permissions.append("android.permission.SET_MEDIA_KEY_LISTENER")
         google_velvet.priv_app_permissions.append("android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER")
@@ -419,20 +471,26 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
         return app_set_list
 
     @staticmethod
-    def get_full_package():
-        app_set_list = NikGappsPackages.get_stock_package()
-        app_set_list.append(NikGappsPackages.get_chrome())
+    def get_full_package(android_version):
+        app_set_list = NikGappsPackages.get_stock_package(android_version)
+        app_set_list.append(NikGappsPackages.get_chrome(android_version))
         gmail = Package("PrebuiltGmail", "com.google.android.gm", Statics.is_system_app, "Gmail")
         gmail.delete("Email")
         gmail.delete("PrebuiltEmailGoogle")
         app_set_list.append(AppSet("Gmail", [gmail]))
-        if float(Config.TARGET_ANDROID_VERSION) >= 10:
+        if float(android_version) >= 10:
             google_device_setup = Package("OTAConfigPrebuilt", "com.google.android.apps.work.oobconfig",
                                           Statics.is_priv_app, "DeviceSetup")
             app_set_list.append(AppSet("DeviceSetup", [google_device_setup]))
         android_auto = Package("AndroidAutoStubPrebuilt", "com.google.android.projection.gearhead",
                                Statics.is_priv_app, "AndroidAuto")
         android_auto.clean_flash_only = True
+        if float(android_version) >= 12.1:
+            android_auto_overlay = Overlay(apkName=android_auto.package_title,
+                                           package_name="com.nikgapps.overlay.androidauto",
+                                           android_version=android_version,
+                                           resources=Library.get_android_auto_resources())
+            android_auto.add_overlay(android_auto_overlay)
         app_set_list.append(AppSet("AndroidAuto", [android_auto]))
         google_feedback = Package("GoogleFeedback", "com.google.android.feedback", Statics.is_priv_app,
                                   partition="system_ext")
@@ -440,7 +498,7 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
         google_partner_setup = Package("PartnerSetupPrebuilt", "com.google.android.partnersetup", Statics.is_priv_app,
                                        "GooglePartnerSetup")
         app_set_list.append(AppSet("GooglePartnerSetup", [google_partner_setup]))
-        if float(Config.TARGET_ANDROID_VERSION) >= 10:
+        if float(android_version) >= 10:
             android_device_policy = Package("DevicePolicyPrebuilt", "com.google.android.apps.work.clouddpc",
                                             Statics.is_system_app, "AndroidDevicePolicy")
             app_set_list.append(AppSet("AndroidDevicePolicy", [android_device_policy]))
@@ -448,7 +506,7 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
         return app_set_list
 
     @staticmethod
-    def get_google_files():
+    def get_google_files(android_version):
         app_set_list = AppSet("GoogleFiles")
         google_files = Package("FilesPrebuilt", "com.google.android.apps.nbu.files", Statics.is_priv_app,
                                "GoogleFiles")
@@ -456,14 +514,14 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
                                          Statics.is_priv_app, "StorageManager", partition="system_ext")
         app_set_list.add_package(storage_manager_google)
-        if float(Config.TARGET_ANDROID_VERSION) >= 11:
+        if float(android_version) >= 11:
             documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Statics.is_priv_app)
             documents_ui_google.delete("DocumentsUI")
             app_set_list.add_package(documents_ui_google)
         return app_set_list
 
     @staticmethod
-    def get_chrome():
+    def get_chrome(android_version):
         google_chrome = Package("GoogleChrome", "com.android.chrome", Statics.is_system_app)
         google_chrome.delete("Bolt")
         google_chrome.delete("Browser")
@@ -484,7 +542,7 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
         google_chrome.delete("Duckduckgo")
         app_set_list = AppSet("GoogleChrome")
         app_set_list.add_package(google_chrome)
-        if float(Config.TARGET_ANDROID_VERSION) >= 10:
+        if float(android_version) >= 10:
             google_webview = Package("WebViewGoogle", "com.google.android.webview", Statics.is_system_app)
             google_webview.delete("webview")
             trichromelibrary = Package("TrichromeLibrary", "com.google.android.trichromelibrary",
@@ -526,7 +584,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return setup_wizard_set
 
     @staticmethod
-    def get_addon_packages(addon_name=None):
+    def get_addon_packages(android_version, addon_name=None):
         addon_set_list = [
             NikGappsPackages.get_google_fi(),
             NikGappsPackages.get_google_duo(),
@@ -534,11 +592,11 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             NikGappsPackages.get_google_slides(),
             NikGappsPackages.get_google_sheets(),
             NikGappsPackages.get_youtube(),
-            NikGappsPackages.get_youtube_music(),
+            NikGappsPackages.get_youtube_music(android_version),
             NikGappsPackages.get_google_play_books(),
             # AddonSet.get_google_tts(),
             NikGappsPackages.get_pixel_setup_wizard(),
-            NikGappsPackages.get_google_talkback()
+            NikGappsPackages.get_google_talkback(android_version)
         ]
         # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
         #     addon_set_list.append(AddonSet.get_lawnchair())
@@ -546,7 +604,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
         # if float(Config.TARGET_ANDROID_VERSION) >= 11:
         #     addon_set_list.append(AddonSet.get_flipendo())
-        if float(Config.TARGET_ANDROID_VERSION) < 13:
+        if float(android_version) < 13:
             addon_set_list.append(NikGappsPackages.get_pixel_live_wallpapers())
         if addon_name is None:
             return addon_set_list
@@ -567,14 +625,22 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return AppSet("Recorder", [los_recorder])
 
     @staticmethod
-    def get_google_tts():
+    def get_google_tts(android_version):
         google_tts = Package("GoogleTTS", "com.google.android.tts", Statics.is_system_app)
+        if float(android_version) >= 12.1:
+            google_tts_overlay = Overlay(google_tts.package_title, "com.nikgapps.overlay.googletts", android_version,
+                                         Library.get_google_tts_resources())
+            google_tts.add_overlay(google_tts_overlay)
         google_tts.delete("PicoTts")
         return AppSet("GoogleTTS", [google_tts])
 
     @staticmethod
-    def get_google_talkback():
+    def get_google_talkback(android_version):
         talkback = Package("talkback", "com.google.android.marvin.talkback", Statics.is_system_app, "GoogleTalkback")
+        if float(android_version) >= 12.1:
+            talkback_overlay = Overlay(talkback.package_title, "com.nikgapps.overlay.talkback", android_version,
+                                       Library.get_google_talkback_resources())
+            talkback.add_overlay(talkback_overlay)
         return AppSet("GoogleTalkback", [talkback])
 
     @staticmethod
@@ -585,8 +651,12 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return AppSet("Snap", [snap])
 
     @staticmethod
-    def get_flipendo():
+    def get_flipendo(android_version):
         flipendo = Package("Flipendo", "com.google.android.flipendo", Statics.is_system_app)
+        if float(android_version) >= 12.1:
+            flipendo_overlay = Overlay(flipendo.package_title, "com.nikgapps.overlay.flipendo", android_version,
+                                       Library.get_flipendo_resources())
+            flipendo.add_overlay(flipendo_overlay)
         return AppSet("Flipendo", [flipendo])
 
     @staticmethod
@@ -629,9 +699,13 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return google_fi_set
 
     @staticmethod
-    def get_pixel_launcher():
+    def get_pixel_launcher(android_version):
         pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
                                  Statics.is_priv_app, "PixelLauncher", partition="system_ext")
+        if float(android_version) >= 12.1:
+            pixel_launcher_overlay = Overlay(pixel_launcher.package_title, "com.nikgapps.overlay.pixellauncher",
+                                             android_version, Library.get_pixel_launcher_resources())
+            pixel_launcher.add_overlay(pixel_launcher_overlay)
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
         pixel_launcher.delete("Launcher3QuickStep")
@@ -639,18 +713,23 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         pixel_launcher.delete_overlay("Lawnchair")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Statics.is_priv_app, "DevicePersonalizationServices")
+        if float(android_version) >= 12.1:
+            device_personalization_services_overlay = Overlay(device_personalization_services.package_title,
+                                                              "com.nikgapps.overlay.ais", android_version,
+                                                              Library.get_devices_personalization_services_resources())
+            device_personalization_services.add_overlay(device_personalization_services_overlay)
         gapps_list = [pixel_launcher]
-        if float(Config.TARGET_ANDROID_VERSION) >= 9:
+        if float(android_version) >= 9:
             device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
-        if float(Config.TARGET_ANDROID_VERSION) >= 11:
+        if float(android_version) >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           Statics.is_priv_app)
             gapps_list.append(quick_access_wallet)
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
                                    Statics.is_priv_app, "GoogleWallpaper", partition="system_ext")
         gapps_list.append(google_wallpaper)
-        if float(Config.TARGET_ANDROID_VERSION) >= 12:
+        if float(android_version) >= 12:
             settings_services = Package("SettingsIntelligenceGooglePrebuilt",
                                         "com.google.android.settings.intelligence",
                                         Statics.is_priv_app, "SettingsServices")
@@ -659,7 +738,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
                                                            Statics.is_priv_app, "PrivateComputeServices")
             gapps_list.append(settings_services)
             gapps_list.append(device_intelligence_network_prebuilt)
-        if float(Config.TARGET_ANDROID_VERSION) >= 13:
+        if float(android_version) >= 13:
             pixel_themes = Package("PixelThemes", "com.google.android.apps.customization.pixel", Statics.is_system_app)
             gapps_list.append(pixel_themes)
         return AppSet("PixelLauncher", gapps_list)
@@ -676,10 +755,14 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return AppSet("GoogleWallpaper", [google_wallpaper])
 
     @staticmethod
-    def get_youtube_music():
+    def get_youtube_music(android_version):
         youtube_music = Package("YouTubeMusicPrebuilt", "com.google.android.apps.youtube.music",
                                 Statics.is_system_app,
                                 "YouTubeMusic")
+        if float(android_version) >= 12.1:
+            youtube_music_overlay = Overlay(youtube_music.package_title, "com.nikgapps.overlay.youtubemusic",
+                                            android_version, Library.get_youtube_music_resources())
+            youtube_music.add_overlay(youtube_music_overlay)
         youtube_music.delete("SnapdragonMusic")
         youtube_music.delete("GooglePlayMusic")
         youtube_music.delete("Eleven")

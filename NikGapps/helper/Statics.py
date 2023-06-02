@@ -1,7 +1,6 @@
 import math
 import os
 from pathlib import Path
-
 from .T import T
 
 
@@ -73,12 +72,36 @@ class Statics:
         return Statics.cwd + os.path.sep + "TempPackages" + os.path.sep + str(android_version)
 
     @staticmethod
+    def get_overlay_source_directory(android_version):
+        return Statics.cwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}_source"
+
+    @staticmethod
+    def get_overlay_source_repo(android_version):
+        return f"git@github.com:nikgapps/overlays_{Statics.get_android_code(android_version)}_source.git"
+
+    @staticmethod
+    def get_overlay_directory(android_version):
+        return Statics.cwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}"
+
+    @staticmethod
+    def get_overlay_repo(android_version):
+        return f"git@github.com:nikgapps/overlays_{Statics.get_android_code(android_version)}.git"
+
+    @staticmethod
+    def get_temp_overlay_directory(android_version):
+        return Statics.get_temp_packages_directory(android_version) + os.path.sep + "Overlays"
+
+    @staticmethod
     def get_release_directory(android_version):
         return Statics.release_directory + os.path.sep + str(android_version)
 
     @staticmethod
     def get_android_code(android_version):
         return Statics.android_versions[str(android_version)]['code']
+
+    @staticmethod
+    def get_android_sdk(android_version):
+        return Statics.android_versions[str(android_version)]['sdk']
 
     @staticmethod
     def get_sourceforge_release_directory(release_dir):
