@@ -40,7 +40,9 @@ list_files() {
     IFS="${IFS%_}"
     g=$(grep "install=" "$installSource" | cut -d= -f2)
     for i in $g; do
-      echo "$i"
+      if [ -f "$system/$i" ]; then
+        echo "$i"
+      fi
     done
     IFS="$OLD_IFS"
   fi
