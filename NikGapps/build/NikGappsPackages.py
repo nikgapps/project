@@ -608,8 +608,8 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         #     addon_set_list.append(AddonSet.get_lawnchair())
         # if float(Config.TARGET_ANDROID_VERSION) in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
-        # if float(Config.TARGET_ANDROID_VERSION) >= 11:
-        #     addon_set_list.append(AddonSet.get_flipendo())
+        # if float(Config.TARGET_ANDROID_VERSION) >= 13:
+        #     addon_set_list.append(NikGappsPackages.get_flipendo(android_version))
         if float(android_version) < 13:
             addon_set_list.append(NikGappsPackages.get_pixel_live_wallpapers())
         if addon_name is None:
@@ -658,7 +658,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
 
     @staticmethod
     def get_flipendo(android_version):
-        flipendo = Package("Flipendo", "com.google.android.flipendo", Statics.is_system_app)
+        flipendo = Package("Flipendo", "com.google.android.flipendo", Statics.is_system_app, partition="system_ext")
         if float(android_version) >= 12.1:
             flipendo_overlay = Overlay(flipendo.package_title, "com.nikgapps.overlay.flipendo", android_version,
                                        Library.get_flipendo_resources())
