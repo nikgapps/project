@@ -136,6 +136,8 @@ class Package:
         for folder in self.folder_dict:
             str_data += "   make_dir \"" + folder + "\"\n"
         str_data += "\n"
+        str_data += "   delete_install_lines \"$propFilePath\"\n"
+        str_data += "\n"
         str_data += "   # Copy the files and set the permissions\n"
         str_data += "   for i in $file_list; do\n"
         str_data += "       install_file \"$i\"\n"

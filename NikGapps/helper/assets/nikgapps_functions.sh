@@ -221,6 +221,12 @@ contains() {
   esac
 }
 
+delete_install_lines() {
+  file_path=$1
+  sed -i '/^install=/d' "$file_path"
+}
+
+
 get_prop_file_path() {
   propFilePath=""
   for i in $(find /system/etc/permissions -iname "$1.prop" 2>/dev/null;); do
