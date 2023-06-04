@@ -23,8 +23,6 @@ class Args:
             '-W', '--updateWebsite', help="Include this to update nikgapps website with changelog", action="store_true")
         parser.add_argument(
             '-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
-        parser.add_argument(
-            '-X', '--sign', help="Use this to sign the zip", action="store_true")
         # parser.add_argument(
         #     '-F', '--skipForceRun', help="Overrides the release constraints and doesn't run the program",
         #     action="store_true")
@@ -43,7 +41,6 @@ class Args:
         # self.user_id = args.userID
         self.config_value = args.config
         self.upload = args.upload
-        self.sign = args.sign
         # self.enable_git_check = args.enableGitCheck
         self.enable_git_clone = not args.disableGitClone
         self.android_version = args.androidVersion
