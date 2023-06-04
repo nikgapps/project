@@ -1,3 +1,8 @@
+- date: 4th June 2023 (Android 10-13)
+  changes:
+      - item: Fixed the issue when dirty flashing leads to duplicate entries in addon.d
+      - item: Control the overlays through code - better control over configurable features
+      - item: Introduced elite builds
 - date: 29th May 2023 (Android 10-13)
   changes:
       - item: Fixed the incorrect calculation of space after the installation was finished
