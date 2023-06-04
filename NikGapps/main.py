@@ -5,6 +5,7 @@ from NikGapps.helper import Config
 from NikGapps.helper.SystemStat import SystemStat
 from NikGapps.helper.P import P
 from NikGapps.helper.T import T
+from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.git.GitOperations import GitOperations
 from NikGapps.helper.web.TelegramApi import TelegramApi
 
@@ -20,6 +21,7 @@ def main():
     android_versions = [Config.TARGET_ANDROID_VERSION]
     package_list = Config.BUILD_PACKAGE_LIST
     Config.UPLOAD_FILES = args.upload
+    Modes.DEFAULT = Modes.TAR_XZ if args.tar else Modes.ZIP
     if len(args.get_package_list()) > 0:
         package_list = args.get_package_list()
 

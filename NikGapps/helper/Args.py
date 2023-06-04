@@ -15,8 +15,8 @@ class Args:
         #     '-N', '--configName', help="Name of custom nikgapps.config", type=str)
         # parser.add_argument(
         #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
-        # parser.add_argument(
-        #     '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
+        parser.add_argument(
+            '-T', '--tar', help="Use this to make highly compressed builds", action="store_true")
         parser.add_argument(
             '-G', '--disableGitClone', help="Include this to disable git clone operation", action="store_true")
         parser.add_argument(
@@ -44,6 +44,7 @@ class Args:
         self.config_value = args.config
         self.upload = args.upload
         self.sign = args.sign
+        self.tar = args.tar
         # self.enable_git_check = args.enableGitCheck
         self.enable_git_clone = not args.disableGitClone
         self.android_version = args.androidVersion
