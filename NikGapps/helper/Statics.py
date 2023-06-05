@@ -2,7 +2,6 @@ import math
 import os
 from pathlib import Path
 from .T import T
-from .web.Requests import Requests
 
 
 class Statics:
