@@ -74,8 +74,7 @@ class GitOperations:
     def mark_a_release(android_version, release_type):
         tracker_repo = GitOperations.setup_tracker_repo(False)
         if tracker_repo is not None:
-            release_tracker = tracker_repo.working_tree_dir + Statics.dir_sep + str(
-                android_version) + Statics.dir_sep + "release_tracker.json"
+            release_tracker = tracker_repo.working_tree_dir + Statics.dir_sep + "release_tracker.json"
             decoded_hand = {}
             if FileOp.file_exists(release_tracker):
                 with open(release_tracker, "r") as file:
