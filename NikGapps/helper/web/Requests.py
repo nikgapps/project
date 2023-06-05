@@ -49,5 +49,25 @@ class Requests:
             if android_version in data[release_type]:
                 return data[release_type][android_version]
         else:
-            print(decoded_hand.status_code)
+            print(f"{decoded_hand.status_code} while getting release date")
             return Statics.time
+
+    @staticmethod
+    def get_folder_access():
+        decoded_hand = Requests.get(Statics.folder_access_url)
+        if decoded_hand.status_code == 200:
+            data = decoded_hand.json()
+            return data
+        else:
+            print(f"{decoded_hand.status_code} while getting folder access")
+            return None
+
+    @staticmethod
+    def get_admin_access():
+        decoded_hand = Requests.get(Statics.admin_access_url)
+        if decoded_hand.status_code == 200:
+            data = decoded_hand.json()
+            return data
+        else:
+            print(f"{decoded_hand.status_code} while getting admin access")
+            return None
