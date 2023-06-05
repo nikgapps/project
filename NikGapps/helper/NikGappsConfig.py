@@ -7,6 +7,7 @@ from .Package import Package
 from NikGapps.build.NikGappsPackages import NikGappsPackages
 from .Statics import Statics
 from .git.GitOperations import GitOperations
+from .web.Requests import Requests
 from .web.Upload import Upload
 
 
@@ -281,3 +282,30 @@ class NikGappsConfig:
             u.upload(file_name=temp_nikgapps_config_location, remote_directory=remote_directory)
             u.close_connection()
         return execution_status
+
+    def get_release_date(self):
+        release_date = None
+        if self.config_path is not None:
+            file_contents = FileOp.read_string_file(self.config_path)
+            for line in file_contents:
+                if line.startswith("RELEASE_DATE="):
+                    release_date = line.split("=")[1].strip()
+                    break
+        return release_date
+
+    def update_with_release_date(self, release_date=None):
+        if release_date is None:
+            release_date = Requests.get_release_date(self.android_version, Config.RELEASE_TYPE)
+        if self.config_path is not None:
+            file_contents = FileOp.read_string_file(self.config_path)
+            for index, line in enumerate(file_contents):
+                if line.startswith("RELEASE_DATE="):
+                    file_contents[index] = f"RELEASE_DATE={release_date}\n"
+                    break
+                if line.startswith("Version="):
+                    file_contents.insert(index, f"RELEASE_DATE={release_date}\n")
+                    break
+            file_string = "".join(file_contents)
+            FileOp.write_string_in_lf_file(file_string, self.config_path)
+        else:
+            print("Invalid config path!")

@@ -1,5 +1,6 @@
 import json
 import requests
+from NikGapps.helper.Statics import Statics
 
 
 class Requests:
@@ -39,3 +40,14 @@ class Requests:
     @staticmethod
     def get_text(url):
         return requests.get(url).text
+
+    @staticmethod
+    def get_release_date(android_version, release_type):
+        decoded_hand = Requests.get("https://raw.githubusercontent.com/nikgapps/tracker/main/count.json")
+        if decoded_hand.status_code == 200:
+            data = decoded_hand.json()
+            if android_version in data[release_type]:
+                return data[release_type][android_version]
+        else:
+            print(decoded_hand.status_code)
+            return Statics.time
