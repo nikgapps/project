@@ -30,6 +30,7 @@ class Statics:
     DELETE_FILES_NAME = "DeleteFilesData"
     meta_inf_dir = "META-INF/com/google/android/"
     nikgapps_config = "nikgapps.config"
+    release_tracker_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/release_tracker.json"
 
     @staticmethod
     def get_import_path(app_set, pkg, install_path, target_version, export_directory=None):

@@ -43,7 +43,7 @@ class Requests:
 
     @staticmethod
     def get_release_date(android_version, release_type):
-        decoded_hand = Requests.get("https://raw.githubusercontent.com/nikgapps/tracker/main/count.json")
+        decoded_hand = Requests.get(Statics.release_tracker_url)
         if decoded_hand.status_code == 200:
             data = decoded_hand.json()
             if android_version in data[release_type]:
