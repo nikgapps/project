@@ -1,4 +1,4 @@
-- date: 4th June 2023 (Android 10-13)
+- date: 5th June 2023 (Android 10-13)
   changes:
       - item: Fixed the issue when dirty flashing leads to duplicate entries in addon.d
       - item: Control the overlays through code - better control over configurable features

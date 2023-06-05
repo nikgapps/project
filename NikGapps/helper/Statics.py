@@ -5,6 +5,7 @@ from .T import T
 
 
 class Statics:
+    time = T.get_london_date_time("%y%m%d%H%M")
     android_versions = {
         '10': {'sdk': '29', 'code': 'Q'},
         '11': {'sdk': '30', 'code': 'R'},

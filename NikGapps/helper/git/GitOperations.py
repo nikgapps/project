@@ -1,3 +1,4 @@
+import json
 from ..FileOp import FileOp
 from .Git import Git
 from .GitStatics import GitStatics
@@ -68,3 +69,24 @@ class GitOperations:
         if not FileOp.dir_exists(GitStatics.website_repo_dir):
             print(f"Repo {repo_dir} doesn't exist!")
         return repo
+
+    @staticmethod
+    def mark_a_release(android_version, release_type):
+        tracker_repo = GitOperations.setup_tracker_repo(False)
+        if tracker_repo is not None:
+            release_tracker = tracker_repo.working_tree_dir + Statics.dir_sep + str(
+                android_version) + Statics.dir_sep + "release_tracker.json"
+            decoded_hand = {}
+            if FileOp.file_exists(release_tracker):
+                with open(release_tracker, "r") as file:
+                    decoded_hand = json.load(file)
+                if release_type not in decoded_hand:
+                    decoded_hand[release_type] = {}
+                decoded_hand[release_type][android_version] = Statics.time
+            else:
+                decoded_hand[release_type] = {}
+                decoded_hand[release_type][android_version] = Statics.time
+            with open(release_tracker, "w") as file:
+                json.dump(decoded_hand, file, indent=2, sort_keys=True)
+            tracker_repo.git_push(
+                f"Updated release_tracker.json with latest {release_type} release date: " + Statics.time)

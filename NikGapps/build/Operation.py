@@ -24,7 +24,7 @@ class Operation:
     @staticmethod
     def build(android_versions, telegram: TelegramApi, git_clone=Config.GIT_CLONE_SOURCE,
               package_list=Config.BUILD_PACKAGE_LIST, sign_zip=Config.SIGN_ZIP, send_zip_device=Config.SEND_ZIP_DEVICE,
-              fresh_build=Config.FRESH_BUILD):
+              fresh_build=Config.FRESH_BUILD, is_release=False):
         for android_version in android_versions:
             upload = Upload(android_version=android_version, upload_files=Config.UPLOAD_FILES,
                             release_type=Config.RELEASE_TYPE)
@@ -40,3 +40,5 @@ class Operation:
             if Config.UPLOAD_FILES:
                 config = NikGappsConfig(android_version=android_version)
                 config.upload_nikgapps_config()
+            if is_release:
+                GitOperations.mark_a_release(android_version, Config.RELEASE_TYPE)
