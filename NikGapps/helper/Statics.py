@@ -2,6 +2,7 @@ import math
 import os
 from pathlib import Path
 from .T import T
+from .web.Requests import Requests
 
 
 class Statics:
@@ -33,6 +34,8 @@ class Statics:
     release_tracker_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/release_tracker.json"
     folder_access_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/folder_access.json"
     admin_access_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/admin_access.txt"
+    admin_access = None
+    folder_access = None
 
     @staticmethod
     def get_import_path(app_set, pkg, install_path, target_version, export_directory=None):
