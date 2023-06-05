@@ -65,9 +65,12 @@ class Requests:
     @staticmethod
     def get_admin_access():
         decoded_hand = Requests.get(Statics.admin_access_url)
+        admin_list = []
         if decoded_hand.status_code == 200:
-            data = decoded_hand.json()
-            return data
+            for admin in decoded_hand.text.split("\n"):
+                if admin != "":
+                    admin_list.append(admin)
+            return admin_list
         else:
             print(f"{decoded_hand.status_code} while getting admin access")
-            return None
+            return ["nikhilmenghani", "nikgapps"]
