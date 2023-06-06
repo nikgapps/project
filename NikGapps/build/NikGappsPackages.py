@@ -369,7 +369,7 @@ fi
     @staticmethod
     def get_omni_package(android_version):
         app_set_list = NikGappsPackages.get_basic_package(android_version)
-        app_set_list.append(NikGappsPackages.get_setup_wizard())
+        app_set_list.append(NikGappsPackages.get_setup_wizard(android_version))
         # Dropping pixelize support, need to keep it stock
         calculator = Package("CalculatorGooglePrebuilt", "com.google.android.calculator", Statics.is_system_app,
                              "GoogleCalculator")
@@ -499,7 +499,7 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
             android_auto.add_overlay(android_auto_overlay)
         app_set_list.append(AppSet("AndroidAuto", [android_auto]))
         google_feedback = Package("GoogleFeedback", "com.google.android.feedback", Statics.is_priv_app,
-                                  partition="system_ext")
+                                  partition=Statics.get_partition(android_version, "system_ext"))
         app_set_list.append(AppSet("GoogleFeedback", [google_feedback]))
         google_partner_setup = Package("PartnerSetupPrebuilt", "com.google.android.partnersetup", Statics.is_priv_app,
                                        "GooglePartnerSetup")
@@ -518,7 +518,7 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
                                "GoogleFiles")
         app_set_list.add_package(google_files)
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
-                                         Statics.is_priv_app, "StorageManager", partition="system_ext")
+                                         Statics.is_priv_app, "StorageManager", partition=Statics.get_partition(android_version, "system_ext"))
         app_set_list.add_package(storage_manager_google)
         if float(android_version) >= 11:
             documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Statics.is_priv_app)
@@ -558,7 +558,7 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
         return app_set_list
 
     @staticmethod
-    def get_setup_wizard():
+    def get_setup_wizard(android_version):
         setup_wizard = Package("SetupWizardPrebuilt", "com.google.android.setupwizard", Statics.is_priv_app,
                                "SetupWizard")
         setup_wizard.delete("Provision")
@@ -583,7 +583,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         setup_wizard_set.add_package(google_restore)
         if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
-                                                  Statics.is_priv_app, partition="system_ext")
+                                                  Statics.is_priv_app, partition=Statics.get_partition(android_version, "system_ext"))
             setup_wizard_set.add_package(google_one_time_initializer)
         if float(Config.TARGET_ANDROID_VERSION) < 12:
             setup_wizard_set.add_package(android_migrate_prebuilt)
@@ -601,7 +601,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             NikGappsPackages.get_youtube_music(android_version),
             NikGappsPackages.get_google_play_books(),
             # AddonSet.get_google_tts(),
-            NikGappsPackages.get_pixel_setup_wizard(),
+            NikGappsPackages.get_pixel_setup_wizard(android_version),
             NikGappsPackages.get_google_talkback(android_version)
         ]
         # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
@@ -658,7 +658,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
 
     @staticmethod
     def get_flipendo(android_version):
-        flipendo = Package("Flipendo", "com.google.android.flipendo", Statics.is_system_app, partition="system_ext")
+        flipendo = Package("Flipendo", "com.google.android.flipendo", Statics.is_system_app, partition=Statics.get_partition(android_version, "system_ext"))
         if float(android_version) >= 12.1:
             flipendo_overlay = Overlay(flipendo.package_title, "com.nikgapps.overlay.flipendo", android_version,
                                        Library.get_flipendo_resources())
@@ -707,7 +707,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
     @staticmethod
     def get_pixel_launcher(android_version):
         pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
-                                 Statics.is_priv_app, "PixelLauncher", partition="system_ext")
+                                 Statics.is_priv_app, "PixelLauncher", partition=Statics.get_partition(android_version, "system_ext"))
         if float(android_version) >= 12.1:
             pixel_launcher_overlay = Overlay(pixel_launcher.package_title, "com.nikgapps.overlay.pixellauncher",
                                              android_version, Library.get_pixel_launcher_resources())
@@ -733,7 +733,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
                                           Statics.is_priv_app)
             gapps_list.append(quick_access_wallet)
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Statics.is_priv_app, "GoogleWallpaper", partition="system_ext")
+                                   Statics.is_priv_app, "GoogleWallpaper", partition=Statics.get_partition(android_version, "system_ext"))
         gapps_list.append(google_wallpaper)
         if float(android_version) >= 12:
             settings_services = Package("SettingsIntelligenceGooglePrebuilt",
@@ -760,9 +760,9 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return AppSet("Books", [google_play_books])
 
     @staticmethod
-    def get_google_wallpaper():
+    def get_google_wallpaper(android_version):
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Statics.is_priv_app, "GoogleWallpaper", partition="system_ext")
+                                   Statics.is_priv_app, "GoogleWallpaper", partition=Statics.get_partition(android_version, "system_ext"))
         return AppSet("GoogleWallpaper", [google_wallpaper])
 
     @staticmethod
@@ -840,7 +840,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return AppSet("YouTube", [youtube])
 
     @staticmethod
-    def get_pixel_setup_wizard():
+    def get_pixel_setup_wizard(android_version):
         setup_wizard = Package("SetupWizardPrebuilt", "com.google.android.setupwizard", Statics.is_priv_app,
                                "SetupWizard")
         setup_wizard.delete("Provision")
@@ -861,7 +861,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
                                                  "com.google.android.pixel.setupwizard.overlay.aod",
                                                  Statics.is_system_app)
         pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Statics.is_priv_app,
-                                     partition="system_ext")
+                                     partition=Statics.get_partition(android_version, "system_ext"))
         pixel_setup_wizard.delete("LineageSetupWizard")
         android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
                                            Statics.is_priv_app)
@@ -876,7 +876,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         setup_wizard_set.add_package(google_restore)
         if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
-                                                  Statics.is_priv_app, partition="system_ext")
+                                                  Statics.is_priv_app, partition=Statics.get_partition(android_version, "system_ext"))
             setup_wizard_set.add_package(google_one_time_initializer)
         if float(Config.TARGET_ANDROID_VERSION) == 10:
             setup_wizard_set.add_package(pixel_setup_wizard_overlay)

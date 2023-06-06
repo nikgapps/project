@@ -121,3 +121,9 @@ class Statics:
                 return f"{sourceforge_root_directory}/Releases"
             case _:
                 return f"{sourceforge_root_directory}/{release_dir}"
+
+    @staticmethod
+    def get_partition(android_version, partition):
+        if float(android_version) <= 10:
+            return "product"
+        return partition

@@ -1033,7 +1033,7 @@ install_app_set() {
               addToLog "- default_partition = $default_partition" "$current_package_title"
               case "$default_partition" in
                 "system_ext")
-                [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden" "$current_package_title"
+                [ $androidVersion -le 10 ] && default_partition=$product && addToLog "- default_partition is overridden" "$current_package_title"
                 ;;
               esac
               addToLog "----------------------------------------------------------------------------" "$current_package_title"

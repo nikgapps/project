@@ -1,8 +1,12 @@
-- date: 5th June 2023 (Android 10-13)
+- date: 6th June 2023 (Android 10-13)
   changes:
+      - item: Introduced elite builds
       - item: Fixed the issue when dirty flashing leads to duplicate entries in addon.d
       - item: Control the overlays through code - better control over configurable features
-      - item: Introduced elite builds
+      - item: Fixed Pixel Setup Wizard (Android 13)
+      - item: Make the addon.d logs better readable while restoring
+      - item: Improvements in installer script
+      - item: Config upgraded to v28
 - date: 29th May 2023 (Android 10-13)
   changes:
       - item: Fixed the incorrect calculation of space after the installation was finished
