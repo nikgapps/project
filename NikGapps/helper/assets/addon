@@ -147,6 +147,7 @@ backup() {
 
 restore() {
   echo " restore)"
+  echo "   ui_print \" \""
   echo "   ui_print \"- Restoring $fileName\""
   echo "   delete_in_system \"\$(delete_folders)\" \"Deleting aosp app\""
   echo "   delete_in_system \"\$(force_delete_folders)\" \"Force Deleting\""
