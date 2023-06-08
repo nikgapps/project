@@ -715,6 +715,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
         pixel_launcher.delete("Launcher3QuickStep")
+        pixel_launcher.delete("ArrowLauncher")
         pixel_launcher.delete("Lawnchair")
         pixel_launcher.delete_overlay("Lawnchair")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
