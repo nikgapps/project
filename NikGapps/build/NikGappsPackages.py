@@ -778,6 +778,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         youtube_music.delete("SnapdragonMusic")
         youtube_music.delete("GooglePlayMusic")
         youtube_music.delete("Eleven")
+        youtube_music.delete("CrDroidMusic")
         return AppSet("YouTubeMusic", [youtube_music])
 
     @staticmethod
