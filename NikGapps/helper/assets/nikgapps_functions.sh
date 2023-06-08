@@ -825,6 +825,28 @@ get_file_prop() {
   grep -m1 "^$2=" "$1" | cut -d= -f2
 }
 
+get_installed_partition() {
+  pkgPropFilePath=$(get_prop_file_path "$1")
+  partition=""
+  if [ -f "$pkgPropFilePath" ]; then
+    while IFS= read -r line; do
+      if printf "%s\n" "$line" | grep -q "^install="; then
+        filepath=$(printf "%s\n" "$line" | cut -d '=' -f 2-)
+        if [ "${filepath##*.}" = "apk" ] && ! printf "%s\n" "$filepath" | grep -q "Overlay" && [ -f "$system/$filepath" ]; then
+          addToLog "- $current_package_title is already installed as $filepath" "$current_package_title"
+          partition="/system"
+          case "$filepath" in
+            product/*) [ -n "$PRODUCT_BLOCK" ] && partition="/product" ;;
+            system_ext/*) [ -n "$SYSTEM_EXT_BLOCK" ] && partition="/system_ext" ;;
+          esac
+          break
+        fi
+      fi
+    done < "$pkgPropFilePath"
+  fi
+  echo "$partition"
+}
+
 get_install_partition(){
   chain_partition=$2
   size_required=$3
@@ -1037,7 +1059,18 @@ install_app_set() {
                 ;;
               esac
               addToLog "----------------------------------------------------------------------------" "$current_package_title"
-              install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+              install_partition=$(get_installed_partition "$current_package_title")
+              if [ -z "$install_partition" ]; then
+                addToLog "- $current_package_title is not installed before" "$current_package_title"
+                install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+              else
+                available_size=$(get_available_size_again "$install_partition" "$pkg_name")
+                addToLog "- available_size=$available_size and package_size=$package_size" "$current_package_title"
+                if [ "$available_size" -lt "$package_size" ]; then
+                  addToLog "- $current_package_title is installed on $install_partition, but there is not enough space" "$current_package_title"
+                  install_partition=-1
+                fi
+              fi
               if [ "$install_partition" = "-1" ]; then
                 ui_print "- Storage is full, uninstalling to free up space"
                 uninstall_the_package "$appset_name" "$current_package_title" "$extn"
