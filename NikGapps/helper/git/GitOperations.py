@@ -85,7 +85,11 @@ class GitOperations:
             else:
                 decoded_hand[release_type] = {}
                 decoded_hand[release_type][android_version] = Statics.time
+            print(f"Marking a release with {decoded_hand}")
             with open(release_tracker, "w") as file:
                 json.dump(decoded_hand, file, indent=2, sort_keys=True)
-            tracker_repo.git_push(
-                f"Updated release_tracker.json with latest {release_type} release date: " + Statics.time)
+            if tracker_repo.due_changes():
+                tracker_repo.git_push(
+                    f"Updated release_tracker.json with latest {release_type} release date: " + Statics.time)
+            else:
+                print("No changes to commit!")
