@@ -279,7 +279,7 @@ class NikGappsConfig:
             u = Upload(android_version=self.android_version, release_type=release_dir, upload_files=Config.UPLOAD_FILES)
             file_type = "config"
             remote_directory = u.get_cd(file_type) + "/v" + str(self.config_version)
-            u.upload(file_name=temp_nikgapps_config_location, remote_directory=remote_directory)
+            execution_status = u.upload(file_name=temp_nikgapps_config_location, remote_directory=remote_directory)
             u.close_connection()
         return execution_status
 

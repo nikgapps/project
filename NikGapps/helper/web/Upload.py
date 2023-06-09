@@ -67,8 +67,8 @@ class Upload:
             remote_filename = Path(file_name).name
             try:
                 self.sftp.chdir(remote_directory)
-            except IOError as ie:
-                P.red("Exception while creating directory: " + str(ie))
+            except IOError:
+                P.magenta(f"The remote directory: {remote_directory} doesn't exist, creating..")
                 try:
                     self.sftp.makedirs(remote_directory)
                     self.sftp.chdir(remote_directory)
