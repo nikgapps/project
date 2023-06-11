@@ -28,11 +28,14 @@ class NikGappsConfig:
         self.config_objects = self.build_config_objects()
         self.config_package_list = []
         self.config_dict = None
+        self.debloater_list = None
         if raw_config is not None:
             self.config_dict = self.get_config_dictionary(raw_config)
+            self.debloater_list = self.get_debloater_list(raw_config)
         if config_path is not None:
             self.config_path = config_path
             self.config_dict = self.get_config_dictionary()
+            self.debloater_list = self.get_debloater_list()
         if self.config_dict is not None:
             for config_obj in self.config_objects:
                 if config_obj.key in self.config_dict:
@@ -85,6 +88,18 @@ class NikGappsConfig:
                     or not line.__contains__("="):
                 continue
             lines[line.split('=')[0]] = line.split('=')[1].replace('\n', '')
+        return lines
+
+    def get_debloater_list(self, raw_config=None):
+        lines = []
+        start_reading = False
+        for line in FileOp.read_string_file(self.config_path) if raw_config is None else raw_config.splitlines():
+            if not start_reading and not line.__contains__("NikGapps debloater starts here"):
+                continue
+            start_reading = True
+            if line.__eq__('') or line.__eq__('\n') or line.startswith('#') or line.__contains__("="):
+                continue
+            lines.append(line)
         return lines
 
     def get_config_packages(self):
