@@ -170,7 +170,7 @@ class NikGappsConfig:
                         nikgapps_config_lines += entry + "=" + self.get_dictionary_value(entry) + "\n"
                 else:
                     for pkg in app_set.package_list:
-                        nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n"
+                        nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n\n"
         for app_set in NikGappsPackages.get_packages("go", self.android_version):
             if len(app_set.package_list) > 1:
                 nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \
