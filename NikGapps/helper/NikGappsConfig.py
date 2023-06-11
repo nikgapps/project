@@ -99,7 +99,7 @@ class NikGappsConfig:
             start_reading = True
             if line.__eq__('') or line.__eq__('\n') or line.startswith('#') or line.__contains__("="):
                 continue
-            lines.append(line)
+            lines.append(line.replace('\n', '').strip())
         return lines
 
     def get_config_packages(self):
