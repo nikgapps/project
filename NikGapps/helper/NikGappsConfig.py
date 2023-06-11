@@ -151,7 +151,7 @@ class NikGappsConfig:
             return str(self.config_dict[key])
         return str(0)
 
-    def get_nikgapps_config(self):
+    def get_nikgapps_config(self, for_release=False):
         nikgapps_config_lines = "# NikGapps configuration file\n\n"
         nikgapps_config_lines += "# If you are not sure about the config, " \
                                  "just skip making changes to it or comment it by adding # before it\n"
@@ -209,6 +209,12 @@ class NikGappsConfig:
                 nikgapps_config_lines += app_set.title + "=" + self.get_dictionary_value(app_set.title) + "\n"
             else:
                 nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
+        if for_release:
+            nikgapps_config_lines += "\n"
+            nikgapps_config_lines += "# NikGapps debloater starts here, add all the stuff to add to debloater.config below (for elite and user builds only), check examples below\n"
+            nikgapps_config_lines += "# YouTube\n"
+            nikgapps_config_lines += "# /system/app/YouTube\n"
+            nikgapps_config_lines += "\n"
         return nikgapps_config_lines
 
     def describe_nikgapps_config(self):
@@ -288,7 +294,7 @@ class NikGappsConfig:
         # create nikgapps.config file and upload to sourceforge
         temp_nikgapps_config_location = Statics.get_temp_packages_directory(
             self.android_version) + Statics.dir_sep + "nikgapps.config"
-        FileOp.write_string_in_lf_file(self.get_nikgapps_config(), temp_nikgapps_config_location)
+        FileOp.write_string_in_lf_file(self.get_nikgapps_config(for_release=True), temp_nikgapps_config_location)
         if FileOp.file_exists(temp_nikgapps_config_location):
             release_dir = "Releases/Config"
             u = Upload(android_version=self.android_version, release_type=release_dir, upload_files=Config.UPLOAD_FILES)
