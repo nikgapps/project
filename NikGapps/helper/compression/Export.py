@@ -93,6 +93,8 @@ class Export:
             debloater_config_lines = ""
             for line in Assets.get_string_resource(Assets.debloater_config):
                 debloater_config_lines += line
+            for line in config_obj.debloater_list:
+                debloater_config_lines += line + "\n"
             self.z.add_string(debloater_config_lines, "afzc/debloater.config")
             self.z.add_file(Assets.changelog, "changelog.yaml")
             self.z.add_file(Assets.addon_path, "common/addon")
