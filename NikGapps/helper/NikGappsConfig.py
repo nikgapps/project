@@ -28,7 +28,7 @@ class NikGappsConfig:
         self.config_objects = self.build_config_objects()
         self.config_package_list = []
         self.config_dict = None
-        self.debloater_list = None
+        self.debloater_list = []
         if raw_config is not None:
             self.config_dict = self.get_config_dictionary(raw_config)
             self.debloater_list = self.get_debloater_list(raw_config)
