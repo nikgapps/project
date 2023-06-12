@@ -22,7 +22,7 @@ class Operation:
                 print(message)
 
     @staticmethod
-    def build(android_versions, telegram: TelegramApi, git_clone=Config.GIT_CLONE_SOURCE,
+    def build(android_versions, telegram: TelegramApi, arch="arm64", git_clone=Config.GIT_CLONE_SOURCE,
               package_list=Config.BUILD_PACKAGE_LIST, sign_zip=Config.SIGN_ZIP, send_zip_device=Config.SEND_ZIP_DEVICE,
               fresh_build=Config.FRESH_BUILD, is_release=False):
         for android_version in android_versions:
@@ -31,11 +31,11 @@ class Operation:
             Config.TARGET_ANDROID_VERSION = android_version
             # clone the apk repo if it doesn't exist
             if git_clone:
-                GitOperations.clone_apk_repo(android_version, branch="main" if Config.RELEASE_TYPE.__eq__(
+                GitOperations.clone_apk_repo(android_version, arch, branch="main" if Config.RELEASE_TYPE.__eq__(
                     "stable") else "canary")
                 GitOperations.clone_overlay_repo(android_version)
             if Config.OVERRIDE_RELEASE:
-                Release.zip(package_list, android_version, sign_zip, send_zip_device, fresh_build, telegram, upload)
+                Release.zip(package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram, upload)
             upload.close_connection()
             if Config.UPLOAD_FILES:
                 config = NikGappsConfig(android_version=android_version)

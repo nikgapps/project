@@ -35,8 +35,9 @@ def main():
 
     operation = Operation()
     telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
-    operation.build(git_clone=args.enable_git_clone, sign_zip=args.sign, android_versions=android_versions,
-                    package_list=package_list, telegram=telegram, is_release=args.release)
+    operation.build(git_clone=args.enable_git_clone, sign_zip=args.sign, arch=args.arch,
+                    android_versions=android_versions, package_list=package_list, telegram=telegram,
+                    is_release=args.release)
     if args.release:
         if args.update_website:
             website_repo = GitOperations.get_website_repo_for_changelog()

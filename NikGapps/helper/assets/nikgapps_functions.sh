@@ -788,6 +788,8 @@ find_zip_type() {
   addToLog "- Finding zip type"
   if [ "$(contains "-arm64-" "$actual_file_name")" = "true" ]; then
     zip_type="gapps"
+  elif [ "$(contains "-arm-" "$actual_file_name")" = "true" ]; then
+    zip_type="gapps"
   elif [ "$(contains "Debloater" "$actual_file_name")" = "true" ]; then
     zip_type="debloater"
   elif [ "$(contains "Addon" "$actual_file_name")" = "true" ]; then

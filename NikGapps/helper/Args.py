@@ -14,6 +14,8 @@ class Args:
         #     '-N', '--configName', help="Name of custom nikgapps.config", type=str)
         # parser.add_argument(
         #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
+        parser.add_argument('-a', '--arch', help="It is the architecture for which we need to build the gapps",
+                            default="arm64", type=str)
         parser.add_argument('-T', '--tar', help="Use this to make highly compressed builds", action="store_true")
         parser.add_argument(
             '-G', '--disableGitClone', help="Include this to disable git clone operation", action="store_true")
@@ -28,13 +30,11 @@ class Args:
         parser.add_argument(
             '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
             default="-1", type=str)
-        parser.add_argument(
-            '-a', '--allVersions', help="Indicates we need the build for all supported android versions",
-            action="store_true")
         parser.add_argument('-P', '--packageList', help="List of packages to build", type=str)
 
         args = parser.parse_args()
 
+        self.arch = args.arch
         # self.user_id = args.userID
         self.config_value = args.config
         self.upload = args.upload
@@ -47,7 +47,6 @@ class Args:
         self.package_list = args.packageList
         # self.forceRun = args.forceRun
         # self.config_name = args.configName
-        self.all_versions = args.allVersions
         self.update_website = args.updateWebsite
         # self.oems = args.oems
 

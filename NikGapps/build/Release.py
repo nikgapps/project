@@ -14,7 +14,7 @@ from NikGapps.helper.Package import Package
 
 class Release:
     @staticmethod
-    def zip(build_package_list, android_version, sign_zip, send_zip_device, fresh_build, telegram,
+    def zip(build_package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram,
             upload: Upload = None):
         release_directory = Statics.get_release_directory(android_version)
         for pkg_type in build_package_list:
@@ -46,8 +46,7 @@ class Release:
             else:
                 if pkg_type in Config.BUILD_PACKAGE_LIST:
                     file_name = release_directory
-                    file_name = file_name + Statics.dir_sep + T.get_file_name(pkg_type.lower(),
-                                                                              str(Config.TARGET_ANDROID_VERSION))
+                    file_name = file_name + Statics.dir_sep + T.get_file_name(pkg_type.lower(), android_version, arch)
                     # Build the packages from the directory
                     print("Building for " + str(pkg_type))
                     Release.zip_package(file_name,

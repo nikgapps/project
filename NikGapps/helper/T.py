@@ -44,9 +44,9 @@ class T:
         return local if date_format is None else local.strftime(date_format)
 
     @staticmethod
-    def get_file_name(nikgappstype, android_version):
+    def get_file_name(nikgappstype, android_version, arch="arm64"):
         current_time = T.get_current_time()
-        return "NikGapps-" + nikgappstype + "-arm64-" + str(android_version) + "-" + current_time + ".zip"
+        return "NikGapps-" + nikgappstype + f"-{arch}-" + str(android_version) + "-" + current_time + ".zip"
 
     @staticmethod
     def get_current_time():

@@ -29,9 +29,10 @@ class GitOperations:
             return None
 
     @staticmethod
-    def clone_apk_repo(android_version, fresh_clone=False, branch="main"):
-        apk_source_directory = Statics.cwd + Statics.dir_sep + str(android_version)
-        apk_source_repo = GitStatics.apk_source_repo + str(android_version) + ".git"
+    def clone_apk_repo(android_version, arch="arm64", fresh_clone=False, branch="main"):
+        arch = "" if arch is "arm64" else "_" + arch
+        apk_source_directory = Statics.cwd + Statics.dir_sep + str(android_version) + arch
+        apk_source_repo = GitStatics.apk_source_repo + str(android_version) + arch + ".git"
         repository = Git(apk_source_directory)
         result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
         return repository if result else None
