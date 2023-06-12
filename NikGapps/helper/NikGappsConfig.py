@@ -155,7 +155,7 @@ class NikGappsConfig:
         nikgapps_config_lines = "# NikGapps configuration file\n\n"
         nikgapps_config_lines += "# If you are not sure about the config, " \
                                  "just skip making changes to it or comment it by adding # before it\n"
-        nikgapps_config_lines += "# visit https://nikgapps.com/misc/2020/11/22/" \
+        nikgapps_config_lines += "# visit https://nikgapps.com/misc/2022/02/22/" \
                                  "NikGapps-Config.html to read everything about nikgapps\n\n"
 
         for config_obj in self.config_objects:
