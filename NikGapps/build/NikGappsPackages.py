@@ -78,7 +78,7 @@ class NikGappsPackages:
     @staticmethod
     def get_go_package(android_version):
         extra_files_go = Package("ExtraFilesGo", None, None)
-        extra_files_go.additional_installer_script = """script_text="<permissions>
+        extra_files_go.additional_installer_script = """   script_text="<permissions>
     <!-- Shared library required on the device to get Google Dialer updates from
          Play Store. This will be deprecated once Google Dialer play store
          updates stop supporting pre-O devices. -->
@@ -91,50 +91,46 @@ class NikGappsPackages:
     <!-- Feature for Google Dialer Call Recording -->
     <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
-installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.dialer.support.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
+   fi"""
         extra_files_go.additional_installer_script += """
-script_text="<permissions>
+   script_text="<permissions>
     <library name=\\"com.google.android.maps\\"
             file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
-installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.maps.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
+   fi"""
         extra_files_go.additional_installer_script += """
-            script_text="<permissions>
+   script_text="<permissions>
 <library name=\\"com.google.widevine.software.drm\\"
-    file=\\"/system/product/framework/com.google.widevine.software.drm.jar\\"/>
+file=\\"/system/product/framework/com.google.widevine.software.drm.jar\\"/>
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
-installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
+   update_prop "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
+   fi"""
         extra_files_go.additional_installer_script += """
-script_text="<permissions>
+   script_text="<permissions>
 <library name=\\"com.google.android.media.effects\\"
 file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
 
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
-installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.media.effects.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
+   fi"""
 
         core_go = AppSet("CoreGo")
         core_go.add_package(extra_files_go)
@@ -207,7 +203,7 @@ fi
     @staticmethod
     def get_core_package(android_version):
         files = Package("ExtraFiles", None, None)
-        files.additional_installer_script = """script_text="<permissions>
+        files.additional_installer_script = """   script_text="<permissions>
     <!-- Shared library required on the device to get Google Dialer updates from
          Play Store. This will be deprecated once Google Dialer play store
          updates stop supporting pre-O devices. -->
@@ -220,50 +216,46 @@ fi
     <!-- Feature for Google Dialer Call Recording -->
     <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
-installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.dialer.support.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
+   fi"""
         files.additional_installer_script += """
-script_text="<permissions>
+   script_text="<permissions>
     <library name=\\"com.google.android.maps\\"
             file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
-installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.maps.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
+   fi"""
         files.additional_installer_script += """
-script_text="<permissions>
+   script_text="<permissions>
 <library name=\\"com.google.widevine.software.drm\\"
 file=\\"/system/product/framework/com.google.widevine.software.drm.jar\\"/>
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
-installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
+   update_prop "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
+   fi"""
         files.additional_installer_script += """
-script_text="<permissions>
+   script_text="<permissions>
 <library name=\\"com.google.android.media.effects\\"
 file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
 
 </permissions>"
-echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
-set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
-installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
-echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
-  addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
-fi"""
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.media.effects.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
+   fi"""
 
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Statics.is_priv_app, "GmsCore")
         if float(android_version) >= 12.1:
