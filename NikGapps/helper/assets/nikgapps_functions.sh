@@ -1147,6 +1147,12 @@ install_file() {
         addToLog "- /$file_location is forced to be installed in $enforced_partition" "$package_title"
         install_location="/$file_location"
         ;;
+      "overlay")
+        overlay_partition="/system/product"
+        [ -n "$PRODUCT_BLOCK" ] && overlay_partition="/product"
+        addToLog "- /$file_location is forced to be installed in $overlay_partition" "$package_title"
+        install_location="$overlay_partition/$file_location"
+        ;;
       *)
         install_location="$install_partition/$file_location"
         ;;
@@ -1182,6 +1188,9 @@ install_file() {
       "system"|"system_ext"|"product"|"vendor")
         installPath=$(echo "$file_location" | sed "s/$enforced_partition\///")
         installPath="$installPath"
+        ;;
+      "overlay")
+        installPath="product/$file_location"
         ;;
       *)
         case "$install_partition" in
