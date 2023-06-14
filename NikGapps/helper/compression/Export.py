@@ -47,7 +47,7 @@ class Export:
                     pkg: Package
                     package_progress = round(float(100 * package_index / package_count))
                     pkg_zip_path = Statics.get_temp_packages_directory(
-                        android_version) + Statics.dir_sep + "Packages" + Statics.dir_sep + str(
+                        android_version, arch=config_obj.arch) + Statics.dir_sep + "Packages" + Statics.dir_sep + str(
                         pkg.package_title) + compression_mode
                     pkg_txt_path = pkg_zip_path.replace(compression_mode, ".txt")
                     print_value = "AppSet (" + str(

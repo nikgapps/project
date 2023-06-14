@@ -74,8 +74,8 @@ class Statics:
         return math.ceil(file_stats.st_size / 1000)
 
     @staticmethod
-    def get_temp_packages_directory(android_version):
-        return Statics.cwd + os.path.sep + "TempPackages" + os.path.sep + str(android_version)
+    def get_temp_packages_directory(android_version, arch="arm64"):
+        return Statics.cwd + os.path.sep + "TempPackages" + os.path.sep + str(android_version) + os.path.sep + arch
 
     @staticmethod
     def get_overlay_source_directory(android_version):

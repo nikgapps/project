@@ -51,7 +51,7 @@ class Release:
                     print("Building for " + str(pkg_type))
                     Release.zip_package(file_name,
                                         NikGappsPackages.get_packages(pkg_type, android_version), android_version,
-                                        sign_zip, send_zip_device, fresh_build, telegram, upload=upload)
+                                        sign_zip, send_zip_device, fresh_build, telegram, arch=arch, upload=upload)
                 else:
                     for app_set in NikGappsPackages.get_packages(pkg_type, android_version):
                         if app_set is None:
@@ -67,6 +67,7 @@ class Release:
 
     @staticmethod
     def zip_package(package_name, app_set_list, android_version, sign_zip, send_zip_device, fresh_build, telegram,
+                    arch="arm64",
                     config_obj: NikGappsConfig = None,
                     upload: Upload = None):
         if config_obj is not None:
@@ -74,11 +75,11 @@ class Release:
             if config_obj.config_package_list.__len__() > 0:
                 app_set_list = config_obj.config_package_list
         else:
-            config_obj = NikGappsConfig(android_version=android_version)
+            config_obj = NikGappsConfig(android_version=android_version, arch=arch)
 
         if app_set_list is not None and app_set_list.__len__() > 0:
             file_name = package_name
-            config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version)
+            config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
             print("Exporting " + str(file_name))
             z = Export(file_name)
             result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,

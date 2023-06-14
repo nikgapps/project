@@ -13,7 +13,8 @@ from .web.Upload import Upload
 
 class NikGappsConfig:
 
-    def __init__(self, android_version, config_path=None, config_version=None, use_zip_config=None, raw_config=None):
+    def __init__(self, android_version, config_path=None, config_version=None, use_zip_config=None, raw_config=None,
+                 arch="arm64"):
         self.config_version = Statics.config_versions[android_version]
         self.android_version = android_version
         if config_version is not None:
@@ -45,6 +46,7 @@ class NikGappsConfig:
             print(self.describe_nikgapps_config())
             print("-------------------------------------------------------------------------------------")
         self.exclusive = False
+        self.arch = arch
         self.creator = "Nikhil Menghani"
 
     def build_config_objects(self):
