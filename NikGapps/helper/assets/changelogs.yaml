@@ -1,3 +1,9 @@
+- date: 17th June 2023 (Android 10-13)
+  changes:
+      - item: Fixed the dynamically generated files not surviving the OTA update
+      - item: Fixed the relocating of files upon dirty flashing
+      - item: Make sure the overlays are always installed to product partition
+      - item: Elite Builds - Add the ability to debloat stuff using elite.config
 - date: 9th June 2023 (Android 10-13)
   changes:
       - item: Introduced elite builds

@@ -4,6 +4,7 @@ from NikGapps.helper import Config
 from NikGapps.helper.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
+from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.web.Upload import Upload
 from NikGapps.build.NikGappsPackages import NikGappsPackages
 from NikGapps.helper.compression.Export import Export
@@ -35,7 +36,7 @@ class Release:
                 z = Export(file_name)
                 config_obj = NikGappsConfig(android_version=android_version)
                 result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,
-                               fresh_build=fresh_build, telegram=telegram)
+                               fresh_build=fresh_build, telegram=telegram, compression_mode=Modes.DEFAULT)
                 if result[1] and Config.UPLOAD_FILES:
                     print("Uploading " + str(result[0]))
                     execution_status = upload.upload(result[0], telegram=telegram)
@@ -83,7 +84,7 @@ class Release:
             print("Exporting " + str(file_name))
             z = Export(file_name)
             result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,
-                           fresh_build=fresh_build, telegram=telegram)
+                           fresh_build=fresh_build, telegram=telegram, compression_mode=Modes.DEFAULT)
             if result[1] and Config.UPLOAD_FILES:
                 print("Uploading " + str(result[0]))
                 execution_status = upload.upload(result[0], telegram=telegram)
