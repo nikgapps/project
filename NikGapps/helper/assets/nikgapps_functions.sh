@@ -221,9 +221,10 @@ contains() {
   esac
 }
 
-delete_install_lines() {
+delete_prop_lines() {
   file_path=$1
   sed -i '/^install=/d' "$file_path"
+  sed -i '/^buildprop=/d' "$file_path"
 }
 
 
@@ -1179,7 +1180,7 @@ install_file() {
       case $install_location in
         *)
           ch_con system "$install_location"
-          addToLog "- ch_con with ${1} for $2" "$package_title"
+          addToLog "- ch_con with system for $install_location" "$package_title"
         ;;
       esac
       set_perm 0 0 0644 "$install_location"
@@ -1305,16 +1306,17 @@ set_perm() {
 set_prop() {
   property="$1"
   value="$2"
-  test -z "$3" && file_location="${install_partition}/build.prop" || file_location="$3"
-  test ! -f "$file_location" && touch "$file_location" && set_perm 0 0 0600 "$file_location"
-  addToLog "- Setting Property ${1} to ${2} in ${file_location}"
+  file_location="$3"
+  test ! -f "$file_location" && touch "$file_location" && ch_con system "$file_location" && set_perm 0 0 0600 "$file_location"
+  addToLog "- Setting Property ${1} to ${2} in ${file_location}" "$5"
   if grep -q "${property}" "${file_location}"; then
-    addToLog "- Updating ${property} to ${value} in ${file_location}"
+    addToLog "- Updating ${property} to ${value} in ${file_location}" "$5"
     sed -i "s/\(${property}\)=.*/\1=${value}/g" "${file_location}"
   else
-    addToLog "- Adding ${property} to ${value} in ${file_location}"
+    addToLog "- Adding ${property} to ${value} in ${file_location}" "$5"
     echo "${property}=${value}" >>"${file_location}"
   fi
+  update_prop "${property}=${value}" "buildprop" "$4" "$5"
 }
 
 show_device_info() {

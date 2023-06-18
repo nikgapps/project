@@ -407,9 +407,12 @@ fi
         google_board = Package("LatinIMEGooglePrebuilt", "com.google.android.inputmethod.latin",
                                Statics.is_system_app, "GBoard")
         google_board.additional_installer_script = """
-        set_prop "ro.com.google.ime.bs_theme" "true" "$install_partition/build.prop"
-        set_prop "ro.com.google.ime.theme_id" "5" "$install_partition/build.prop"
-        set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$install_partition/build.prop"
+        set_prop "ro.com.google.ime.theme_id" "5" "$product/etc/build.prop" "$propFilePath" "$package_title"
+        set_prop "ro.com.google.ime.kb_pad_port_b" "8" "$product/etc/build.prop" "$propFilePath" "$package_title"
+        set_prop "ro.com.google.ime.kb_pad_port_l" "11" "$product/etc/build.prop" "$propFilePath" "$package_title"
+        set_prop "ro.com.google.ime.kb_pad_port_r" "11" "$product/etc/build.prop" "$propFilePath" "$package_title"
+        set_prop "ro.com.google.ime.height_ratio" "1.025" "$product/etc/build.prop" "$propFilePath" "$package_title"
+        set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$product/etc/build.prop" "$propFilePath" "$package_title"
              """
         google_board.delete("LatinIME")
         google_board.clean_flash_only = True
@@ -457,7 +460,7 @@ fi
         google_velvet.priv_app_permissions.append("android.permission.MODIFY_AUDIO_ROUTING")
         google_velvet.clean_flash_only = True
         google_velvet.additional_installer_script = """
-set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
+   set_prop "ro.opa.eligible_device" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
 """
         google_assistant = Package("Assistant", "com.google.android.apps.googleassistant", Statics.is_priv_app)
         google_assistant.clean_flash_only = True
@@ -557,14 +560,14 @@ set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
         setup_wizard.delete("SetupWizard")
         setup_wizard.delete("LineageSetupWizard")
         setup_wizard.additional_installer_script = """
-set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
-set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"
-set_prop "ro.setupwizard.rotation_locked" "true" "$install_partition/build.prop"
-set_prop "setupwizard.enable_assist_gesture_training" "true" "$install_partition/build.prop"
-set_prop "setupwizard.theme" "glif_v3_light" "$install_partition/build.prop"
-set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$install_partition/build.prop"
-set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$install_partition/build.prop"
-set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.prop"
+   set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.enterprise_mode" "1" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.rotation_locked" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.enable_assist_gesture_training" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.theme" "glif_v3_light" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_pixel_tos" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
         """
         google_restore = Package("GoogleRestore", "com.google.android.apps.restore", Statics.is_priv_app)
         google_restore.delete("Seedvault")
@@ -839,14 +842,22 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
                                "SetupWizard")
         setup_wizard.delete("Provision")
         setup_wizard.additional_installer_script = """
-        set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
-        set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"
-        set_prop "ro.setupwizard.rotation_locked" "true" "$install_partition/build.prop"
-        set_prop "setupwizard.enable_assist_gesture_training" "true" "$install_partition/build.prop"
-        set_prop "setupwizard.theme" "glif_v3_light" "$install_partition/build.prop"
-        set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$install_partition/build.prop"
-        set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$install_partition/build.prop"
-        set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.prop"
+   set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.enterprise_mode" "1" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.rotation_locked" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.enable_assist_gesture_training" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.theme" "glif_v3_light" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_pixel_tos" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_digital_warranty" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.esim_cid_ignore" "00000001" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.setupwizard.feature.show_support_link_in_deferred_setup" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.enable_wifi_tracker" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.day_night_mode_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.portal_notification" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.lifecycle_refactoring" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.notification_refactoring" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
                 """
         google_restore = Package("GoogleRestore", "com.google.android.apps.restore", Statics.is_priv_app)
         pixel_setup_wizard_overlay = Package("PixelSetupWizardOverlay", "com.google.android.pixel.setupwizard.overlay",

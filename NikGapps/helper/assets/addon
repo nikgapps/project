@@ -29,6 +29,27 @@ echo_add_to_log() {
   echo ""
 }
 
+list_build_props() {
+  echo ""
+  echo "list_build_props() {"
+  echo "cat <<EOF"
+
+  if [ -f "$installSource" ]; then
+    OLD_IFS="$IFS"
+    IFS="$(printf '%b_' ' \n')"
+    IFS="${IFS%_}"
+    g=$(grep "buildprop=" "$installSource" | cut -d= -f2-)
+    for i in $g; do
+      echo "$i"
+    done
+    IFS="$OLD_IFS"
+  fi
+
+  echo "EOF"
+  echo "}"
+  echo ""
+}
+
 list_files() {
   echo ""
   echo "list_files() {"
@@ -147,7 +168,7 @@ backup() {
 
 restore() {
   echo " restore)"
-  echo "   ui_print \" \""
+  echo "   addToLog \" \""
   echo "   ui_print \"- Restoring $fileName\""
   echo "   delete_in_system \"\$(delete_folders)\" \"Deleting aosp app\""
   echo "   delete_in_system \"\$(force_delete_folders)\" \"Force Deleting\""
@@ -164,6 +185,9 @@ restore() {
   echo "     chmod 644 \"\$f\""
   echo "     chmod 755 \$(dirname \$f)"
   echo "   done"
+  echo "   if list_build_props | grep -q '.'; then"
+  echo "     restore_build_props"
+  echo "   fi"
   echo " ;;"
 }
 
@@ -212,6 +236,7 @@ cat "$COMMONDIR/header" >> "$dest"
 {
   echo_add_to_log
   cat "$COMMONDIR/functions"
+  list_build_props
   list_files
   list_delete_folders
   list_force_delete_folders

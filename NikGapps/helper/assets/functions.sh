@@ -81,6 +81,50 @@ ReadConfigValue() {
   return $?
 }
 
+restore_build_props() {
+  propPath=""
+  search_dirs="/product /system"
+  [ -n "$backuptool_ab" ] && search_dirs="/postinstall/product /postinstall/system"
+  addToLog "- Searching for build.prop in $search_dirs"
+  found_prop=false
+  for dir in $search_dirs; do
+    if $found_prop; then
+      break
+    fi
+    for j in $(find "$dir" -iname "build.prop"); do
+      if [ "${j%/product/etc/build.prop}" != "$j" ]; then
+        propPath="$j"
+        found_prop=true
+        break
+      else
+        addToLog "File $j does not end with /product/etc/build.prop"
+      fi
+    done
+  done
+  if [ -n "$propPath" ]; then
+    for i in $(list_build_props); do
+      key="${i%%=*}"
+      value="${i#*=}"
+      set_build_prop "$key" "$value" "$propPath"
+    done
+  fi
+}
+
+set_build_prop() {
+  property="$1"
+  value="$2"
+  file_location="$3"
+  test ! -f "$file_location" && addToLog "- $file_location does not exist" && return 1
+  addToLog "- Setting Property ${1} to ${2} in ${file_location}"
+  if grep -q "${property}" "${file_location}"; then
+    addToLog "- Updating ${property} to ${value} in ${file_location}"
+    sed -i "s/\(${property}\)=.*/\1=${value}/g" "${file_location}"
+  else
+    addToLog "- Adding ${property} to ${value} in ${file_location}"
+    echo "${property}=${value}" >>"${file_location}"
+  fi
+}
+
 [ -z $nikgapps_config_file_name ] && find_config
 
 [ -z $execute_config ] && execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
