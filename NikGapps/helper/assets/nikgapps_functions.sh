@@ -831,10 +831,10 @@ get_installed_partition() {
   pkgPropFilePath=$(get_prop_file_path "$1")
   partition=""
   if [ -f "$pkgPropFilePath" ]; then
-    while IFS= read -r line; do
-      if printf "%s\n" "$line" | grep -q "^install="; then
-        filepath=$(printf "%s\n" "$line" | cut -d '=' -f 2-)
-        if [ "${filepath##*.}" = "apk" ] && ! printf "%s\n" "$filepath" | grep -q "Overlay" && [ -f "$system/$filepath" ]; then
+    while IFS= read -r line || [ -n "$line" ]; do
+      if echo "$line" | grep -q "^install="; then
+        filepath=$(echo "$line" | cut -d '=' -f 2-)
+        if [ "${filepath##*.}" = "apk" ] && ! echo "$filepath" | grep -q "Overlay" && [ -f "$system/$filepath" ]; then
           addToLog "- $current_package_title is already installed as $filepath" "$current_package_title"
           partition="/system"
           case "$filepath" in
