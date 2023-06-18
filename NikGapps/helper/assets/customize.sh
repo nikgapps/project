@@ -48,8 +48,6 @@ addonDir="$TMPDIR/addon"
 sdcard="/sdcard"
 addon_index=10
 master_addon_file="$addon_index-nikgapps-addon.sh"
-creator=$(cat_file "$TMPDIR/creator.txt")
-[ -z "$creator" ] && creator="Nikhil Menghani"
 
 addToLog() {
   [ -z "$2" ] && echo "$1" >> "$nikGappsLog" || echo "$1" >> "$package_logDir/$2.log"
@@ -173,6 +171,9 @@ extract_tar_xz(){
   tar -xf "$1" -C "$2"
 }
 
+unpack "creator.txt" "$TMPDIR/creator.txt"
+creator=$(cat_file "$TMPDIR/creator.txt")
+[ -z "$creator" ] && creator="Nikhil Menghani"
 nikGappsLogo "$creator"
 setup_flashable
 addToLog "- Stock busybox version: $stock_busybox_version"
