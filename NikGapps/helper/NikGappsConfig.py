@@ -155,14 +155,14 @@ class NikGappsConfig:
             return str(self.config_dict[key])
         return str(0)
 
-    def get_nikgapps_config(self, config_dict=None, for_release=False):
+    def get_nikgapps_config(self, config_dict=None, config_objects=None, for_release=False):
         nikgapps_config_lines = "# NikGapps configuration file\n\n"
         nikgapps_config_lines += "# If you are not sure about the config, " \
                                  "just skip making changes to it or comment it by adding # before it\n"
         nikgapps_config_lines += "# visit https://nikgapps.com/misc/2022/02/22/" \
                                  "NikGapps-Config.html to read everything about nikgapps\n\n"
 
-        for config_obj in self.config_objects:
+        for config_obj in self.config_objects if config_objects is None else config_objects:
             nikgapps_config_lines += config_obj.get_string()
 
         nikgapps_config_lines += "# Following are the packages with default configuration\n"
@@ -336,7 +336,8 @@ class NikGappsConfig:
             print("Invalid config path!")
 
     def upgrade_config(self):
-        standard_dict = self.get_config_dictionary(self.get_nikgapps_config(for_release=True))
+        standard_dict = self.get_config_dictionary(
+            self.get_nikgapps_config(config_objects=self.build_config_objects(), for_release=True))
         for key in standard_dict.keys():
             if self.config_dict.get(key) is None:
                 self.config_dict[key] = standard_dict[key]
