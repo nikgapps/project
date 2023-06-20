@@ -1,10 +1,12 @@
-- date: 18th June 2023 (Android 10-13)
+- date: 21st June 2023 (Android 10-13)
   changes:
       - item: Fixed the dynamically generated files not surviving the OTA update
-      - item: Fixed the relocating of files upon dirty flashing
-      - item: Fixed build.prop values not surviving OTA update
+      - item: Fixed relocating of files upon dirty flashing
+      - item: Fixed build.prop changes not surviving OTA update
       - item: Make sure the overlays are always installed to product partition
-      - item: Elite Builds - Add the ability to debloat stuff using elite.config
+      - item: Remove StorageManager with StorageManagerGoogle
+      - item: Update nikgapps.config version to 29
+      - item: Elite Builds - Add the ability to debloat stuff using elite.config (v29+)
       - item: Elite Builds - Add creator's name in recovery as a special badge of honor
 - date: 9th June 2023 (Android 10-13)
   changes:
