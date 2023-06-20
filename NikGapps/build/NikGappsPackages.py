@@ -514,6 +514,7 @@ fi
         app_set_list.add_package(google_files)
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
                                          Statics.is_priv_app, "StorageManager", partition=Statics.get_partition(android_version, "system_ext"))
+        storage_manager_google.delete("StorageManager")
         app_set_list.add_package(storage_manager_google)
         if float(android_version) >= 11:
             documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Statics.is_priv_app)
