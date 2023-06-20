@@ -155,7 +155,7 @@ class NikGappsConfig:
             return str(self.config_dict[key])
         return str(0)
 
-    def get_nikgapps_config(self, config_dict=None, config_objects=None, for_release=False):
+    def get_nikgapps_config(self, config_dict=None, config_objects=None, for_release=False, override=False):
         nikgapps_config_lines = "# NikGapps configuration file\n\n"
         nikgapps_config_lines += "# If you are not sure about the config, " \
                                  "just skip making changes to it or comment it by adding # before it\n"
@@ -180,7 +180,7 @@ class NikGappsConfig:
                 else:
                     nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
                     for pkg in app_set.package_list:
-                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(pkg.enabled) + "\n"
+                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + ("0" if override else str(pkg.enabled)) + "\n"
                 nikgapps_config_lines += "\n"
             else:
                 if config_dict is not None:
@@ -189,30 +189,30 @@ class NikGappsConfig:
                         nikgapps_config_lines += entry + "=" + self.get_dictionary_value(entry) + "\n"
                 else:
                     for pkg in app_set.package_list:
-                        nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n\n"
+                        nikgapps_config_lines += pkg.package_title + "=" + ("0" if override else str(pkg.enabled)) + "\n"
         for app_set in NikGappsPackages.get_packages("go", self.android_version):
             if len(app_set.package_list) > 1:
-                nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \
+                nikgapps_config_lines += "\n\n# Set " + app_set.title + "=0 if you want to skip installing all " \
                                                                     "packages belonging to " \
                                                                     "" + app_set.title + " Package\n"
                 if config_dict is not None:
                     nikgapps_config_lines += app_set.title + "=" + self.get_dictionary_value(app_set.title) + "\n\n"
                 else:
-                    nikgapps_config_lines += app_set.title + "=" + str(1) + "\n\n"
+                    nikgapps_config_lines += app_set.title + "=" + ("0" if override else str(1)) + "\n\n"
                 nikgapps_config_lines += "# Setting CoreGo=0 will not skip following packages," \
                                          " set them to 0 if you want to skip them  \n"
             else:
                 if config_dict is not None:
                     nikgapps_config_lines += app_set.title + "=" + self.get_dictionary_value(app_set.title) + "\n"
                 else:
-                    nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
+                    nikgapps_config_lines += app_set.title + "=" + ("0" if override else str(1)) + "\n"
         nikgapps_config_lines += "\n"
         nikgapps_config_lines += "# Following are the Addon packages NikGapps supports\n"
         for app_set in NikGappsPackages.get_packages("addons", self.android_version):
             if config_dict is not None:
                 nikgapps_config_lines += app_set.title + "=" + self.get_dictionary_value(app_set.title) + "\n"
             else:
-                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
+                nikgapps_config_lines += app_set.title + "=" + ("0" if override else str(1)) + "\n"
         if for_release:
             nikgapps_config_lines += "\n"
             nikgapps_config_lines += "# NikGapps debloater starts here, add all the stuff to add to debloater.config below (for elite and user builds only), check examples below\n"
@@ -337,9 +337,10 @@ class NikGappsConfig:
 
     def upgrade_config(self):
         standard_dict = self.get_config_dictionary(
-            self.get_nikgapps_config(config_objects=self.build_config_objects(), for_release=True))
+            self.get_nikgapps_config(config_objects=self.build_config_objects(), for_release=True, override=True))
         for key in standard_dict.keys():
             if self.config_dict.get(key) is None:
                 self.config_dict[key] = standard_dict[key]
+        self.config_dict["Version"] = self.config_version
         self.config_package_list = self.get_config_packages()
         self.config_string = self.get_nikgapps_config(config_dict=self.config_dict, for_release=True)
