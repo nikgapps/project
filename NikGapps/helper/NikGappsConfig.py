@@ -51,43 +51,61 @@ class NikGappsConfig:
         self.creator = "Nikhil Menghani"
 
     def build_config_objects(self, config_dict=None):
-        android_version = ConfigObj("AndroidVersion",
-                                    self.android_version if config_dict is None else config_dict["AndroidVersion"])
-        version = ConfigObj("Version", self.config_version if config_dict is None else config_dict["Version"])
-        log_directory = ConfigObj("LogDirectory",
-                                  self.default_mode if config_dict is None else config_dict["LogDirectory"])
-        log_directory.description = """# set this to the directory you want to copy the logs to.
-# for e.g. LogDirectory="/system/etc" will install the logs to /system/etc/nikgapps_logs directory
-# by default it will install it to /sdcard/NikGapps/nikgapps_logs"""
-        install_partition = ConfigObj("InstallPartition",
-                                      self.default_mode if config_dict is None else config_dict["InstallPartition"])
-        install_partition.description = "# set to /system, /product or" \
-                                        " /system_ext if you want to force the installation to aforementioned locations"
-        mode = ConfigObj("mode", self.install_mode if config_dict is None else config_dict["mode"])
-        mode.description = "# set to uninstall if you want to uninstall any google app, " \
-                           "also set the value of google app below to -1"
-        wipe_dalvik_cache = ConfigObj("WipeDalvikCache",
-                                      self.enabled_mode if config_dict is None else config_dict["WipeDalvikCache"])
-        wipe_dalvik_cache.description = "# set WipeDalvikCache=0 if you don't want the installer " \
-                                        "to wipe dalvik/cache after installing the gapps"
-        wipe_runtime_permissions = ConfigObj("WipeRuntimePermissions",
-                                             self.disabled_mode if config_dict is None else config_dict[
-                                                 "WipeRuntimePermissions"])
-        wipe_runtime_permissions.description = "# set WipeRuntimePermissions=1 if you want to wipe runtime permissions"
-        execute_d = ConfigObj("execute.d", self.enabled_mode if config_dict is None else config_dict["execute.d"])
-        execute_d.description = "# Addon.d config set it to 0 to skip the " \
-                                "automatic backup/restore while flashing the rom"
-        use_zip_config = ConfigObj("use_zip_config",
-                                   self.use_zip_config if config_dict is None else config_dict["use_zip_config"])
-        use_zip_config.description = "# if you want to force the installer to use the config from gapps zip file, " \
-                                     "set below to 1"
-        gms_optimization = ConfigObj("gms_optimization",
-                                     self.disabled_mode if config_dict is None else config_dict["gms_optimization"])
-        gms_optimization.description = "# set this to 1 if you want to enable gms optimization, " \
-                                       "careful while doing it, you may experience issues like delayed notification " \
-                                       "with some Roms"
-        config_list = [android_version, version, log_directory, install_partition, mode, wipe_dalvik_cache,
-                       wipe_runtime_permissions, execute_d, use_zip_config, gms_optimization]
+        config_list = []
+        predefined_configs = {
+            "AndroidVersion": self.android_version,
+            "Version": self.config_version,
+            "LogDirectory": {
+                "value": self.default_mode,
+                "description": """# set this to the directory you want to copy the logs to.
+        # for e.g. LogDirectory="/system/etc" will install the logs to /system/etc/nikgapps_logs directory
+        # by default it will install it to /sdcard/NikGapps/nikgapps_logs"""
+            },
+            "InstallPartition": {
+                "value": self.default_mode,
+                "description": "# set to /system, /product or /system_ext if you want to force the installation to aforementioned locations"
+            },
+            "mode": {
+                "value": self.install_mode,
+                "description": "# set to uninstall if you want to uninstall any google app, also set the value of google app below to -1"
+            },
+            "WipeDalvikCache": {
+                "value": self.enabled_mode,
+                "description": "# set WipeDalvikCache=0 if you don't want the installer to wipe dalvik/cache after installing the gapps"
+            },
+            "WipeRuntimePermissions": {
+                "value": self.disabled_mode,
+                "description": "# set WipeRuntimePermissions=1 if you want to wipe runtime permissions"
+            },
+            "execute.d": {
+                "value": self.enabled_mode,
+                "description": "# Addon.d config set it to 0 to skip the automatic backup/restore while flashing the rom"
+            },
+            "use_zip_config": {
+                "value": self.use_zip_config,
+                "description": "# if you want to force the installer to use the config from gapps zip file, set below to 1"
+            },
+            "gms_optimization": {
+                "value": self.disabled_mode,
+                "description": "# set this to 1 if you want to enable gms optimization, careful while doing it, you may experience issues like delayed notification with some Roms"
+            }
+        }
+        for key, config_info in predefined_configs.items():
+            if isinstance(config_info, dict):
+                value = config_info["value"]
+                description = config_info.get("description", "")
+            else:
+                value = config_info
+                description = ""
+            config = ConfigObj(key, value)
+            config.description = description
+            config_list.append(config)
+        if config_dict is not None:
+            for key, value in config_dict.items():
+                if key not in predefined_configs:
+                    config = ConfigObj(key, value)
+                    config_list.append(config)
+
         return config_list
 
     def get_config_dictionary(self, raw_config=None):
