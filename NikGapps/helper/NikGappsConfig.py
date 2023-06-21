@@ -346,14 +346,13 @@ class NikGappsConfig:
             print("Invalid config path!")
 
     def upgrade_config(self):
-        config_objects = self.build_config_objects()
         standard_dict = self.get_config_dictionary(
-            self.get_nikgapps_config(config_objects=config_objects, for_release=True, override=True))
+            self.get_nikgapps_config(config_objects=self.build_config_objects(), for_release=True, override=True))
         for key in standard_dict.keys():
             if self.config_dict.get(key) is None:
                 self.config_dict[key] = standard_dict[key]
         self.config_dict["Version"] = self.config_version
-        config_objects = self.build_config_objects(self.config_dict)
+        self.config_objects = self.build_config_objects(self.config_dict)
         self.config_package_list = self.get_config_packages()
-        self.config_string = self.get_nikgapps_config(config_dict=self.config_dict, config_objects=config_objects,
+        self.config_string = self.get_nikgapps_config(config_dict=self.config_dict, config_objects=self.config_objects,
                                                       for_release=True)
