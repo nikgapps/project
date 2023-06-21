@@ -434,12 +434,12 @@ fi
         play_games = Package("PlayGames", "com.google.android.play.games", Statics.is_system_app)
         app_set_list.append(AppSet("PlayGames", [play_games]))
         app_set_list.append(NikGappsPackages.get_pixel_launcher(android_version))
-        app_set_list.append(NikGappsPackages.get_google_files(android_version))
         google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", Statics.is_priv_app,
                                   "GoogleRecorder")
         google_recorder.delete("Recorder")
         google_recorder.delete("QtiSoundRecorder")
         app_set_list.append(AppSet("GoogleRecorder", [google_recorder]))
+        app_set_list.append(NikGappsPackages.get_google_files(android_version))
         google_markup = Package("MarkupGoogle", "com.google.android.markup", Statics.is_system_app)
         app_set_list.append(AppSet("MarkupGoogle", [google_markup]))
         app_set_list.append(NikGappsPackages.get_google_tts(android_version))
