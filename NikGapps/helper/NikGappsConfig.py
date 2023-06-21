@@ -202,7 +202,7 @@ class NikGappsConfig:
                             "0" if override else str(pkg.enabled)) + "\n"
         for app_set in NikGappsPackages.get_packages("go", self.android_version):
             if len(app_set.package_list) > 1:
-                nikgapps_config_lines += "\n\n# Set " + app_set.title + "=0 if you want to skip installing all " \
+                nikgapps_config_lines += "\n# Set " + app_set.title + "=0 if you want to skip installing all " \
                                                                         "packages belonging to " \
                                                                         "" + app_set.title + " Package\n"
                 if config_dict is not None:
