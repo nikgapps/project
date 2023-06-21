@@ -352,6 +352,7 @@ class NikGappsConfig:
             if self.config_dict.get(key) is None:
                 self.config_dict[key] = standard_dict[key]
         self.config_dict["Version"] = self.config_version
+        self.config_dict["use_zip_config"] = 1
         self.config_objects = self.build_config_objects(self.config_dict)
         self.config_package_list = self.get_config_packages()
         self.config_string = self.get_nikgapps_config(config_dict=self.config_dict, config_objects=self.config_objects,
