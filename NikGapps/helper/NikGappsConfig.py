@@ -37,7 +37,6 @@ class NikGappsConfig:
             self.config_path = config_path
             self.config_dict = self.get_config_dictionary()
             self.debloater_list = self.get_debloater_list()
-        self.file_version = self.config_dict["Version"] if "Version" in self.config_dict else self.config_version
         if self.config_dict is not None:
             for config_obj in self.config_objects:
                 if config_obj.key in self.config_dict:
