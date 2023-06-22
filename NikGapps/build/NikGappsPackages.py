@@ -407,12 +407,12 @@ fi
         google_board = Package("LatinIMEGooglePrebuilt", "com.google.android.inputmethod.latin",
                                Statics.is_system_app, "GBoard")
         google_board.additional_installer_script = """
-        set_prop "ro.com.google.ime.theme_id" "5" "$product/etc/build.prop" "$propFilePath" "$package_title"
-        set_prop "ro.com.google.ime.kb_pad_port_b" "8" "$product/etc/build.prop" "$propFilePath" "$package_title"
-        set_prop "ro.com.google.ime.kb_pad_port_l" "11" "$product/etc/build.prop" "$propFilePath" "$package_title"
-        set_prop "ro.com.google.ime.kb_pad_port_r" "11" "$product/etc/build.prop" "$propFilePath" "$package_title"
-        set_prop "ro.com.google.ime.height_ratio" "1.025" "$product/etc/build.prop" "$propFilePath" "$package_title"
-        set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.com.google.ime.theme_id" "5" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.com.google.ime.kb_pad_port_b" "8" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.com.google.ime.kb_pad_port_l" "11" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.com.google.ime.kb_pad_port_r" "11" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.com.google.ime.height_ratio" "1.025" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$product/etc/build.prop" "$propFilePath" "$package_title"
              """
         google_board.delete("LatinIME")
         google_board.clean_flash_only = True
