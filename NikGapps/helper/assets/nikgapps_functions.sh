@@ -1405,7 +1405,7 @@ update_prop() {
   fi
   dataTypePath=$(echo "$dataPath" | sed "s|^$system/||")
   dataTypePath=${dataTypePath#/}
-  line=$(grep -n "$dataType=$dataTypePath" "$propFilePath" | cut -d: -f1)
+  line=$(grep -xn "$dataType=$dataTypePath" "$propFilePath" | cut -d: -f1)
   if [ -z "$line" ]; then
     echo "$dataType=$dataTypePath" >> "$propFilePath"
     addToLog "- $dataType=$dataTypePath >> $propFilePath" "$log_path"
