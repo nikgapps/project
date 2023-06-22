@@ -747,7 +747,7 @@ find_prop_match() {
     else
       dataTypePath=$(echo "$1" | sed "s|^$system/||")
       dataTypePath=${dataTypePath#/}
-      test=$(grep -n "$2=$dataTypePath" "$3" | cut -d: -f1)
+      test=$(grep -xn "$2=$dataTypePath" "$3" | cut -d: -f1)
       [ -n "$test" ] && echo "$dataTypePath" || echo ""
     fi
 }
