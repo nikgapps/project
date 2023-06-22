@@ -728,6 +728,7 @@ fi
         if float(android_version) >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           Statics.is_priv_app)
+            quick_access_wallet.delete("QuickAccessWallet")
             gapps_list.append(quick_access_wallet)
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
                                    Statics.is_priv_app, "GoogleWallpaper", partition=Statics.get_partition(android_version, "system_ext"))
