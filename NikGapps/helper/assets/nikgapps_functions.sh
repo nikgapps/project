@@ -1159,6 +1159,7 @@ install_file() {
         ;;
     esac
     # Make sure the directory exists, if not, copying the file would fail
+    addToLog "- Creating directory $(dirname "$install_location")" "$package_title"
     mkdir -p "$(dirname "$install_location")"
     set_perm 0 0 0755 "$(dirname "$install_location")"
     # unpacking of package

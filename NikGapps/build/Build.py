@@ -69,7 +69,8 @@ class Build:
                             app_type = Statics.is_system_app
                     for folder in FileOp.get_dir_list(pkg_files_path):
                         if folder.startswith("system") or folder.startswith("vendor") \
-                                or folder.startswith("product") or folder.startswith("system_ext"):
+                                or folder.startswith("product") or folder.startswith("system_ext") \
+                                or folder.startswith("overlay"):
                             continue
                         folder_dict[folder] = folder
                     # We don't need this but for the sake of consistency
