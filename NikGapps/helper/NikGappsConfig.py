@@ -58,8 +58,8 @@ class NikGappsConfig:
             "LogDirectory": {
                 "value": self.default_mode,
                 "description": """# set this to the directory you want to copy the logs to.
-        # for e.g. LogDirectory="/system/etc" will install the logs to /system/etc/nikgapps_logs directory
-        # by default it will install it to /sdcard/NikGapps/nikgapps_logs"""
+# for e.g. LogDirectory="/system/etc" will install the logs to /system/etc/nikgapps_logs directory
+# by default it will install it to /sdcard/NikGapps/nikgapps_logs"""
             },
             "InstallPartition": {
                 "value": self.default_mode,
@@ -90,6 +90,11 @@ class NikGappsConfig:
                 "description": "# set this to 1 if you want to enable gms optimization, careful while doing it, you may experience issues like delayed notification with some Roms"
             }
         }
+        if config_dict is not None:
+            for key, value in config_dict.items():
+                if key not in predefined_configs:
+                    config = ConfigObj(key, value)
+                    config_list.append(config)
         for key, config_info in predefined_configs.items():
             if isinstance(config_info, dict):
                 value = config_info["value"]
@@ -100,12 +105,6 @@ class NikGappsConfig:
             config = ConfigObj(key, value)
             config.description = description
             config_list.append(config)
-        if config_dict is not None:
-            for key, value in config_dict.items():
-                if key not in predefined_configs:
-                    config = ConfigObj(key, value)
-                    config_list.append(config)
-
         return config_list
 
     def get_config_dictionary(self, raw_config=None):
