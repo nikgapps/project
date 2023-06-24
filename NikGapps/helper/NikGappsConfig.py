@@ -100,10 +100,10 @@ class NikGappsConfig:
         for key, config_info in predefined_configs.items():
             if isinstance(config_info, dict):
                 value = config_info["value"]
-                description = config_info.get("description", "")
+                description = config_info.get("description", None)
             else:
                 value = config_info
-                description = ""
+                description = None
             config = ConfigObj(key, value)
             config.description = description
             config_list.append(config)
