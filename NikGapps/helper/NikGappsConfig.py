@@ -93,6 +93,8 @@ class NikGappsConfig:
         if config_dict is not None:
             for key, value in config_dict.items():
                 if key not in predefined_configs:
+                    if key == "Core":
+                        break
                     config = ConfigObj(key, value)
                     config_list.append(config)
         for key, config_info in predefined_configs.items():
