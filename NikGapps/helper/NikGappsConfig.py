@@ -374,3 +374,5 @@ class NikGappsConfig:
         self.config_package_list = self.get_config_packages()
         self.config_string = self.get_nikgapps_config(config_dict=self.config_dict, config_objects=self.config_objects,
                                                       for_release=True)
+        for debloat in self.debloater_list:
+            self.config_string += debloat + "\n"
