@@ -1,3 +1,9 @@
+- date: 27th June 2023 (Android 10-13)
+  changes:
+      - item: Fixed the addon.d script losing a file when the approximate match is found
+      - item: Skipped building overlay directory in system unnecessarily
+      - item: Remove the AOSP version of QuickAccessWallet
+      - item: Elite Builds - Auto upgrade the elite.config to latest version including debloater changes
 - date: 21st June 2023 (Android 10-13)
   changes:
       - item: Fixed the dynamically generated files not surviving the OTA update
