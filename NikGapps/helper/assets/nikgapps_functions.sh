@@ -836,12 +836,12 @@ get_installed_partition() {
       if echo "$line" | grep -q "^install="; then
         filepath=$(echo "$line" | cut -d '=' -f 2-)
         if [ "${filepath##*.}" = "apk" ] && ! echo "$filepath" | grep -q "Overlay" && [ -f "$system/$filepath" ]; then
-          addToLog "- $current_package_title is already installed as $filepath" "$current_package_title"
           partition="/system"
           case "$filepath" in
             product/*) [ -n "$PRODUCT_BLOCK" ] && partition="/product" ;;
             system_ext/*) [ -n "$SYSTEM_EXT_BLOCK" ] && partition="/system_ext" ;;
           esac
+          addToLog "- $current_package_title is already installed as $filepath in $partition" "$current_package_title"
           break
         fi
       fi
@@ -1062,15 +1062,25 @@ install_app_set() {
                 ;;
               esac
               addToLog "----------------------------------------------------------------------------" "$current_package_title"
-              install_partition=$(get_installed_partition "$current_package_title")
+              addToLog "- InstallPartition is $install_partition_val" "$current_package_title"
+              case "$install_partition_val" in
+                "default")
+                  install_partition=$(get_installed_partition "$current_package_title")
+                  [ -z "$install_partition" ] && addToLog "- $current_package_title is not installed before" "$current_package_title"
+                ;;
+                "system") install_partition=$system ;;
+                "product") install_partition=$product ;;
+                "system_ext") install_partition=$system_ext ;;
+                "data") install_partition="/data/extra" ;;
+                /*) install_partition=$install_partition_val ;;
+              esac
               if [ -z "$install_partition" ]; then
-                addToLog "- $current_package_title is not installed before" "$current_package_title"
                 install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
               else
                 available_size=$(get_available_size_again "$install_partition" "$pkg_name")
                 addToLog "- available_size=$available_size and package_size=$package_size" "$current_package_title"
                 if [ "$available_size" -lt "$package_size" ]; then
-                  addToLog "- $current_package_title is installed on $install_partition, but there is not enough space" "$current_package_title"
+                  addToLog "- there is not enough space" "$current_package_title"
                   install_partition=-1
                 fi
               fi
