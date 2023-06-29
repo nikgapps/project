@@ -237,6 +237,11 @@ debloat
 if [ "$zip_type" != "debloater" ]; then
   ui_print "--> Starting the install process"
   install_partition_val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
+  case "$install_partition_val" in
+    "default")
+    ;;
+    *) ui_print "!! Install Partition is overridden" ;;
+  esac
   addToLog "- Config Value for InstallPartition is $install_partition_val"
 fi
 
