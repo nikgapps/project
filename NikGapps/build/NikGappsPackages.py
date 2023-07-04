@@ -513,7 +513,8 @@ fi
                                "GoogleFiles")
         app_set_list.add_package(google_files)
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
-                                         Statics.is_priv_app, "StorageManager", partition=Statics.get_partition(android_version, "system_ext"))
+                                         Statics.is_priv_app, "StorageManager",
+                                         partition=Statics.get_partition(android_version, "system_ext"))
         storage_manager_google.delete("StorageManager")
         app_set_list.add_package(storage_manager_google)
         if float(android_version) >= 11:
@@ -579,7 +580,8 @@ fi
         setup_wizard_set.add_package(google_restore)
         if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
-                                                  Statics.is_priv_app, partition=Statics.get_partition(android_version, "system_ext"))
+                                                  Statics.is_priv_app,
+                                                  partition=Statics.get_partition(android_version, "system_ext"))
             setup_wizard_set.add_package(google_one_time_initializer)
         if float(Config.TARGET_ANDROID_VERSION) < 12:
             setup_wizard_set.add_package(android_migrate_prebuilt)
@@ -654,7 +656,8 @@ fi
 
     @staticmethod
     def get_flipendo(android_version):
-        flipendo = Package("Flipendo", "com.google.android.flipendo", Statics.is_system_app, partition=Statics.get_partition(android_version, "system_ext"))
+        flipendo = Package("Flipendo", "com.google.android.flipendo", Statics.is_system_app,
+                           partition=Statics.get_partition(android_version, "system_ext"))
         if float(android_version) >= 12.1:
             flipendo_overlay = Overlay(flipendo.package_title, "com.nikgapps.overlay.flipendo", android_version,
                                        Library.get_flipendo_resources())
@@ -703,7 +706,8 @@ fi
     @staticmethod
     def get_pixel_launcher(android_version):
         pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
-                                 Statics.is_priv_app, "PixelLauncher", partition=Statics.get_partition(android_version, "system_ext"))
+                                 Statics.is_priv_app, "PixelLauncher",
+                                 partition=Statics.get_partition(android_version, "system_ext"))
         if float(android_version) >= 12.1:
             pixel_launcher_overlay = Overlay(pixel_launcher.package_title, "com.nikgapps.overlay.pixellauncher",
                                              android_version, Library.get_pixel_launcher_resources())
@@ -731,7 +735,8 @@ fi
             quick_access_wallet.delete("QuickAccessWallet")
             gapps_list.append(quick_access_wallet)
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Statics.is_priv_app, "GoogleWallpaper", partition=Statics.get_partition(android_version, "system_ext"))
+                                   Statics.is_priv_app, "GoogleWallpaper",
+                                   partition=Statics.get_partition(android_version, "system_ext"))
         gapps_list.append(google_wallpaper)
         if float(android_version) >= 12:
             settings_services = Package("SettingsIntelligenceGooglePrebuilt",
@@ -750,6 +755,12 @@ fi
         if float(android_version) >= 13:
             pixel_themes = Package("PixelThemes", "com.google.android.apps.customization.pixel", Statics.is_system_app)
             gapps_list.append(pixel_themes)
+            emoji_wallpaper = Package("WallpaperEmojiPrebuilt", "com.google.android.apps.emojiwallpaper",
+                                      Statics.is_system_app, "EmojiWallpaper")
+            gapps_list.append(emoji_wallpaper)
+            cinematic_effect = Package("WallpaperEffect", "com.google.android.wallpaper.effects",
+                                       Statics.is_priv_app, "CinematicEffect")
+            gapps_list.append(cinematic_effect)
         return AppSet("PixelLauncher", gapps_list)
 
     @staticmethod
@@ -760,7 +771,8 @@ fi
     @staticmethod
     def get_google_wallpaper(android_version):
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Statics.is_priv_app, "GoogleWallpaper", partition=Statics.get_partition(android_version, "system_ext"))
+                                   Statics.is_priv_app, "GoogleWallpaper",
+                                   partition=Statics.get_partition(android_version, "system_ext"))
         return AppSet("GoogleWallpaper", [google_wallpaper])
 
     @staticmethod
@@ -883,7 +895,8 @@ fi
         setup_wizard_set.add_package(google_restore)
         if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
-                                                  Statics.is_priv_app, partition=Statics.get_partition(android_version, "system_ext"))
+                                                  Statics.is_priv_app,
+                                                  partition=Statics.get_partition(android_version, "system_ext"))
             setup_wizard_set.add_package(google_one_time_initializer)
         if float(Config.TARGET_ANDROID_VERSION) == 10:
             setup_wizard_set.add_package(pixel_setup_wizard_overlay)
