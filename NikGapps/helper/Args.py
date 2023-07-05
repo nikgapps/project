@@ -73,6 +73,4 @@ class Args:
             android_versions = self.android_version.split(',')
         else:
             android_versions = []
-            if self.all_versions:
-                android_versions = [version for version in Statics.android_versions]
         return android_versions
