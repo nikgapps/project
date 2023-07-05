@@ -760,6 +760,10 @@ fi
             gapps_list.append(emoji_wallpaper)
             cinematic_effect = Package("WallpaperEffect", "com.google.android.wallpaper.effects",
                                        Statics.is_priv_app, "CinematicEffect")
+            cinematic_effect_overlay = Overlay(cinematic_effect.package_title,
+                                               "com.nikgapps.overlay.cinematiceffect", android_version,
+                                               Library.get_cinematic_effect_resources())
+            cinematic_effect.add_overlay(cinematic_effect_overlay)
             gapps_list.append(cinematic_effect)
         return AppSet("PixelLauncher", gapps_list)
 

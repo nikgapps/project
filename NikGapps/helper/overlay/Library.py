@@ -411,3 +411,10 @@ class Library:
         r = Resources()
         r.add(String('widget_default_package_name', 'com.google.android.deskclock'))
         return r
+
+    @staticmethod
+    def get_cinematic_effect_resources():
+        r = Resources()
+        r.add(String('config_defaultWallpaperEffectsGenerationService',
+                     'com.google.android.as/com.google.android.apps.miphone.aiai.app.wallpapereffects.AiAiWallpaperEffectsGenerationService'))
+        return r
