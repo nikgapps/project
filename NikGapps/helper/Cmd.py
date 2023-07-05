@@ -115,9 +115,9 @@ class Cmd:
         return ""
 
     def decompile_apk(self, apk_path, output_folder):
-        print(f"Decompiling {Path(apk_path).name}")
-        self.COMMAND_DECOMPILE_APK[3] = apk_path
-        self.COMMAND_DECOMPILE_APK[5] = output_folder
+        self.COMMAND_DECOMPILE_APK[4] = apk_path
+        self.COMMAND_DECOMPILE_APK[6] = output_folder
+        print(f"Decompiling {Path(apk_path).name} with command {self.COMMAND_DECOMPILE_APK}")
         output_line = self.execute_cmd(self.COMMAND_DECOMPILE_APK)
         if len(output_line) > 0:
             for line in output_line:
