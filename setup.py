@@ -29,6 +29,7 @@ setup(
     entry_points={
         'console_scripts': [
             'nikgapps=NikGapps.main:main',
+            'nikgapps_overlay=NikGapps.overlay_control:overlay_control',
         ],
     },
     classifiers=[
