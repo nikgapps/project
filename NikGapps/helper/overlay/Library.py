@@ -403,7 +403,7 @@ class Library:
     @staticmethod
     def get_settings_services_resources():
         r = Resources()
-        r.add(String('config_systemSettingsIntelligence', 'google'))
+        r.add(String('config_systemSettingsIntelligence', 'com.google.android.settings.intelligence'))
         return r
 
     @staticmethod
