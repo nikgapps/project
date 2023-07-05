@@ -158,6 +158,7 @@ class Library:
         r.add(String('config_recentsComponentName',
                      'com.google.android.apps.nexuslauncher/com.android.quickstep.RecentsActivity'))
         r.add(String('config_secondaryHomePackage', 'com.google.android.apps.nexuslauncher'))
+        r.add(String('exit_to_action_in_initial_setup', 'com.google.android.apps.nexuslauncher/com.android.quickstep.action.GESTURE_ONBOARDING_ALL_SET'))
         r.add(Bool('config_swipe_up_gesture_setting_available', True))
         r.add(Bool('config_custom_swipe_up_gesture_setting_available', True))
         r.add(StringArray('configs_base',
