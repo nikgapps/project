@@ -12,6 +12,11 @@ class FileOp:
             os.makedirs(parent_dir)
 
     @staticmethod
+    def make_dir(dir_path):
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
+    @staticmethod
     def copy_file(source, destination):
         FileOp.create_file_dir(destination)
         shutil.copy2(source, destination)
