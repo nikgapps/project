@@ -43,6 +43,7 @@ class Cmd:
     COMMAND_ADB_CONNECT_DEVICES = adb_path + ["connect", "IP"]
     COMMAND_SIGN_ZIP = ["java", "-jar", sign_jar_path, "file_path", sign_jar_path, "false"]
     COMMAND_BUILD_APK = ["java", "-jar", Assets.apktool_path, "b", "folder_name"]
+    COMMAND_DECOMPILE_APK = ["java", "-jar", Assets.apktool_path, "d", "apk_path", "-o", "folder_name"]
     COMMAND_SIGN_APK = ["java", "-jar", Assets.apksigner_path, "sign", "--key", Assets.key_path, "--cert",
                         Assets.cert_path, "-v", "outfile.apk"]
     COMMAND_ZIPALIGN_APK = ["zipalign", "-p", "-f", "-v", "4", "infile.apk", "outfile.apk"]
@@ -112,6 +113,18 @@ class Cmd:
                         if line.__contains__("Verification succesful") or line.__contains__("Verification successful"):
                             return aligned_apk_path
         return ""
+
+    def decompile_apk(self, apk_path, output_folder):
+        print(f"Decompiling {Path(apk_path).name}")
+        self.COMMAND_DECOMPILE_APK[3] = apk_path
+        self.COMMAND_DECOMPILE_APK[5] = output_folder
+        output_line = self.execute_cmd(self.COMMAND_DECOMPILE_APK)
+        if len(output_line) > 0:
+            for line in output_line:
+                print(line)
+                if line.__contains__("Copying original files..."):
+                    return True
+        return False
 
     def established_device_connection_as_root(self):
         if self.adb_has_root_permissions():
