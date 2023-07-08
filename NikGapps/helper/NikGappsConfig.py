@@ -252,14 +252,14 @@ class NikGappsConfig:
     def describe_nikgapps_config(self):
         if len(self.config_package_list) == 0:
             return "No packages are enabled to be installed."
-        result = "Following Apps will be installed:\n\n"
+        result = "Following Apps will be installed:\n"
         for appset in self.config_package_list:
             appset: AppSet
-            result += f"-> {appset.title}\n"
+            result += f"\n-> {appset.title}  "
             if len(appset.package_list) > 1:
-                for package in appset.package_list:
-                    result += f"- {package.package_title}\n"
                 result += "\n"
+                for package in appset.package_list:
+                    result += f"- {package.package_title}  \n"
         return result.strip()
 
     def upload_nikgapps_config(self):
