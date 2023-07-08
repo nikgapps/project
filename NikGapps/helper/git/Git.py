@@ -30,8 +30,12 @@ class Git:
                 if FileOp.dir_exists(self.working_tree_dir):
                     print(f"{self.working_tree_dir} already exists, deleting for a fresh clone!")
                     FileOp.remove_dir(self.working_tree_dir)
-                P.green(f"git clone -b {branch} --depth={commit_depth} {repo_url}")
-                self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
+                if commit_depth == 0:
+                    P.green(f"git clone -b {branch} {repo_url}")
+                    self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch)
+                else:
+                    P.green(f"git clone -b {branch} --depth={commit_depth} {repo_url}")
+                    self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
 
             else:
                 # if it is not a fresh clone, we only clone when directory doesn't exist
@@ -77,6 +81,14 @@ class Git:
             commit_datetime = datetime.strptime(london_time_in_string, '%Y-%m-%d %H:%M:%S')
             return commit_datetime
         return None
+
+    def get_file_commit_date(self, file_path, str_format="%y%m%d%H%M"):
+        commits_touching_path = list(self.repo.iter_commits(paths=file_path))
+        if commits_touching_path:
+            latest_commit = commits_touching_path[0]
+            return latest_commit.committed_datetime.strftime(str_format)
+        else:
+            return None
 
     def get_changed_files(self):
         files_list = []
