@@ -608,8 +608,8 @@ fi
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
         # if float(Config.TARGET_ANDROID_VERSION) >= 13:
         #     addon_set_list.append(NikGappsPackages.get_flipendo(android_version))
-        if float(android_version) < 13:
-            addon_set_list.append(NikGappsPackages.get_pixel_live_wallpapers())
+        if float(android_version) == 13:
+            addon_set_list.append(NikGappsPackages.get_pixel_live_wallpapers(android_version))
         if addon_name is None:
             return addon_set_list
         else:
@@ -815,24 +815,15 @@ fi
         return AppSet("Lawnchair", [lawnchair])
 
     @staticmethod
-    def get_pixel_live_wallpapers():
-        wallpapers_breel_2019 = Package("WallpapersBReel2019", "com.breel.wallpapers19", Statics.is_system_app)
-        wallpapers_breel_2020a = Package("WallpapersBReel2020a", "com.breel.wallpapers20a", Statics.is_system_app)
-        pixel_live_wallpaper = Package("PixelLiveWallpaperPrebuilt", "com.google.pixel.livewallpaper",
-                                       Statics.is_priv_app, "PixelLiveWallpaper")
-        wallpapers_breel_2020 = Package("WallpapersBReel2020", "com.breel.wallpapers20", Statics.is_system_app)
+    def get_pixel_live_wallpapers(android_version):
         pixel_live_wallpaper_set = AppSet("PixelLiveWallpapers")
-        pixel_live_wallpaper_set.add_package(wallpapers_breel_2019)
-        pixel_live_wallpaper_set.add_package(wallpapers_breel_2020a)
-        pixel_live_wallpaper_set.add_package(pixel_live_wallpaper)
-        pixel_live_wallpaper_set.add_package(wallpapers_breel_2020)
-        if float(Config.TARGET_ANDROID_VERSION) >= 12:
-            pixel_wallpapers_2021 = Package("PixelWallpapers2021", "com.google.android.apps.wallpaper.pixel",
+        if float(android_version) == 13:
+            pixel_live_wallpaper = Package("PixelLiveWallpaperPrebuilt", "com.google.pixel.livewallpaper",
+                                           Statics.is_priv_app, "PixelLiveWallpaper")
+            pixel_live_wallpaper_set.add_package(pixel_live_wallpaper)
+            pixel_wallpapers_2022 = Package("PixelWallpapers2022", "com.google.android.apps.wallpaper.pixel",
                                             Statics.is_system_app)
-            micropaper = Package("MicropaperPrebuilt", "com.google.pixel.dynamicwallpapers", Statics.is_system_app,
-                                 "Micropaper")
-            pixel_live_wallpaper_set.add_package(pixel_wallpapers_2021)
-            pixel_live_wallpaper_set.add_package(micropaper)
+            pixel_live_wallpaper_set.add_package(pixel_wallpapers_2022)
         return pixel_live_wallpaper_set
 
     @staticmethod
