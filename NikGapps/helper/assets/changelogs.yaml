@@ -6,6 +6,7 @@
       - item: Add Pixel Live Wallpaper addon (Android 13)
       - item: Elite Builds - Easy Update - Added the ability to create new build as soon as elite config is updated
       - item: Elite Builds - Display the apps that are part of elite build on sourceforge page in the same folder as zip
+      - item: Update nikgapps.config to v30
 - date: 27th June 2023 (Android 10-13)
   changes:
       - item: Fixed the addon.d script losing a file when the approximate match is found
