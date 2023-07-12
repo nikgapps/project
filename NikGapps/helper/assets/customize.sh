@@ -88,7 +88,7 @@ nikGappsLogo() {
   ui_print "| |_| \_|_|_|\_\_____|\__,_| .__/| .__/|___/ |"
   ui_print "|                          |_|   |_|         |"
   ui_print "|                                            |"
-  ui_print "|-->      Created by $1      <--|"
+  ui_print "|-->$1<--|"
   ui_print "----------------------------------------------"
   ui_print " "
 }
