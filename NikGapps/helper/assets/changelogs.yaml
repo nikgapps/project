@@ -1,7 +1,9 @@
-- date: 9th July 2023 (Android 10-13)
+- date: 13th July 2023 (Android 10-13)
   changes:
       - item: Fixed the issue on A-only devices where manually deleted files were restored with OTA update.
       - item: Updated apks to QPR3 (Android 13)
+      - item: Add Emoji Wallpaper apps in Pixel Launcher (Android 13)
+      - item: Add Pixel Live Wallpaper addon (Android 13)
       - item: Elite Builds - Easy Update - Added the ability to create new build as soon as elite config is updated
       - item: Elite Builds - Display the apps that are part of elite build on sourceforge page in the same folder as zip
 - date: 27th June 2023 (Android 10-13)
