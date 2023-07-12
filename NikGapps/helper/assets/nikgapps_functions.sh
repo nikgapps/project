@@ -1085,8 +1085,8 @@ install_app_set() {
                 fi
               fi
               if [ "$install_partition" = "-1" ]; then
-                ui_print "- Storage is full, uninstalling to free up space"
-                uninstall_the_package "$appset_name" "$current_package_title" "$extn"
+                addToLog "- Storage is full, uninstalling to free up space for $current_package_title" "$current_package_title"
+                uninstall_the_package "$appset_name" "$current_package_title" "$extn" "0"
                 addToLog "----------------------------------------------------------------------------" "$current_package_title"
                 install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
               fi
@@ -1455,7 +1455,7 @@ uninstall_the_package() {
     .*) ;;
     *) extn=".$extn" ;;
   esac
-  ui_print "- Uninstalling $package_name"
+  [ -z "$4" ] && ui_print "- Uninstalling $package_name" || addToLog "- Uninstalling $package_name" "$package_name"
   pkgFile="$TMPDIR/$package_name$extn"
   pkgContent="pkgContent"
   unpack_pkg "AppSet/$1/$package_name$extn" "$pkgFile" "$package_name"
