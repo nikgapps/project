@@ -838,8 +838,14 @@ get_installed_partition() {
         if [ "${filepath##*.}" = "apk" ] && ! echo "$filepath" | grep -q "Overlay" && [ -f "$system/$filepath" ]; then
           partition="/system"
           case "$filepath" in
-            product/*) [ -n "$PRODUCT_BLOCK" ] && partition="/product" ;;
-            system_ext/*) [ -n "$SYSTEM_EXT_BLOCK" ] && partition="/system_ext" ;;
+            product/*)
+              partition="/system/product"
+              [ -n "$PRODUCT_BLOCK" ] && partition="/product"
+            ;;
+            system_ext/*)
+              partition="/system/system_ext"
+              [ -n "$SYSTEM_EXT_BLOCK" ] && partition="/system_ext"
+            ;;
           esac
           addToLog "- $current_package_title is already installed as $filepath in $partition" "$current_package_title"
           break
@@ -1077,7 +1083,9 @@ install_app_set() {
               if [ -z "$install_partition" ]; then
                 install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
               else
-                available_size=$(get_available_size_again "$install_partition" "$pkg_name")
+                size_partition=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
+                addToLog "- size_partition=$size_partition" "$current_package_title"
+                available_size=$(get_available_size_again "$size_partition" "$pkg_name")
                 addToLog "- available_size=$available_size and package_size=$package_size" "$current_package_title"
                 if [ "$available_size" -lt "$package_size" ]; then
                   addToLog "- there is not enough space" "$current_package_title"
