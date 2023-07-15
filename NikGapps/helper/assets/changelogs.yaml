@@ -1,5 +1,7 @@
-- date: 13th July 2023 (Android 10-13)
+- date: 16th July 2023 (Android 10-13)
   changes:
+      - item: Fixed an issue on older A-only devices where gapps were installed to /system instead of /system/product
+      - item: Fixed Webview overlay pointing android 11 sdk overlay instead of android 10 (Android 10)
       - item: Fixed the issue on A-only devices where manually deleted files were restored with OTA update.
       - item: Updated apks to QPR3 (Android 13)
       - item: Add Emoji Wallpaper apps in Pixel Launcher (Android 13)
