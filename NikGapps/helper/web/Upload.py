@@ -25,7 +25,7 @@ class Upload:
         try:
             self.sftp = pysftp.Connection(host=self.host, username=self.username, password=self.password)
         except Exception as e:
-            print("Exception while connecting to SFTP: " + str(e))
+            P.red("Exception while connecting to SFTP: " + str(e))
             self.sftp = None
 
     def set_release_dir(self, release_dir):
