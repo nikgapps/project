@@ -12,12 +12,12 @@ from NikGapps.helper.web.TelegramApi import TelegramApi
 
 class CmdUpload:
 
-    def __init__(self, android_version, release_type, upload_files):
+    def __init__(self, android_version, release_type, upload_files, password=None):
         self.android_version_code = Statics.get_android_code(android_version)
         self.upload_files = upload_files
         self.host = "frs.sourceforge.net"
         self.username = "nikhilmenghani"
-        self.password = os.environ.get('SF_PWD')
+        self.password = os.environ.get('SF_PWD') if password is None else password
         self.release_dir = Statics.get_sourceforge_release_directory(release_type)
         self.release_date = T.get_london_date_time("%d-%b-%Y")
         self.child = None
