@@ -8,7 +8,7 @@ from NikGapps.build.NikGappsPackages import NikGappsPackages
 from .Statics import Statics
 from .git.GitOperations import GitOperations
 from .web.Requests import Requests
-from .web.Upload import Upload
+from NikGapps.helper.upload.Upload import Upload
 
 
 class NikGappsConfig:

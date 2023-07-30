@@ -2,11 +2,11 @@ import os
 import platform
 from pathlib import Path
 import pysftp
-from ..FileOp import FileOp
-from ..P import P
-from ..Statics import Statics
-from ..T import T
-from .TelegramApi import TelegramApi
+from NikGapps.helper.FileOp import FileOp
+from NikGapps.helper.P import P
+from NikGapps.helper.Statics import Statics
+from NikGapps.helper.T import T
+from NikGapps.helper.web.TelegramApi import TelegramApi
 
 
 class Upload:

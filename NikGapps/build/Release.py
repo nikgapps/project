@@ -5,7 +5,7 @@ from NikGapps.helper.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
-from NikGapps.helper.web.Upload import Upload
+from NikGapps.helper.upload.Upload import Upload
 from NikGapps.build.NikGappsPackages import NikGappsPackages
 from NikGapps.helper.compression.Export import Export
 from NikGapps.helper.Cmd import Cmd
