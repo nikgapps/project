@@ -25,6 +25,7 @@ setup(
         'setuptools>=65.5.1',
         'requests>=2.25.1',
         'GitPython>=3.1.31',
+        'pexpect>=4.8.0',
     ],
     entry_points={
         'console_scripts': [
