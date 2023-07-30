@@ -122,7 +122,7 @@ class CmdUpload:
             system_name = platform.system()
             if telegram is not None:
                 telegram.message("- The zip is uploading...")
-            if self.sftp is not None and system_name != "Windows" and self.upload_files:
+            if system_name != "Windows" and self.upload_files:
                 t = T()
                 file_type = "gapps"
                 if os.path.basename(file_name).__contains__("-Addon-"):
