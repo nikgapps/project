@@ -59,7 +59,8 @@ class CmdUpload:
             elif i == 2 or i == 3:  # TIMEOUT or EOF
                 if not tried_twice:
                     print("Timeout has occurred, let's try one more time")
-                    self.child.sendcontrol('c')
+                    # self.child.sendcontrol('c')
+                    self.close_connection()
                     self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
                     tried_twice = True
                 else:
