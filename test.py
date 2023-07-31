@@ -8,6 +8,14 @@ from NikGapps.helper.upload.CmdUpload import CmdUpload
 # upload.create_directory_structure("A/B/C")
 
 import pexpect
+import socket
+
+hostname = socket.gethostname()
+ip_address = socket.gethostbyname(hostname)
+print(f"Hostname: {hostname}")
+print(f"IP Address: {ip_address}")
+
+
 password = os.environ.get('SF_PWD')
 child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')  # replace with your user and host
 i = child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF], timeout=120)
