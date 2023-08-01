@@ -42,9 +42,9 @@ class NikGappsConfig:
                 if config_obj.key in self.config_dict:
                     config_obj.value = str(self.config_dict[config_obj.key])
             self.config_package_list = self.get_config_packages()
-            print("-------------------------------------------------------------------------------------")
-            print(self.describe_nikgapps_config())
-            print("-------------------------------------------------------------------------------------")
+            # print("-------------------------------------------------------------------------------------")
+            # print(self.describe_nikgapps_config())
+            # print("-------------------------------------------------------------------------------------")
         self.exclusive = False
         self.config_string = self.get_nikgapps_config(config_dict=self.config_dict)
         self.arch = arch
