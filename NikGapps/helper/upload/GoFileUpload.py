@@ -15,7 +15,7 @@ class GoFileUpload:
         cmd = Cmd()
         command = [f"{Assets.gofile_path}"] + [file]
         output = cmd.execute_cmd(command)
-        print("Upload Log: " + output)
+        print("Upload Log: " + str(output))
         for line in output:
             if line.startswith("https://gofile.io/"):
                 return line
