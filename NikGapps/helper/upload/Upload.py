@@ -30,8 +30,6 @@ class Upload:
         except Exception as e:
             P.red("Exception while connecting to SFTP: " + str(e))
             self.sftp = None
-            # self.upload_obj = CmdUpload(android_version, release_type, upload_files, password)
-            # self.cmd_method = self.upload_obj.successful_connection
 
     def set_release_dir(self, release_dir):
         self.release_dir = release_dir
