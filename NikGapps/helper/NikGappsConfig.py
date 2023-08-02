@@ -249,18 +249,21 @@ class NikGappsConfig:
             nikgapps_config_lines += "\n"
         return nikgapps_config_lines
 
-    def describe_nikgapps_config(self):
+    def describe_nikgapps_config(self, get_list=False):
+        list_of_apps = []
         if len(self.config_package_list) == 0:
-            return "No packages are enabled to be installed."
+            return "No packages are enabled to be installed." if not get_list else list_of_apps
         result = "Following Apps will be installed:\n"
         for appset in self.config_package_list:
             appset: AppSet
             result += f"\n-> {appset.title}  "
+            list_of_apps.append(f"-> {appset.title}")
             if len(appset.package_list) > 1:
                 result += "\n"
                 for package in appset.package_list:
                     result += f"- {package.package_title}  \n"
-        return result.strip()
+                    list_of_apps.append(f"- {package.package_title}")
+        return result.strip() if not get_list else list_of_apps
 
     def upload_nikgapps_config(self):
         analytics_dict = {}
