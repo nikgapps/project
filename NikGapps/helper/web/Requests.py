@@ -53,11 +53,11 @@ class Requests:
             return Statics.time
 
     @staticmethod
-    def get_folder_access():
+    def get_folder_access(folder_name=None):
         decoded_hand = Requests.get(Statics.folder_access_url)
         if decoded_hand.status_code == 200:
             data = decoded_hand.json()
-            return data
+            return data if folder_name is None else (data[folder_name] if folder_name in data else None)
         else:
             print(f"{decoded_hand.status_code} while getting folder access")
             return None
