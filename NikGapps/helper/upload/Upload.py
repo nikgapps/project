@@ -6,7 +6,6 @@ from NikGapps.helper.FileOp import FileOp
 from NikGapps.helper.P import P
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
-from NikGapps.helper.upload.CmdUpload import CmdUpload
 from NikGapps.helper.web.TelegramApi import TelegramApi
 
 
@@ -19,8 +18,8 @@ class Upload:
         self.password = os.environ.get('SF_PWD') if password is None else password
         self.release_dir = Statics.get_sourceforge_release_directory(release_type)
         self.release_date = T.get_london_date_time("%d-%b-%Y")
-        self.cmd_method = False
-        self.upload_obj = None
+        self.cmd_method = False  # can be removed later
+        self.upload_obj = None  # can be removed later
         if self.password is None or self.password.__eq__(""):
             self.password = ""
             self.sftp = None
@@ -52,11 +51,10 @@ class Upload:
         return self.release_dir + "/" + folder_name + "/" + self.release_date
 
     def upload(self, file_name, telegram: TelegramApi = None, remote_directory=None):
-        if self.cmd_method:
-            return self.upload_obj.upload(file_name, telegram, remote_directory)
-        elif self.sftp is not None:
+        if self.sftp is not None:
             system_name = platform.system()
             execution_status = False
+            download_link = None
             if telegram is not None:
                 telegram.message("- The zip is uploading...")
             if self.sftp is not None and system_name != "Windows" and self.upload_files:
@@ -100,14 +98,15 @@ class Upload:
                             f"- The zip {file_size_mb} MB uploaded in {str(round(time_taken))} seconds\n",
                             replace_last_message=True)
                         if download_link is not None:
-                            telegram.message(f"*Note:* Download link should start working in 10 minutes", escape_text=False,
+                            telegram.message(f"*Note:* Download link should start working in 10 minutes",
+                                             escape_text=False,
                                              ur_link={f"Download": f"{download_link}"})
             else:
                 P.red("System incompatible or upload disabled or connection failed!")
-            return execution_status
+            return execution_status, download_link
         else:
             P.red("Connection failed!")
-            return False
+            return False, None
 
     def close_connection(self):
         if self.cmd_method:
