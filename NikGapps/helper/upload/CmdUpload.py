@@ -119,6 +119,7 @@ class CmdUpload:
 
     def upload(self, file_name, telegram: TelegramApi = None, remote_directory=None):
         execution_status = False
+        download_link = None
         if self.successful_connection:
             system_name = platform.system()
             if telegram is not None:
@@ -159,7 +160,7 @@ class CmdUpload:
                 P.red("System incompatible or upload disabled or connection failed!")
         else:
             P.red("Connection failed!")
-        return execution_status
+        return execution_status, download_link
 
     def close_connection(self):
         if not str(self.password).__eq__(""):

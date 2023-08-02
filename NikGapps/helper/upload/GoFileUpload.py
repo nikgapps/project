@@ -25,6 +25,7 @@ class GoFileUpload:
     def upload(file_name, telegram: TelegramApi = None):
         system_name = platform.system()
         execution_status = False
+        download_link = None
         if telegram is not None:
             telegram.message("- The zip is uploading...")
         if system_name != "Windows":
@@ -51,4 +52,4 @@ class GoFileUpload:
                                          ur_link={f"Download": f"{download_link}"})
         else:
             P.red("System incompatible or upload disabled or connection failed!")
-        return execution_status
+        return execution_status, download_link
