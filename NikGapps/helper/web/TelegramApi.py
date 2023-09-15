@@ -20,7 +20,7 @@ class TelegramApi:
         self.changelog = None
 
     def message(self, text, chat_id=None, replace_last_message=False, escape_text=True, parse_mode="markdown",
-                ur_link=None):
+                ur_link=None, send_as_new_message=False):
         if self.token is None:
             return None
         if chat_id is None:
@@ -28,6 +28,8 @@ class TelegramApi:
         if text is None or str(text).__eq__(""):
             print("No text to send")
             return None
+        if send_as_new_message:
+            self.reset_message()
         if escape_text:
             for i in '_*[]~`>+=|{}':
                 text = text.replace(i, "\\" + i)
