@@ -9,11 +9,15 @@ class GitOperations:
 
     @staticmethod
     def setup_tracker_repo(fresh_clone=True):
+        return GitOperations.setup_repo(GitStatics.tracker_repo_dir, GitStatics.tracker_repo_url, "main", fresh_clone)
+
+    @staticmethod
+    def setup_repo(repo_dir, repo_url, branch="main", fresh_clone=True, commit_depth=50):
         print()
-        print("Repo Dir: " + GitStatics.tracker_repo_dir)
-        tracker_repo = Git(GitStatics.tracker_repo_dir)
-        result = tracker_repo.clone_repo(GitStatics.tracker_repo_url, fresh_clone=fresh_clone)
-        return tracker_repo if result else None
+        print("Repo Dir: " + repo_dir)
+        repo = Git(repo_dir)
+        result = repo.clone_repo(repo_url, branch=branch, fresh_clone=fresh_clone, commit_depth=commit_depth)
+        return repo if result else None
 
     @staticmethod
     def clone_overlay_repo(android_version, fresh_clone=False, branch="master"):
@@ -21,9 +25,7 @@ class GitOperations:
             android_code = Statics.get_android_code(android_version)
             overlay_source_dir = Statics.cwd + Statics.dir_sep + f"overlays_{android_code}"
             overlay_source_repo = f"https://github.com/nikgapps/overlays_{android_code}.git"
-            repository = Git(overlay_source_dir)
-            result = repository.clone_repo(repo_url=overlay_source_repo, fresh_clone=fresh_clone, branch=branch)
-            return repository if result else None
+            return GitOperations.setup_repo(overlay_source_dir, overlay_source_repo, branch, fresh_clone)
         else:
             print(f"Cloning Overlay repo not needed for android {android_version}")
             return None
@@ -33,9 +35,7 @@ class GitOperations:
         arch = "" if arch is "arm64" else "_" + arch
         apk_source_directory = Statics.cwd + Statics.dir_sep + str(android_version) + arch
         apk_source_repo = GitStatics.apk_source_repo + str(android_version) + arch + ".git"
-        repository = Git(apk_source_directory)
-        result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
-        return repository if result else None
+        return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone)
 
     @staticmethod
     def get_last_commit_date(branch, repo_dir=Statics.cwd, repo_url=None, android_version=None):
