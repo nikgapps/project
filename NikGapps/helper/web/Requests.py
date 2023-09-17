@@ -1,4 +1,6 @@
 import json
+import time
+
 import requests
 from NikGapps.helper.Statics import Statics
 
@@ -11,7 +13,11 @@ class Requests:
             params = {"": ""}
         if headers is None:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
-        return requests.get(url, data=json.dumps(params), headers=headers)
+        result = requests.get(url, data=json.dumps(params), headers=headers)
+        if result.status_code == 429:
+            Requests.handle_429_response(result)
+            return requests.get(url, data=json.dumps(params), headers=headers)
+        return result
 
     @staticmethod
     def put(url, headers=None, params=None):
@@ -19,7 +25,11 @@ class Requests:
             params = {"": ""}
         if headers is None:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
-        return requests.put(url, data=json.dumps(params), headers=headers)
+        result = requests.put(url, data=json.dumps(params), headers=headers)
+        if result.status_code == 429:
+            Requests.handle_429_response(result)
+            return requests.put(url, data=json.dumps(params), headers=headers)
+        return result
 
     @staticmethod
     def patch(url, headers=None, params=None):
@@ -27,7 +37,11 @@ class Requests:
             params = {"": ""}
         if headers is None:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
-        return requests.patch(url, data=json.dumps(params), headers=headers)
+        result = requests.patch(url, data=json.dumps(params), headers=headers)
+        if result.status_code == 429:
+            Requests.handle_429_response(result)
+            return requests.patch(url, data=json.dumps(params), headers=headers)
+        return result
 
     @staticmethod
     def post(url, headers=None, params=None):
@@ -35,7 +49,11 @@ class Requests:
             params = {"": ""}
         if headers is None:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
-        return requests.post(url, data=json.dumps(params), headers=headers)
+        result = requests.post(url, data=json.dumps(params), headers=headers)
+        if result.status_code == 429:
+            Requests.handle_429_response(result)
+            return requests.post(url, data=json.dumps(params), headers=headers)
+        return result
 
     @staticmethod
     def get_text(url):
@@ -74,3 +92,12 @@ class Requests:
         else:
             print(f"{decoded_hand.status_code} while getting admin access")
             return ["nikhilmenghani", "nikgapps"]
+
+    @staticmethod
+    def handle_429_response(result):
+        if 'Retry-After' in result.headers:
+            print(f"Sleeping for {result.headers['Retry-After']} seconds")
+            time.sleep(float(result.headers['Retry-After']))
+        else:
+            print(f"Sleeping for 120 seconds")
+            time.sleep(120)
