@@ -120,9 +120,12 @@ class FileOp:
             text = file.readline()
             if text.startswith("package:"):
                 index1 = text.find("'")
-                text = text[index1 + 1: -1]
-                index1 = text.find("'")
-                text = text[0: index1]
+                if index1 == -1:
+                    text = text.replace("package:", "").strip()
+                else:
+                    text = text[index1 + 1: -1]
+                    index1 = text.find("'")
+                    text = text[0: index1]
             file.close()
             FileOp.remove_file(file_path)
         else:
