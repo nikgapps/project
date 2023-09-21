@@ -32,7 +32,7 @@ class GitOperations:
 
     @staticmethod
     def clone_apk_repo(android_version, arch="arm64", fresh_clone=False, branch="main"):
-        arch = "" if arch is "arm64" else "_" + arch
+        arch = "" if arch == "arm64" else "_" + arch
         apk_source_directory = Statics.cwd + Statics.dir_sep + str(android_version) + arch
         apk_source_repo = GitStatics.apk_source_repo + str(android_version) + arch + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone)
