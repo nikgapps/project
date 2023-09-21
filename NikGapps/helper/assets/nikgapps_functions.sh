@@ -375,10 +375,6 @@ debloat() {
     addToLog "- Debloater.config found!"
     g=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$debloater_config_file_name")
     for i in $g; do
-      if [ $debloaterRan = 0 ]; then
-        ui_print " "
-        ui_print "--> Starting the debloating process"
-      fi
       addToLog "- Deleting $i"
       if [ -z "$i" ]; then
         ui_print "Cannot delete blank folder!"

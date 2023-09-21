@@ -48,6 +48,7 @@ addonDir="$TMPDIR/addon"
 sdcard="/sdcard"
 addon_index=10
 master_addon_file="$addon_index-nikgapps-addon.sh"
+remove_ota_scripts_mode="removeotascripts"
 
 addToLog() {
   [ -z "$2" ] && echo "$1" >> "$nikGappsLog" || echo "$1" >> "$package_logDir/$2.log"
@@ -171,6 +172,22 @@ extract_tar_xz(){
   tar -xf "$1" -C "$2"
 }
 
+get_mode_by_name(){
+  zip_name_lower=$(tolower "$1")
+  case "$zip_name_lower" in
+    "uninstall" | "uninstall.zip")
+      mode="uninstall_by_name"
+      ;;
+    *"$remove_ota_scripts_mode"*)
+      mode="$remove_ota_scripts_mode"
+      ;;
+    *)
+      mode="$mode"
+      ;;
+  esac
+  echo "$mode"
+}
+
 unpack "creator.txt" "$TMPDIR/creator.txt"
 creator=$(cat_file "$TMPDIR/creator.txt")
 [ -z "$creator" ] && creator="Nikhil Menghani"
@@ -226,23 +243,38 @@ ui_print " "
 mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
 [ -z "$mode" ] && mode="install"
 mode=$(tolower "$mode")
-[ "$ZIP_NAME_LOWER" = "uninstall" ] && mode="uninstall_by_name"
+# check if the zip name is an instruction and set the mode if it is
+mode=$(get_mode_by_name "$ZIP_NAME_LOWER")
 zip_name=$(tolower "$(cat_file "$TMPDIR/zip_name.txt")")
-[ "$sideloading" = "true" ] && [ "$zip_name" == "uninstall" ] && mode="uninstall_by_name"
-[ "$sideloading" = "true" ] && [ "$zip_name" == "uninstall.zip" ] && mode="uninstall_by_name"
+# check in sideloading mode if the zip name is an instruction and set the mode if it is
+[ "$sideloading" = "true" ] && mode=$(get_mode_by_name "$zip_name")
 addToLog "- Install mode is $mode"
-# run the debloater
-debloat
+ui_print "--> Running the installer"
 
-if [ "$zip_type" != "debloater" ]; then
-  ui_print "--> Starting the install process"
-  install_partition_val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
-  case "$install_partition_val" in
-    "default")
-    ;;
-    *) ui_print "!! Install Partition is overridden" ;;
-  esac
-  addToLog "- Config Value for InstallPartition is $install_partition_val"
-fi
-
-. "$COMMONDIR/install.sh"
+case $mode in
+  "$remove_ota_scripts_mode")
+    addToLog "- Cleaning $system/addon.d"
+    ui_print " "
+    for file in $system/addon.d/*; do
+      if grep -q "AFZC" "$file"; then
+        ui_print "x Removing $(basename "$file")"
+        rm -f "$file"
+      fi
+    done
+    ui_print " "
+  ;;
+  *)
+    # run the debloater
+    debloat
+    if [ "$zip_type" != "debloater" ]; then
+      install_partition_val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
+      case "$install_partition_val" in
+        "default")
+        ;;
+        *) ui_print "!! Install Partition is overridden" ;;
+      esac
+      addToLog "- Config Value for InstallPartition is $install_partition_val"
+    fi
+    . "$COMMONDIR/install.sh"
+  ;;
+esac

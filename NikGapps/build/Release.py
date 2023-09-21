@@ -30,18 +30,19 @@ class Release:
                         T.get_current_time()) + ".zip"
                     Release.zip_package(package_name, [app_set], android_version, sign_zip, send_zip_device,
                                         fresh_build, telegram, upload=upload)
-            elif str(pkg_type).lower() == "debloater":
-                file_name = release_directory + Statics.dir_sep + "Debloater-" + str(
+            elif str(pkg_type).lower() == "debloater" or str(pkg_type).lower() == "removeotascripts":
+                file_name = release_directory + Statics.dir_sep + f"{pkg_type}-" + str(
                     T.get_current_time()) + ".zip"
                 z = Export(file_name)
                 config_obj = NikGappsConfig(android_version=android_version)
                 result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,
                                fresh_build=fresh_build, telegram=telegram, compression_mode=Modes.DEFAULT)
-                if result[1] and Config.UPLOAD_FILES:
-                    print("Uploading " + str(result[0]))
-                    execution_status, download_link = upload.upload(result[0], telegram=telegram)
-                    print("Done")
-                    return execution_status
+                if result[1]:
+                    if Config.UPLOAD_FILES:
+                        print("Uploading " + str(result[0]))
+                        execution_status, download_link = upload.upload(result[0], telegram=telegram)
+                        print("Done")
+                        return execution_status
                 else:
                     print("Failed to create zip!")
             else:
