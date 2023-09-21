@@ -261,13 +261,16 @@ case $mode in
     ui_print " "
     if [ -d "$system/addon.d" ]; then
       ui_print "x Cleaning $system/addon.d"
+    else
+      ui_print "x $system/addon.d not found"
     fi
-    for file in $system/addon.d/*; do
+    for file in "$system"/addon.d/*; do
       if grep -q "AFZC" "$file"; then
         ui_print "x Removing $(basename "$file")"
         rm -f "$file"
       fi
     done
+    exit_install
     ui_print " "
   ;;
   *)
