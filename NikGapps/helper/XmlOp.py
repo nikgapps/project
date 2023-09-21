@@ -1,4 +1,4 @@
-from xml.etree.cElementTree import Element, SubElement, ElementTree
+from xml.etree.ElementTree import Element, SubElement, ElementTree
 
 
 class XmlOp:
@@ -8,8 +8,9 @@ class XmlOp:
         for permission in permissions_list:
             SubElement(self.doc, "permission", name=permission)
         XmlOp.indent(self.root)
-        self.tree = ElementTree(self.root)
-        self.tree.write(import_path)
+        with open(import_path, 'wb') as f:
+            self.tree = ElementTree(self.root)
+            self.tree.write(f)
 
     @staticmethod
     def indent(elem, level=0):
