@@ -11,6 +11,7 @@ class Zip:
         self.zipObj.write(filename, zippath)
 
     def add_string(self, text, filename):
+        text = text.replace('\r\n', '\n')
         self.zipObj.writestr(filename, text)
 
     def close(self):

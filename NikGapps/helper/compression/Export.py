@@ -103,6 +103,7 @@ class Export:
             self.z.add_string(file_sizes, "common/file_size")
             self.z.add_file(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
             self.z.add_file(Assets.mount_path, "common/mount.sh")
+            self.z.add_file(Assets.mtg_mount_path, "common/mtg_mount.sh")
             self.z.add_file(Assets.unmount_path, "common/unmount.sh")
             self.z.add_string(os.path.basename(os.path.splitext(self.file_name)[0]), "zip_name.txt")
             self.z.add_string(f"Created by {config_obj.creator}".center(38, ' '), "creator.txt")

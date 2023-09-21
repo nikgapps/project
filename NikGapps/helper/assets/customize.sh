@@ -199,6 +199,7 @@ addToLog "- Installed Busybox $version"
 unpack "common/nikgapps_functions.sh" "$COMMONDIR/nikgapps_functions.sh"
 unpack "common/unmount.sh" "$COMMONDIR/unmount.sh"
 unpack "common/mount.sh" "$COMMONDIR/mount.sh"
+unpack "common/mtg_mount.sh" "$COMMONDIR/mtg_mount.sh"
 unpack "common/device.sh" "$COMMONDIR/device.sh"
 unpack "common/install.sh" "$COMMONDIR/install.sh"
 unpack "common/file_size" "$COMMONDIR/file_size"
@@ -214,12 +215,15 @@ unpack "zip_name.txt" "$TMPDIR/zip_name.txt"
 . "$COMMONDIR/unmount.sh"
 # mount all the partitions
 . "$COMMONDIR/mount.sh"
+# mount all the partitions
+#. "$COMMONDIR/mtg_mount.sh"
 
 [ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name" "$mountLog" && initializeSizeLog
 find_zip_type
 find_device_block
 begin_unmounting
 begin_mounting
+#begin_mtg_mounting
 # find if the device has dedicated partition or it's symlinked
 addToGeneralLog " " "$nikGappsLog"
 find_partitions_type
@@ -255,6 +259,9 @@ case $mode in
   "$remove_ota_scripts_mode")
     addToLog "- Cleaning $system/addon.d"
     ui_print " "
+    if [ -d "$system/addon.d" ]; then
+      ui_print "x Cleaning $system/addon.d"
+    fi
     for file in $system/addon.d/*; do
       if grep -q "AFZC" "$file"; then
         ui_print "x Removing $(basename "$file")"

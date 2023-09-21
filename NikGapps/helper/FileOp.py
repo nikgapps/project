@@ -158,6 +158,14 @@ class FileOp:
         file.close()
 
     @staticmethod
+    def convert_to_lf(filename):
+        with open(filename, 'r', newline='\n', encoding='utf-8') as file:
+            content = file.read()
+        content = content.replace('\r\n', '\n')
+        with open(filename, 'w', newline='\n', encoding='utf-8') as file:
+            file.write(content)
+
+    @staticmethod
     def write_string_in_lf_file(str_data, file_path):
         FileOp.create_file_dir(file_path)
         if FileOp.file_exists(file_path):
