@@ -29,6 +29,19 @@ echo_add_to_log() {
   echo ""
 }
 
+echo_add_file_to_log() {
+  echo ""
+  echo "addFileToLog() {"
+  echo "  if [ -f \"\$1\" ]; then"
+  echo "    size=\$(du -h \"\$1\" | awk '{print \$1}')"
+  echo "    echo \"\$(date +%Y_%m_%d_%H_%M_%S): - \$1 copied, Size: \$size\" >> \$nikGappsAddonLogFile"
+  echo "  else"
+  echo "    echo \"\$(date +%Y_%m_%d_%H_%M_%S): - \$1 does not exist\" >> \$nikGappsAddonLogFile"
+  echo "  fi"
+  echo "}"
+  echo ""
+}
+
 list_build_props() {
   echo ""
   echo "list_build_props() {"
@@ -177,7 +190,7 @@ restore() {
   echo "   list_files | while read FILE REPLACEMENT; do"
   echo "     R=\"\""
   echo "     [ -n \"\$REPLACEMENT\" ] && R=\"\$S/\$REPLACEMENT\""
-  echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\" && [ -f \"\$S/\$FILE\" ] && addToLog \"- \$S/\$FILE copied\""
+  echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\" && addFileToLog \"\$S/\$FILE\""
   echo "   done"
   echo "   for i in \$(list_files); do"
   echo "     f=\$(get_output_path \"\$S/\$i\")"
@@ -235,6 +248,7 @@ header > "$dest"
 cat "$COMMONDIR/header" >> "$dest"
 {
   echo_add_to_log
+  echo_add_file_to_log
   cat "$COMMONDIR/functions"
   list_build_props
   list_files
