@@ -35,6 +35,18 @@ class Statics:
     admin_access_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/admin_access.txt"
     admin_access = None
     folder_access = None
+    in_progress = "○"
+    completed = "●"
+    # "■ ▤ □ ▥ ▧ ▨ ▩ ▦ ▣ ◈ ◇ ◆ ◉ ◊ ○ ◌ ◍ ◎ ● ◐ ◑ ◒ ◓ ◔ ◕ ◖ ◗ ◘ ◙ ◚ ◛"
+
+    @staticmethod
+    def display_progress(percentage):
+        percentage = max(1, min(100, percentage))
+        completed_steps = int(percentage / 10)
+        in_progress_steps = 10 - completed_steps
+        progress_str = Statics.completed * completed_steps + Statics.in_progress * in_progress_steps
+        elegant_progress_str = ' '.join(progress_str)
+        return f"( {elegant_progress_str} )" if percentage != 100 else ""
 
     @staticmethod
     def get_import_path(app_set, pkg, install_path, target_version, export_directory=None):
