@@ -35,7 +35,7 @@ class GitOperations:
         arch = "" if arch == "arm64" else "_" + arch
         apk_source_directory = Statics.cwd + Statics.dir_sep + str(android_version) + arch
         apk_source_repo = GitStatics.apk_source_repo + str(android_version) + arch + ".git"
-        return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone)
+        return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone, commit_depth=1)
 
     @staticmethod
     def get_last_commit_date(branch, repo_dir=Statics.cwd, repo_url=None, android_version=None):
