@@ -290,7 +290,7 @@ copy_file_logs() {
   find /product /system /system_ext | sort >>"$logDir/partitions/$1/all_files.txt"
 
   mkdir -p "$logDir/partitions/$1"
-  find /product /system /system_ext -type f -exec du -ah {} + | awk '{print $1, $2}' | sort >>"$logDir/partitions/$1/all_files_with_sizes.txt"
+  find /product /system /system_ext -type f -exec du -ah {} + | awk '{print $2, $1}' | sort >>"$logDir/partitions/$1/all_files_with_sizes.txt"
 }
 
 copy_logs() {
