@@ -3,9 +3,10 @@ import argparse
 
 
 class Args:
-    def __init__(self) -> None:
-        self.parser = argparse.ArgumentParser(
-            description="NikGapps build command help!")
+    def __init__(self, parser=None) -> None:
+        if parser is None:
+            self.parser = argparse.ArgumentParser(
+                description="NikGapps build command help!")
         # parser.add_argument(
         #     '-U', '--userID', help="Telegram User Id", default='-1', type=str)
         self.parser.add_argument('-C', '--config', help="byte64 value of nikgapps.config", type=str)
