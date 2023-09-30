@@ -8,7 +8,6 @@ installSource=$2
 deleteSource=$2
 debloaterSource=$2
 [ -n "$3" ] && addon_index=$3
-dest="$destDir/$addon_index-$fileName.sh"
 mkdir -p "$destDir"
 TMPDIR=/dev/tmp
 COMMONDIR=$TMPDIR/NikGappsScripts
@@ -41,6 +40,34 @@ echo_add_file_to_log() {
   echo "  fi"
   echo "}"
   echo ""
+}
+
+generate_filename() {
+  directory="$1"; constant="$2"; app_name="$3"
+  max_index=0
+  for file in "$directory"/"$constant"-[0-9]*-"$app_name".sh; do
+    [ -e "$file" ] || continue
+    index=$(basename "$file" | cut -d '-' -f 2 | sed 's/[^0-9]*//g')
+    if [ "$index" -eq "$index" ] 2>/dev/null; then
+      echo "$file"
+      return
+    fi
+  done
+  for file in "$directory"/*.sh; do
+    if grep -q "AFZC" "$file"; then
+      file_name=$(basename "$file")
+      file_constant=$(echo "$file_name" | cut -d '-' -f 1)
+      if [ "$file_constant" = "$constant" ]; then
+        index=$(echo "$file_name" | cut -d '-' -f 2 | sed 's/[^0-9]*//g')
+        if [ -n "$index" ] && [ "$index" -eq "$index" ] 2>/dev/null; then
+          [ "$index" -gt "$max_index" ] && max_index="$index"
+        fi
+      fi
+    fi
+  done
+  max_index=$((max_index + 1))
+  new_file="$directory/$constant-$(printf "%02d" "$max_index")-$app_name.sh"
+  echo "$new_file"
 }
 
 list_build_props() {
@@ -239,6 +266,8 @@ header() {
   echo "# ADDOND_VERSION=3"
 }
 
+dest="$(generate_filename "$destDir" "$addon_index" "$fileName")"
+
 for i in $(find $destDir -iname "*$fileName.sh" 2>/dev/null;); do
   if [ -f "$i" ]; then
     rm -rf "$i"
@@ -261,4 +290,4 @@ cat "$COMMONDIR/header" >> "$dest"
 } >>"$dest"
 chmod 755 "$dest"
 mkdir -p "$addon_scripts_logDir"
-cat "$dest" > "$addon_scripts_logDir/$addon_index-$fileName.sh"
+cat "$dest" > "$addon_scripts_logDir/$(basename "$dest")"
