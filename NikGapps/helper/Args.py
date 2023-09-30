@@ -1,38 +1,37 @@
 import argparse
-from .Statics import Statics
 # from helper.B64 import B64
 
 
 class Args:
     def __init__(self) -> None:
-        parser = argparse.ArgumentParser(
+        self.parser = argparse.ArgumentParser(
             description="NikGapps build command help!")
         # parser.add_argument(
         #     '-U', '--userID', help="Telegram User Id", default='-1', type=str)
-        parser.add_argument('-C', '--config', help="byte64 value of nikgapps.config", type=str)
+        self.parser.add_argument('-C', '--config', help="byte64 value of nikgapps.config", type=str)
         # parser.add_argument(
         #     '-N', '--configName', help="Name of custom nikgapps.config", type=str)
         # parser.add_argument(
         #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
-        parser.add_argument('-a', '--arch', help="It is the architecture for which we need to build the gapps",
-                            default="arm64", type=str)
-        parser.add_argument('-T', '--tar', help="Use this to make highly compressed builds", action="store_true")
-        parser.add_argument(
+        self.parser.add_argument('-a', '--arch', help="It is the architecture for which we need to build the gapps",
+                                 default="arm64", type=str)
+        self.parser.add_argument('-T', '--tar', help="Use this to make highly compressed builds", action="store_true")
+        self.parser.add_argument(
             '-G', '--disableGitClone', help="Include this to disable git clone operation", action="store_true")
-        parser.add_argument(
+        self.parser.add_argument(
             '-W', '--updateWebsite', help="Include this to update nikgapps website with changelog", action="store_true")
-        parser.add_argument('-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
-        parser.add_argument('-X', '--sign', help="Use this to sign the zip", action="store_true")
-        parser.add_argument('-R', '--release', help="Use this to mark the Release", action="store_true")
+        self.parser.add_argument('-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
+        self.parser.add_argument('-X', '--sign', help="Use this to sign the zip", action="store_true")
+        self.parser.add_argument('-R', '--release', help="Use this to mark the Release", action="store_true")
         # parser.add_argument(
         #     '-F', '--skipForceRun', help="Overrides the release constraints and doesn't run the program",
         #     action="store_true")
-        parser.add_argument(
+        self.parser.add_argument(
             '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
             default="-1", type=str)
-        parser.add_argument('-P', '--packageList', help="List of packages to build", type=str)
+        self.parser.add_argument('-P', '--packageList', help="List of packages to build", type=str)
 
-        args = parser.parse_args()
+        args = self.parser.parse_args()
 
         self.arch = args.arch
         # self.user_id = args.userID
