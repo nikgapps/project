@@ -285,24 +285,26 @@ get_total_size_required() {
   echo $total_size_required
 }
 
+copy_size_logs() {
+  mkdir -p "$logDir/partitions/$1"
+  df >"$logDir/partitions/$1/size.txt"
+  df -h >"$logDir/partitions/$1/size_readable.txt"
+}
+
 copy_file_logs() {
   mkdir -p "$logDir/partitions/$1"
   find /product /system /system_ext | sort >>"$logDir/partitions/$1/all_files.txt"
 
   mkdir -p "$logDir/partitions/$1"
-  find /product /system /system_ext -type f -exec du -ah {} + | awk '{print $2, $1}' | sort >>"$logDir/partitions/$1/all_files_with_sizes.txt"
+  find /product /system /system_ext -type f -exec du -ah {} + | awk '{print $1, $2}' >> "$logDir/partitions/$1/all_files_with_sizes.txt"
 }
 
 copy_logs() {
   copy_file "$system/build.prop" "$logDir/propfiles/build.prop"
   # Store the size of partitions after installation starts
-  df >"$COMMONDIR/size_after.txt"
-  df -h >"$COMMONDIR/size_after_readable.txt"
   copy_file "/vendor/etc/fstab.qcom" "$logDir/fstab/fstab.qcom"
   copy_file "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
   copy_file "/etc/fstab" "$logDir/fstab/fstab"
-  copy_file "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
-  copy_file "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
   copy_file_logs "after"
   for f in $(find /system -iname "*.prop" 2>/dev/null); do
     copy_file "$f" "$logDir/propfiles/$f"

@@ -223,7 +223,8 @@ find_zip_type
 find_device_block
 begin_unmounting
 begin_mounting
-#begin_mtg_mounting
+# begin_mtg_mounting
+copy_size_logs "before"
 # find if the device has dedicated partition or it's symlinked
 addToGeneralLog " " "$nikGappsLog"
 find_partitions_type

@@ -155,10 +155,6 @@ mount_all() {
     fi
   fi
   addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
-  df > "$COMMONDIR/size_before.txt"
-  df -h > "$COMMONDIR/readable_size_before.txt"
-  copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
-  copy_file "$COMMONDIR/readable_size_before.txt" "$logDir/partitions/readable_size_before.txt"
 }
 
 # More info on Apex here -> https://www.xda-developers.com/android-q-apex-biggest-tdynamic_partitionshing-since-project-treble/
