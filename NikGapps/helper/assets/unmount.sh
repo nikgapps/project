@@ -48,9 +48,10 @@ umount_all() {
 
 # Unmount apex partition upon recovery cleanup
 umount_apex() {
-  [ -d /apex ] || return 1;
+  [ -f /apex/apexak3 ] || return 1;
+  echo "Unmounting apex..." >&2;
   local dest loop var;
-  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc 2>/dev/null | $BB awk '{ print $2 }'); do
+  for var in $(grep -o 'export .* /.*' /system_root/init.environ.rc 2>/dev/null | awk '{ print $2 }'); do
     if [ "$(eval echo \$OLD_$var)" ]; then
       eval $var=\$OLD_${var};
     else
@@ -58,11 +59,11 @@ umount_apex() {
     fi;
     unset OLD_${var};
   done;
-  for dest in $($BB find /apex -type d -mindepth 1 -maxdepth 1); do
-    loop=$($BB mount | $BB grep $dest | $BB grep loop | $BB cut -d\  -f1);
-    $BB umount -l $dest;
-    [ "$loop" ] && $BB losetup -d $loop;
+  for dest in $(find /apex -type d -mindepth 1 -maxdepth 1); do
+    loop=$(mount | grep $dest | grep loop | cut -d\  -f1);
+    umount -l $dest;
+    losetup $loop >/dev/null 2>&1 && losetup -d $loop;
   done;
-  [ -f /apex/apextmp ] && $BB umount /apex;
-  $BB rm -rf /apex 2>/dev/null;
+  [ -f /apex/apextmp ] && umount /apex;
+  rm -rf /apex/apexak3 /apex 2>/dev/null;
 }

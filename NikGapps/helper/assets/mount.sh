@@ -160,42 +160,50 @@ mount_all() {
 # More info on Apex here -> https://www.xda-developers.com/android-q-apex-biggest-tdynamic_partitionshing-since-project-treble/
 mount_apex() {
   [ -d /system_root/system/apex ] || return 1;
-  local apex dest loop minorx num var;
+  local apex dest loop minorx num shcon var;
   setup_mountpoint /apex;
-  $BB mount -t tmpfs tmpfs /apex -o mode=755 && $BB touch /apex/apextmp;
+  mount -t tmpfs tmpfs /apex -o mode=755 && touch /apex/apextmp;
+  shcon=$(cat /proc/self/attr/current);
+  echo "u:r:su:s0" > /proc/self/attr/current 2>/dev/null; # work around LOS Recovery not allowing loop mounts in recovery context
   minorx=1;
-  [ -e /dev/block/loop1 ] && minorx=$($BB ls -l /dev/block/loop1 | $BB awk '{ print $6 }');
+  [ -e /dev/block/loop1 ] && minorx=$(ls -l /dev/block/loop1 | awk '{ print $6 }');
   num=0;
   for apex in /system_root/system/apex/*; do
-    dest=/apex/$($BB basename $apex | $BB sed -E -e 's;\.apex$|\.capex$;;' -e 's;\.current$|\.release$;;');
-    $BB mkdir -p $dest;
+    dest=/apex/$(basename $apex | sed -E -e 's;\.apex$|\.capex$;;' -e 's;\.current$|\.release$;;');
+    mkdir -p $dest;
     case $apex in
       *.apex|*.capex)
-        $BB unzip -qo $apex original_apex -d /apex;
+        unzip -qo $apex original_apex -d /apex;
         [ -f /apex/original_apex ] && apex=/apex/original_apex;
-        $BB unzip -qo $apex apex_payload.img -d /apex;
-        $BB mv -f /apex/original_apex $dest.apex 2>/dev/null;
-        $BB mv -f /apex/apex_payload.img $dest.img;
-        $BB mount -t ext4 -o ro,noatime $dest.img $dest 2>/dev/null;
+        unzip -qo $apex apex_payload.img -d /apex;
+        mv -f /apex/original_apex $dest.apex 2>/dev/null;
+        mv -f /apex/apex_payload.img $dest.img;
+        mount -t ext4 -o ro,noatime $dest.img $dest 2>/dev/null && echo "$dest (direct)" >&2;
         if [ $? != 0 ]; then
           while [ $num -lt 64 ]; do
             loop=/dev/block/loop$num;
-            [ -e $loop ] || $BB mknod $loop b 7 $((num * minorx));
-            $BB losetup $loop $dest.img 2>/dev/null;
+            [ -e $loop ] || mknod $loop b 7 $((num * minorx));
+            losetup $loop $dest.img 2>/dev/null;
             num=$((num + 1));
-            $BB losetup $loop | $BB grep -q $dest.img && break;
+            losetup $loop | grep -q $dest.img && break;
           done;
-          $BB mount -t ext4 -o ro,loop,noatime $loop $dest;
+          mount -t ext4 -o ro,loop,noatime $loop $dest && echo "$dest (loop)" >&2;
           if [ $? != 0 ]; then
-            $BB losetup -d $loop 2>/dev/null;
+            losetup -d $loop 2>/dev/null;
+            if [ $num -eq 64 -a $(losetup -f) == "/dev/block/loop0" ]; then
+              echo "Aborting apex mounts due to broken environment..." >&2;
+              break;
+            fi;
           fi;
         fi;
       ;;
-      *) $BB mount -o bind $apex $dest;;
+      *) mount -o bind $apex $dest && echo "$dest (bind)" >&2;;
     esac;
   done;
-  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB awk '{ print $2 }'); do
+  echo "$shcon" > /proc/self/attr/current 2>/dev/null;
+  for var in $(grep -o 'export .* /.*' /system_root/init.environ.rc | awk '{ print $2 }'); do
     eval OLD_${var}=\$$var;
   done;
-  $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB sed 's; /;=/;'); unset export;
+  $(grep -o 'export .* /.*' /system_root/init.environ.rc | sed 's; /;=/;'); unset export;
+  touch /apex/apexak3;
 }
