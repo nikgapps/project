@@ -271,6 +271,9 @@ case $mode in
         rm -f "$file"
       fi
     done
+    for prop_file in "$system"/etc/permissions/*.prop; do
+      sed -i '/^addond=/d' "$prop_file"
+    done
     exit_install
     ui_print " "
   ;;
