@@ -55,6 +55,7 @@ class Upload:
             system_name = platform.system()
             execution_status = False
             download_link = None
+            file_size_mb = None
             if telegram is not None:
                 telegram.message("- The zip is uploading...")
             if self.sftp is not None and system_name != "Windows" and self.upload_files:
@@ -103,10 +104,10 @@ class Upload:
                                              ur_link={f"Download": f"{download_link}"})
             else:
                 P.red("System incompatible or upload disabled or connection failed!")
-            return execution_status, download_link
+            return execution_status, download_link, file_size_mb
         else:
             P.red("Connection failed!")
-            return False, None
+            return False, None, None
 
     def close_connection(self):
         if self.cmd_method:
