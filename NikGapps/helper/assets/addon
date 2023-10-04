@@ -45,6 +45,11 @@ echo_add_file_to_log() {
 get_addond_filename() {
     prop_file="$1"
     prefix="$2"
+    if [ ! -f "$prop_file" ]; then
+        addToLog "- Prop file not found. Creating one with a fresh 'addond' entry." "$fileName"
+        echo "$prefix-01-$fileName.sh"
+        return
+    fi
     addond_entry=$(grep "^addond=$prefix-[0-9]*-.*\.sh$" "$prop_file" | head -n 1 | cut -d'=' -f2)
     num_entries=$(grep -c "^addond=$prefix-[0-9]*-.*\.sh$" "$prop_file")
     addToLog "- $num_entries entries with $prefix prefix found" "$fileName"
