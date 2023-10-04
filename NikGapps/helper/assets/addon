@@ -84,6 +84,7 @@ generate_filename() {
       fi
     fi
   done
+  max_index="${max_index#0}"
   max_index=$((max_index + 1))
   new_file="$directory/$prefix-$(printf "%02d" "$max_index")-$app_name.sh"
   echo "$new_file"
@@ -314,6 +315,7 @@ header() {
 }
 
 dest="$destDir/$(get_addond_filename "$installSource" "$addon_index")"
+addToLog "- dest=$dest" "$fileName"
 [ "$dest" = "$destDir/" ] && dest="$(generate_filename "$destDir" "$addon_index" "$fileName")"
 
 for i in $(find $destDir -iname "*$fileName.sh" 2>/dev/null;); do
