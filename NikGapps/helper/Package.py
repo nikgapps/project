@@ -165,6 +165,7 @@ class Package:
             str_data += line
         str_data += "\n\n"
         str_data += "# Initialize the variables\n"
+        str_data += "uninstall_addon=$1\n"
         str_data += "clean_flash_only=\"" + str(self.clean_flash_only).lower() + "\"\n"
         str_data += "title=\"" + self.title + "\"\n"
         str_data += "package_title=\"" + self.package_title + "\"\n"

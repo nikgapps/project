@@ -306,6 +306,7 @@ copy_logs() {
   copy_file "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
   copy_file "/etc/fstab" "$logDir/fstab/fstab"
   copy_file_logs "after"
+  copy_size_logs "after"
   for f in $(find /system -iname "*.prop" 2>/dev/null); do
     copy_file "$f" "$logDir/propfiles/$f"
   done
@@ -1479,7 +1480,7 @@ uninstall_the_package() {
   esac
   chmod 755 "$TMPDIR/$pkgContent/uninstaller.sh"
   # shellcheck source=src/uninstaller.sh
-  . "$TMPDIR/$pkgContent/uninstaller.sh"
+  . "$TMPDIR/$pkgContent/uninstaller.sh" $4
   set_progress $(get_package_progress "$package_name")
   delete_recursive "$pkgFile"
   delete_recursive "$TMPDIR/$pkgContent"
