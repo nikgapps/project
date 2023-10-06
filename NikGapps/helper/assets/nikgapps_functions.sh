@@ -1030,7 +1030,7 @@ install_app_set() {
       addToLog "- $appset_name is disabled"
       for i in $packages_in_appset; do
         current_package_title=$(echo "$i" | cut -d',' -f1)
-        uninstall_the_package "$appset_name" "$current_package_title" "$extn"
+        uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
       done
     ;;
     *)
@@ -1038,7 +1038,7 @@ install_app_set() {
         "uninstall_by_name")
           for k in $packages_in_appset; do
             current_package_title=$(echo "$k" | cut -d',' -f1)
-            uninstall_the_package "$appset_name" "$current_package_title" "$extn"
+            uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
           done
         ;;
         "uninstall")
@@ -1046,7 +1046,7 @@ install_app_set() {
             current_package_title=$(echo "$k" | cut -d',' -f1)
             [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
             [ -z "$value" ] && value=1
-            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title" "$extn"
+            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
           done
         ;;
         "install")
@@ -1110,7 +1110,7 @@ install_app_set() {
               fi
             elif [ "$value" -eq -1 ] ; then
               addToLog "- uninstalling $current_package_title" "$current_package_title"
-              uninstall_the_package "$appset_name" "$current_package_title" "$extn"
+              uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
             elif [ "$value" -eq 0 ] ; then
               ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
             fi
@@ -1465,7 +1465,7 @@ uninstall_the_package() {
     .*) ;;
     *) extn=".$extn" ;;
   esac
-  [ -z "$4" ] && ui_print "- Uninstalling $package_name" || addToLog "- Uninstalling $package_name" "$package_name"
+  [ "$4" = "1" ] && ui_print "- Uninstalling $package_name" || addToLog "- Uninstalling $package_name" "$package_name"
   pkgFile="$TMPDIR/$package_name$extn"
   pkgContent="pkgContent"
   unpack_pkg "AppSet/$1/$package_name$extn" "$pkgFile" "$package_name"
@@ -1480,7 +1480,7 @@ uninstall_the_package() {
   esac
   chmod 755 "$TMPDIR/$pkgContent/uninstaller.sh"
   # shellcheck source=src/uninstaller.sh
-  . "$TMPDIR/$pkgContent/uninstaller.sh" $4
+  . "$TMPDIR/$pkgContent/uninstaller.sh" "$4"
   set_progress $(get_package_progress "$package_name")
   delete_recursive "$pkgFile"
   delete_recursive "$TMPDIR/$pkgContent"
