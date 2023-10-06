@@ -40,7 +40,7 @@ class Release:
                 if result[1]:
                     if Config.UPLOAD_FILES:
                         print("Uploading " + str(result[0]))
-                        execution_status, download_link = upload.upload(result[0], telegram=telegram)
+                        execution_status, download_link, file_size_mb = upload.upload(result[0], telegram=telegram)
                         print("Done")
                         return execution_status
                 else:
@@ -88,7 +88,7 @@ class Release:
                            fresh_build=fresh_build, telegram=telegram, compression_mode=Modes.DEFAULT)
             if result[1] and Config.UPLOAD_FILES:
                 print("Uploading " + str(result[0]))
-                execution_status, download_link = upload.upload(result[0], telegram=telegram)
+                execution_status, download_link, file_size_mb = upload.upload(result[0], telegram=telegram)
                 print("Done")
                 return execution_status
         else:

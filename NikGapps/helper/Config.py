@@ -22,6 +22,7 @@ BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 
 
 # Send the zip to device after creation, Possible values are True and False
 SEND_ZIP_DEVICE = False
+SEND_ZIP_LOCATION = "/sdcard"
 
 # This will allow the program to sign the zip
 SIGN_ZIP = False

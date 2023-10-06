@@ -1,3 +1,4 @@
+from .. import Config
 from ..NikGappsConfig import NikGappsConfig
 from ..P import P
 from ..FileOp import FileOp
@@ -143,7 +144,7 @@ class Export:
             if send_zip_device:
                 send_zip_device_time = T()
                 cmd = Cmd()
-                device_path = "/sdcard/Afzc-" + str(
+                device_path = f"{Config.SEND_ZIP_LOCATION}/Afzc-" + str(
                     android_version) + "/" + T.get_current_time() + "/" + os.path.basename(
                     file_name)
                 message = f"Sending {os.path.basename(file_name)} to device at: " + device_path
