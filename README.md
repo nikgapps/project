@@ -27,7 +27,7 @@ Here are some feature highlights:
 Make sure you have [python3](https://www.python.org/), [git](https://git-scm.com/), [aapt](https://packages.debian.org/buster/aapt) installed.
 - Linux machine / MacOS
 - Install apt requirements
--  ```apt-get install -y --no-install-recommends python3 python3-pip aapt git git-lfs openjdk-8-jdk apktool```
+-  ```sudo apt-get install -y --no-install-recommends python3 python3-pip aapt git git-lfs openjdk-8-jdk apktool```
 
 ### Building
 - ```mkdir nikgapps``` 
