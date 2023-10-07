@@ -1,3 +1,4 @@
+
 ![](https://raw.githubusercontent.com/nikgapps/nikgapps.github.io/master/images/nikgapps-logo.webp)
 
 ## Introduction
@@ -24,40 +25,24 @@ Here are some feature highlights:
 ## Self-Build
 ### Prerequisites
 Make sure you have [python3](https://www.python.org/), [git](https://git-scm.com/), [aapt](https://packages.debian.org/buster/aapt) installed.
-```
-python3 -m pip install wheel setuptools testresources
-```
-### Building
-- Git clone [the build scripts](https://github.com/nikgapps/build) Into a directory:
-```
-git clone https://github.com/nikgapps/build.git --depth=1
-```
-- Install needed dependencies for building:
-```
-cd build
-pip3 install -r requirements.txt
-cd ..
-```
-- Set GIT_CHECK and BUILD_CONFIG to False in Config.py inside build scripts directory using your Editor
-  - (Optional) Set SIGN_ZIP to False to disable signing
-```
-<EDITOR> build/Config.py
-```
-- Git clone [this repository](https://github.com/nikgapps/config) Into a directory:
-  - NOTE: this must be placed in the same root directory as the build scripts.
-```
-git clone https://github.com/nikgapps/config.git --depth=1
-```
-- Download the latest version of [nikgapps.config](https://sourceforge.net/projects/nikgapps/files/Releases/Config/nikgapps-config/) and place it inside your desired android version you will be building e.g. `<config dir>/<android ver>/nikgapps.config` and edit it to your liking.
-- Rename the config file you downloaded and set the name you want to give your custom NikGapps build to. e.g. `xyz.config` will create `NikGapps-xyz-arm64-androidversion-date-signed.zip` 
-- Build
-```
-cd build
-python3 config_control.py --androidVersion <android version>
-```
 
-## For Developers
-[![](https://img.shields.io/badge/NikGapps%20-How%20to%20Build%20NikGapps%20Packages-blue)](https://github.com/nikgapps/config)
+
+### Building
+- ```mkdir nikgapps``` 
+- ```cd nikgapps```
+
+**Install builder from pip** 
+- ```python3 -m pip install NikGapps```
+
+**Configure git user name and email to make Git LFS to work**
+ - ```git config --global user.name "Example"```
+ - ```git config --global user.email "example@example.com"```
+
+**You can now build given  gapps variant**
+- ```nikgapps --androidVersion (Android Version) --packageList (gapps variant)```
+*Example: ```nikgapps --androidVersion 13 --packageList basic```*
+
+**Your gapps package will be at releases directory**
 
 ## Total Downloads  
 <img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=Total%20Downloads&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">
