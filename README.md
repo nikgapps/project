@@ -40,7 +40,7 @@ Make sure you have [python3](https://www.python.org/), [git](https://git-scm.com
 
 **You can now build given  gapps variant**
 - ```nikgapps --androidVersion (Android Version) --packageList (gapps variant)```
-*Example: ```nikgapps --androidVersion 13 --packageList basic```*
+- *Example: ```nikgapps --androidVersion 13 --packageList basic```*
 
 **Your gapps package will be at releases directory**
 
