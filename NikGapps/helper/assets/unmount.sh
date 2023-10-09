@@ -21,7 +21,7 @@ umount_all() {
     $BB umount /system;
     $BB umount -l /system;
   fi) 2>/dev/null;
-  umount_apex;
+#  umount_apex; # we're not using apex so there is no need to unmount it for now.
   (if [ ! -d /postinstall/tmp ]; then
     ui_print "- Unmounting /system_root" "$mountLog"
     $BB umount /system_root;

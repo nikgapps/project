@@ -87,7 +87,7 @@ mount_all() {
   done;
 
   if is_mounted /system_root; then
-    mount_apex;
+#    mount_apex; # we're not using apex so there is no need to mount it for now.
     mount -o bind /system_root$system /system && addToGeneralLog "- /system (bind)" "$mountLog" >&2;
   elif is_mounted /system; then
     addToGeneralLog "- /system is mounted" "$mountLog"
