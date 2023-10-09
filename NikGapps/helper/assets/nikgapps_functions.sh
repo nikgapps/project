@@ -223,8 +223,8 @@ contains() {
 
 delete_prop_lines() {
   file_path=$1
-  sed -i '/^install=/d' "$file_path"
-  sed -i '/^buildprop=/d' "$file_path"
+  [ -f "$file_path" ] && sed -i '/^install=/d' "$file_path"
+  [ -f "$file_path" ] && sed -i '/^buildprop=/d' "$file_path"
 }
 
 
