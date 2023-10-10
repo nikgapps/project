@@ -31,7 +31,7 @@ class Release:
                     Release.zip_package(package_name, [app_set], android_version, sign_zip, send_zip_device,
                                         fresh_build, telegram, upload=upload)
             elif str(pkg_type).lower() == "debloater" or str(pkg_type).lower() == "removeotascripts":
-                file_name = release_directory + Statics.dir_sep + f"{pkg_type}-" + str(
+                file_name = release_directory + Statics.dir_sep + f"{str(pkg_type).capitalize()}-" + str(
                     T.get_current_time()) + ".zip"
                 z = Export(file_name)
                 config_obj = NikGappsConfig(android_version=android_version)
