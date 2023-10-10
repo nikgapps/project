@@ -1,7 +1,7 @@
-- date: 09th Oct 2023 (Android 10-13)
+- date: 10th Oct 2023 (Android 10-13)
   changes:
       - item: Fixed the mounting issues for recoveries like crdroid
-      - item: Fixed some issues with the installer script
+      - item: Fixed some issues with the installer script running in error in recovery
 - date: 07th Oct 2023 (Android 10-13)
   changes:
       - item: Fixed apps that were larger in size failing to survive OTA updates

@@ -41,54 +41,54 @@ mount_all() {
   local byname mount slot system;
   addToGeneralLog "- Mounting..." "$mountLog"
   byname=bootdevice/by-name;
-  [ -d /dev/block/$byname ] || byname=$(find /dev/block/platform -type d -name by-name 2>/dev/null | head -n1 | cut -d/ -f4-);
+  [ -d /dev/block/$byname ] || byname=$($BB find /dev/block/platform -type d -name by-name 2>/dev/null | $BB head -n1 | $BB cut -d/ -f4-);
   addToGeneralLog "- byname=$byname" "$mountLog";
   [ -e /dev/block/$byname/super ] && [ -d /dev/block/mapper ] && byname=mapper && addToGeneralLog "- Device with dynamic partitions Found" "$mountLog";
   [ -e /dev/block/$byname/system ] || slot=$(find_slot);
   for mount in /cache /data /metadata /persist; do
     if ! is_mounted $mount; then
-      mount $mount 2>/dev/null && addToGeneralLog "- $mount (fstab)" "$mountLog" >&2 && UMOUNTLIST="$UMOUNTLIST $mount";
+      $BB mount $mount 2>/dev/null && addToGeneralLog "- $mount (fstab)" "$mountLog" >&2 && UMOUNTLIST="$UMOUNTLIST $mount";
       if [ $? != 0 ] && [ -e /dev/block/$byname$mount ]; then
         setup_mountpoint $mount;
-        mount -o rw -t auto /dev/block/$byname$mount $mount && addToGeneralLog "- $mount (direct)" "$mountLog" >&2 && UMOUNTLIST="$UMOUNTLIST $mount";
+        $BB mount -o rw -t auto /dev/block/$byname$mount $mount && addToGeneralLog "- $mount (direct)" "$mountLog" >&2 && UMOUNTLIST="$UMOUNTLIST $mount";
       fi;
     fi;
   done;
   ui_print "- Mounting $ANDROID_ROOT" "$mountLog"
   setup_mountpoint $ANDROID_ROOT;
   if ! is_mounted $ANDROID_ROOT; then
-    mount -o ro -t auto $ANDROID_ROOT 2>/dev/null && addToGeneralLog "- $ANDROID_ROOT (\$ANDROID_ROOT)" "$mountLog" >&2;
+    $BB mount -o ro -t auto $ANDROID_ROOT 2>/dev/null && addToGeneralLog "- $ANDROID_ROOT (\$ANDROID_ROOT)" "$mountLog" >&2;
   fi;
   case $ANDROID_ROOT in
     /system_root) setup_mountpoint /system;;
     /system)
       if ! is_mounted /system && ! is_mounted /system_root; then
         setup_mountpoint /system_root;
-        mount -o rw -t auto /system_root && addToGeneralLog "- /system_root (fstab)" "$mountLog" >&2;
+        $BB mount -o rw -t auto /system_root && addToGeneralLog "- /system_root (fstab)" "$mountLog" >&2;
       elif [ -f /system/system/build.prop ]; then
         setup_mountpoint /system_root;
-        mount --move /system /system_root && addToGeneralLog "- /system_root (moved)" "$mountLog" >&2;
+        $BB mount --move /system /system_root && addToGeneralLog "- /system_root (moved)" "$mountLog" >&2;
       fi;
       if [ $? != 0 ]; then
-        (umount /system;
-        umount -l /system) 2>/dev/null;
-        mount -o rw -t auto /dev/block/$byname/system$slot /system_root && addToGeneralLog "- /system_root (direct)" "$mountLog" >&2;
+        ($BB umount /system;
+        $BB umount -l /system) 2>/dev/null;
+        $BB mount -o rw -t auto /dev/block/$byname/system$slot /system_root && addToGeneralLog "- /system_root (direct)" "$mountLog" >&2;
       fi;
     ;;
   esac;
   [ -f /system_root/system/build.prop ] && system=/system;
   for mount in /vendor /product /system_ext; do
     ui_print "- Mounting $mount" "$mountLog"
-    mount -o rw -t auto $mount 2>/dev/null && addToGeneralLog "- $mount (fstab)" "$mountLog" >&2;
-    if [ $? != 0 ] && [ -L /system$mount -o -L /system_root$system$mount ]; then
+    $BB mount -o rw -t auto $mount 2>/dev/null && addToGeneralLog "- $mount (fstab)" "$mountLog" >&2;
+    if [ $? != 0 ] && [ -L /system$mount ] || [ -L /system_root$system$mount ]; then
       setup_mountpoint $mount;
-      mount -o rw -t auto /dev/block/$byname$mount$slot $mount && addToGeneralLog "- $mount (direct)" "$mountLog" >&2;
+      $BB mount -o rw -t auto /dev/block/$byname$mount$slot $mount && addToGeneralLog "- $mount (direct)" "$mountLog" >&2;
     fi;
   done;
 
   if is_mounted /system_root; then
 #    mount_apex; # we're not using apex so there is no need to mount it for now.
-    mount -o bind /system_root$system /system && addToGeneralLog "- /system (bind)" "$mountLog" >&2;
+    $BB mount -o bind /system_root$system /system && addToGeneralLog "- /system (bind)" "$mountLog" >&2;
   elif is_mounted /system; then
     addToGeneralLog "- /system is mounted" "$mountLog"
   else
@@ -106,15 +106,15 @@ mount_all() {
     done
     addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
   fi
-  mount -o rw,remount -t auto /system || mount -o rw,remount -t auto /
+  $BB mount -o rw,remount -t auto /system || $BB mount -o rw,remount -t auto /
   for partition in "vendor" "product" "system_ext"; do
     addToGeneralLog "- Remounting /$partition as read write" "$mountLog"
-    mount -o rw,remount -t auto "/$partition" 2>/dev/null
+    $BB mount -o rw,remount -t auto "/$partition" 2>/dev/null
   done
   if [ -n "$PRODUCT_BLOCK" ]; then
     if ! is_mounted /product; then
       mkdir /product || true
-      if mount -o rw "$PRODUCT_BLOCK" /product; then
+      if $BB mount -o rw "$PRODUCT_BLOCK" /product; then
         addToGeneralLog "- /product mounted" "$mountLog"
       else
         addToGeneralLog "- Could not mount /product" "$mountLog"
@@ -126,7 +126,7 @@ mount_all() {
   if [ -n "$SYSTEM_EXT_BLOCK" ]; then
     if ! is_mounted /system_ext; then
       mkdir /system_ext || true
-      if mount -o rw "$SYSTEM_EXT_BLOCK" /system_ext; then
+      if $BB mount -o rw "$SYSTEM_EXT_BLOCK" /system_ext; then
         addToGeneralLog "- /system_ext mounted" "$mountLog"
       else
         addToGeneralLog "- Could not mount /system_ext" "$mountLog"
