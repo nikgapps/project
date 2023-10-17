@@ -594,7 +594,7 @@ find_device_block() {
 }
 
 find_gapps_size() {
-  file_value=$(cat $COMMONDIR/file_size)
+  file_value=$(cat $COMMONDIR/file_size.txt)
   for i in $file_value; do
     install_pkg_title=$(echo "$i" | cut -d'=' -f 1)
     install_pkg_size=$(echo "$i" | cut -d'=' -f 2)
