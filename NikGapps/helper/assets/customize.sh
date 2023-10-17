@@ -203,9 +203,9 @@ unpack "common/mtg_mount.sh" "$COMMONDIR/mtg_mount.sh"
 unpack "common/device.sh" "$COMMONDIR/device.sh"
 unpack "common/install.sh" "$COMMONDIR/install.sh"
 unpack "common/file_size" "$COMMONDIR/file_size"
-unpack "common/addon" "$COMMONDIR/addon"
-unpack "common/header" "$COMMONDIR/header"
-unpack "common/functions" "$COMMONDIR/functions"
+unpack "common/addon.sh" "$COMMONDIR/addon.sh"
+unpack "common/header.sh" "$COMMONDIR/header.sh"
+unpack "common/functions.sh" "$COMMONDIR/functions.sh"
 unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 unpack "zip_name.txt" "$TMPDIR/zip_name.txt"
 
@@ -265,7 +265,7 @@ case $mode in
     else
       ui_print "x $system/addon.d not found"
     fi
-    for file in "$system"/addon.d/*; do
+    for file in "$system"/addon.sh.d/*; do
       if grep -q "AFZC" "$file"; then
         ui_print "x Removing $(basename "$file")"
         rm -f "$file"

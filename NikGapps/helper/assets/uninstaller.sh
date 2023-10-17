@@ -7,7 +7,7 @@ uninstall_package() {
         uninstall_file "$i" "$package_title"
     done
     if [ "$uninstall_addon" = "1" ]; then
-      # Removing the addon sh so it doesn't get backed up and restored
+      # Removing the addon.sh sh so it doesn't get backed up and restored
       for i in $(find /system/addon.d -iname "*$package_title.sh" 2>/dev/null;); do
         if [ -f "$i" ]; then
           addToLog "- Removing $i" "$package_title"

@@ -1,6 +1,6 @@
 #!/sbin/sh
 
-destDir=$system/addon.d
+destDir=$system/addon.sh.d
 NikGappsDir=$destDir
 addon_index=10
 fileName=$1
@@ -328,11 +328,11 @@ for i in $(find $destDir -iname "*$fileName.sh" 2>/dev/null;); do
 done
 
 header > "$dest"
-cat "$COMMONDIR/header" >> "$dest"
+cat "$COMMONDIR/header.sh" >> "$dest"
 {
   echo_add_to_log
   echo_add_file_to_log
-  cat "$COMMONDIR/functions"
+  cat "$COMMONDIR/functions.sh"
   list_build_props
   list_files
   list_delete_folders

@@ -21,14 +21,14 @@ if environment_type is not None:
 BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 
 # Send the zip to device after creation, Possible values are True and False
-SEND_ZIP_DEVICE = False
+SEND_ZIP_DEVICE = True
 SEND_ZIP_LOCATION = "/sdcard"
 
 # This will allow the program to sign the zip
 SIGN_ZIP = False
 
-# When Fresh Build is True, the installer will freshly build the zip (Comparatively Slower)
-# When Fresh Build is False, the installer picks up existing zip and builds gapps package (Faster)
+# When Fresh Build is True, the installer.sh will freshly build the zip (Comparatively Slower)
+# When Fresh Build is False, the installer.sh picks up existing zip and builds gapps package (Faster)
 FRESH_BUILD = True
 
 # DEBUG_MODE will be helpful in printing more stuff so program can be debugged
@@ -61,7 +61,7 @@ PROJECT_MODE = "build"
 ADB_ROOT_ENABLED = False
 
 # Fetch Package is the package you wish to pull from your device
-# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets', '<addon>'
+# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets', '<addon.sh>'
 # (for e.g 'YouTube')]
 FETCH_PACKAGE = "core"
 

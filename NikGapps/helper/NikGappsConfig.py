@@ -71,7 +71,7 @@ class NikGappsConfig:
             },
             "WipeDalvikCache": {
                 "value": self.enabled_mode,
-                "description": "# set WipeDalvikCache=0 if you don't want the installer to wipe dalvik/cache after installing the gapps"
+                "description": "# set WipeDalvikCache=0 if you don't want the installer.sh to wipe dalvik/cache after installing the gapps"
             },
             "WipeRuntimePermissions": {
                 "value": self.disabled_mode,
@@ -83,7 +83,7 @@ class NikGappsConfig:
             },
             "use_zip_config": {
                 "value": self.use_zip_config,
-                "description": "# if you want to force the installer to use the config from gapps zip file, set below to 1"
+                "description": "# if you want to force the installer.sh to use the config from gapps zip file, set below to 1"
             },
             "gms_optimization": {
                 "value": self.disabled_mode,

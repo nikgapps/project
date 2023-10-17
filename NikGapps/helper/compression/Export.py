@@ -70,7 +70,7 @@ class Export:
                         if pkg.clean_flash_only:
                             cpkg.add_string("", "___etc___permissions/" + pkg.package_title + ".prop")
                         pkg.pkg_size = pkg_size
-                        cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh")
+                        cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh.sh")
                         cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
                         cpkg.close()
                         FileOp.write_string_file(str(pkg_size), pkg_txt_path)
@@ -98,8 +98,8 @@ class Export:
                 debloater_config_lines += line + "\n"
             self.z.add_string(debloater_config_lines, "afzc/debloater.config")
             self.z.add_file(Assets.changelog, "changelog.yaml")
-            self.z.add_file(Assets.addon_path, "common/addon")
-            self.z.add_file(Assets.header_path, "common/header")
+            self.z.add_file(Assets.addon_path, "common/addon.sh.sh")
+            self.z.add_file(Assets.header_path, "common/header.sh.sh")
             self.z.add_file(Assets.functions_path, "common/functions")
             self.z.add_string(file_sizes, "common/file_size")
             self.z.add_file(Assets.nikgapps_functions, "common/nikgapps_functions.sh")

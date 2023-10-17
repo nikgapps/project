@@ -336,7 +336,7 @@ copy_logs() {
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *
   [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
 
-  # if /userdata is encrypted, installer will copy the logs to system
+  # if /userdata is encrypted, installer.sh will copy the logs to system
   backup_logs_dir="$system/etc"
   OLD_IFS="$IFS"
   config_dir_list="$nikGappsDir:$nikgapps_config_dir:$nikgapps_log_dir:$backup_logs_dir"
@@ -426,7 +426,7 @@ debloat() {
     done
     if [ $debloaterRan = 1 ]; then
       update_prop "$propFilePath" "install" "$propFilePath" "$debloaterFilesPath"
-      . $COMMONDIR/addon "Debloater" "$propFilePath" "$addon_index"
+      . $COMMONDIR/addon.sh "Debloater" "$propFilePath" "$addon_index"
       copy_file "$system/addon.d/$addon_index-Debloater.sh" "$logDir/addonscripts/$addon_index-Debloater.sh"
     fi
   else
@@ -1151,7 +1151,7 @@ install_the_package() {
     ;;
   esac
   chmod 755 "$TMPDIR/$pkgContent/installer.sh"
-  # shellcheck source=src/installer.sh
+  # shellcheck source=src/installer.sh.sh
   . "$TMPDIR/$pkgContent/installer.sh" "$config_value" "$nikgapps_config_file_name" "$install_partition"
 
   set_progress "$(get_package_progress "$package_name")"
