@@ -35,8 +35,8 @@ class Assets:
     else:
         aapt_path = "adb"
         adb_path = "aapt"
-    addon_path = cwd + "addon.sh.sh"
-    header_path = cwd + "header.sh.sh"
+    addon_path = cwd + "addon.sh"
+    header_path = cwd + "header.sh"
     functions_path = cwd + "functions.sh"
     gofile_path = cwd + "gofile.sh"
     busybox = cwd + "busybox"
@@ -48,7 +48,7 @@ class Assets:
     update_script_path = cwd + "updater-script"
     nikgapps_config = cwd + "nikgapps.config"
     debloater_config = cwd + "debloater.config"
-    installer_path = cwd + "installer.sh.sh"
+    installer_path = cwd + "installer.sh"
     uninstaller_path = cwd + "uninstaller.sh"
     changelog = cwd + "changelogs.yaml"
     sign_jar = os.path.join(assets_folder, "NikGappsZipSigner.jar")

@@ -61,7 +61,7 @@ PROJECT_MODE = "build"
 ADB_ROOT_ENABLED = False
 
 # Fetch Package is the package you wish to pull from your device
-# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets', '<addon.sh>'
+# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets', '<addon>'
 # (for e.g 'YouTube')]
 FETCH_PACKAGE = "core"
 

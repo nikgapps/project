@@ -1151,7 +1151,7 @@ install_the_package() {
     ;;
   esac
   chmod 755 "$TMPDIR/$pkgContent/installer.sh"
-  # shellcheck source=src/installer.sh.sh
+  # shellcheck source=src/installer.sh
   . "$TMPDIR/$pkgContent/installer.sh" "$config_value" "$nikgapps_config_file_name" "$install_partition"
 
   set_progress "$(get_package_progress "$package_name")"
