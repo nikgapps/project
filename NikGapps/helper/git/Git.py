@@ -110,10 +110,12 @@ class Git:
             return True
         return False
 
-    def git_push(self, commit_message, push_untracked_files=None):
+    def git_push(self, commit_message, push_untracked_files=None, debug=False):
         if not self.enable_push:
             print("Git push is disabled, skipping push!")
             return
+        if debug:
+            print(self.repo.git.status())
         self.repo.git.add(update=True)
         if push_untracked_files is not None:
             for file in self.repo.untracked_files:
@@ -122,7 +124,10 @@ class Git:
             commit_message = "Auto Commit"
         self.repo.index.commit(commit_message)
         origin = self.repo.remote(name='origin')
-        origin.push()
+        push_info = origin.push()
+        if debug:
+            for info in push_info:
+                print(info.summary)
         print("Pushed to origin: " + str(commit_message))
 
     def update_changelog(self):
