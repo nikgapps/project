@@ -1,12 +1,12 @@
 from pathlib import Path
-import importlib.resources as pkg_resources
+from importlib import resources
 from .FileOp import FileOp
 import os.path
 import platform
 
 
 class Assets:
-    with pkg_resources.path('NikGapps.helper.assets', '') as asset_path:
+    with resources.files('NikGapps.helper').joinpath('assets') as asset_path:
         assets_folder = str(asset_path)
     if not FileOp.dir_exists(assets_folder):
         assets_folder = os.path.join(os.getcwd(), 'assets')
