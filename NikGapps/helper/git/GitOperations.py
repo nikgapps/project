@@ -20,12 +20,13 @@ class GitOperations:
         return repo if result else None
 
     @staticmethod
-    def clone_overlay_repo(android_version, fresh_clone=False, branch="master", source=False):
+    def clone_overlay_repo(android_version, fresh_clone=False, branch="master", source=False, enable_push=False):
         if float(android_version) > 12:
             android_code = Statics.get_android_code(android_version)
             overlay_source_dir = (Statics.cwd + Statics.dir_sep + f"overlays_{android_code}"
                                   + ("_source" if source else ""))
-            overlay_source_repo = (f"https://github.com/nikgapps/overlays_{android_code}"
+            overlay_source_repo = (("git@github.com:nikgapps/" if enable_push else "https://github.com/nikgapps/")
+                                   + f"overlays_{android_code}"
                                    + ("_source" if source else "") + ".git")
             return GitOperations.setup_repo(overlay_source_dir, overlay_source_repo, branch, fresh_clone)
         else:
