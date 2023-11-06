@@ -110,25 +110,35 @@ class Git:
             return True
         return False
 
-    def git_push(self, commit_message, push_untracked_files=None, debug=False):
+    def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False):
         if not self.enable_push:
             print("Git push is disabled, skipping push!")
             return
-        if debug:
-            print(self.repo.git.status())
-        self.repo.git.add(update=True)
-        if push_untracked_files is not None:
-            for file in self.repo.untracked_files:
-                self.repo.index.add([file])
-        if commit_message is None:
-            commit_message = "Auto Commit"
-        self.repo.index.commit(commit_message)
-        origin = self.repo.remote(name='origin')
-        push_info = origin.push()
-        if debug:
+        try:
+            origin = self.repo.remote(name='origin')
+            if self.repo.is_dirty(untracked_files=True):
+                self.repo.git.add(u=True)
+                if push_untracked_files:
+                    self.repo.git.add(A=True)
+                if commit_message is None:
+                    commit_message = "Auto Commit"
+                self.repo.index.commit(commit_message)
+            if rebase:
+                origin.fetch()
+                try:
+                    self.repo.git.pull('--rebase')
+                except git.GitCommandError as e:
+                    print(f"Error during rebase: {e}")
+            if debug:
+                print(self.repo.git.status())
+            push_info = origin.push()
             for info in push_info:
-                print(info.summary)
-        print("Pushed to origin: " + str(commit_message))
+                if "rejected" in info.summary:
+                    print(info.summary)
+                else:
+                    print("Pushed to origin: " + str(commit_message))
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     def update_changelog(self):
         source_file = Assets.changelog
