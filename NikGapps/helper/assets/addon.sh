@@ -1,6 +1,6 @@
 #!/sbin/sh
 
-destDir=$system/addon.sh.d
+destDir=$system/addon.d
 NikGappsDir=$destDir
 addon_index=10
 fileName=$1
