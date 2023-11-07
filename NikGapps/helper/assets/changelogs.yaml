@@ -1,3 +1,7 @@
+- date: 07th Nov 2023 (Android 14 beta + Android 10-13)
+  changes:
+      - item: Initial Android 14 beta Release
+      - item: Fixed some issues with the installer looking at addon.sh.d folder instead of addon.d folder
 - date: 10th Oct 2023 (Android 10-13)
   changes:
       - item: Fixed the mounting issues for recoveries like crdroid
