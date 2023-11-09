@@ -1,4 +1,4 @@
-name: CI and Auto Release
+name: Create Release
 
 on:
   push:
@@ -41,16 +41,6 @@ jobs:
           NEW_VERSION="$V_MAJOR.$V_MINOR"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "::set-output name=new_version::$NEW_VERSION"
-
-      - name: Build package
-        run: |
-          python -m build
-
-#      - name: Publish package
-#        uses: pypa/gh-action-pypi-publish@release/v1
-#        with:
-#          user: ${{ secrets.PYPI_USERNAME }}
-#          password: ${{ secrets.PYPI_PASSWORD }}
 
       - name: Create Release
         uses: actions/create-release@v1
