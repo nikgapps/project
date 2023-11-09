@@ -52,11 +52,11 @@ class Args:
 
     def get_package_list(self):
         if self.config_value is None and self.package_list is not None:
-            pkg_list = self.package_list.split(',')
+            pkg_list = str(self.package_list).replace("'", "").split(',')
         elif self.config_value is not None:
             # generate from config
             # config_string = B64.b64d(self.config_value)
-            pkg_list = self.package_list.split(',')
+            pkg_list = str(self.package_list).replace("'", "").split(',')
         else:
             pkg_list = []
         return pkg_list
@@ -70,7 +70,7 @@ class Args:
 
     def get_android_versions(self):
         if self.android_version != str(-1):
-            android_versions = self.android_version.split(',')
+            android_versions = str(self.android_version).replace("'", "").split(',')
         else:
             android_versions = []
         return android_versions
