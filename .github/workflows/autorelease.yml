@@ -35,9 +35,14 @@ jobs:
       - name: Increment the version
         id: increment_version
         run: |
-          PARTS=(${LATEST_VERSION//./ })
-          V_MAJOR=${PARTS[0]}
-          V_MINOR=$((${PARTS[1]} + 1))
+          LATEST_VERSION=$(echo $LATEST_VERSION | sed 's/v//') # Remove 'v' if present
+          IFS='.' read -r V_MAJOR V_MINOR V_PATCH <<< "$LATEST_VERSION"
+          if [[ $V_MINOR -eq 99 ]]; then
+            V_MAJOR=$((V_MAJOR + 1))
+            V_MINOR=0
+          else
+            V_MINOR=$((V_MINOR + 1))
+          fi
           NEW_VERSION="$V_MAJOR.$V_MINOR"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "::set-output name=new_version::$NEW_VERSION"
@@ -47,7 +52,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          tag_name: ${{ steps.increment_version.outputs.new_version }}
+          tag_name: v${{ steps.increment_version.outputs.new_version }}
           release_name: Release ${{ steps.increment_version.outputs.new_version }}
           draft: false
           prerelease: false
