@@ -53,6 +53,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           tag_name: v${{ steps.increment_version.outputs.new_version }}
-          release_name: Release ${{ steps.increment_version.outputs.new_version }}
+          release_name: ${{ steps.increment_version.outputs.new_version }}
           draft: false
           prerelease: false
