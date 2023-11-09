@@ -28,7 +28,8 @@ jobs:
       - name: Fetch the latest release version
         id: latest_version
         run: |
-          LATEST_VERSION=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .name)
+          echo "LATEST_VERSION=$LATEST_VERSION"
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
       - name: Increment the version
@@ -36,7 +37,7 @@ jobs:
         run: |
           PARTS=(${LATEST_VERSION//./ })
           V_MAJOR=${PARTS[0]}
-          V_MINOR=${PARTS[1]}
+          V_MINOR=$((${PARTS[1]} + 1))
           NEW_VERSION="$V_MAJOR.$V_MINOR"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "::set-output name=new_version::$NEW_VERSION"
@@ -54,7 +55,7 @@ jobs:
       - name: Create Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           tag_name: ${{ steps.increment_version.outputs.new_version }}
           release_name: Release ${{ steps.increment_version.outputs.new_version }}
