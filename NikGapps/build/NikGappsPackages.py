@@ -307,7 +307,7 @@ fi
                                                 resources=Library.get_digital_wellbeing_resources())
             digital_wellbeing.overlay_list.append(digital_wellbeing_overlay)
         app_set_list.append(AppSet("DigitalWellbeing", [digital_wellbeing]))
-        google_messages = Package("PrebuiltBugle", "com.google.android.apps.messaging", Statics.is_system_app,
+        google_messages = Package("PrebuiltBugle", "com.google.android.apps.messaging", Statics.is_priv_app,
                                   "GoogleMessages")
         if float(android_version) >= 12.1:
             google_messages_overlay = Overlay(apkName=google_messages.package_title,
@@ -370,7 +370,7 @@ fi
         app_set_list.append(AppSet("GoogleCalculator", [calculator]))
         google_drive = Package("Drive", "com.google.android.apps.docs", Statics.is_system_app)
         app_set_list.append(AppSet("Drive", [google_drive]))
-        google_maps = Package("GoogleMaps", "com.google.android.apps.maps", Statics.is_priv_app)
+        google_maps = Package("GoogleMaps", "com.google.android.apps.maps", Statics.is_system_app)
         google_maps.delete("Maps")
         app_set_list.append(AppSet("GoogleMaps", [google_maps]))
         if float(android_version) >= 11:
@@ -417,7 +417,7 @@ fi
         google_board.delete("LatinIME")
         google_board.clean_flash_only = True
         app_set_list.append(AppSet("GBoard", [google_board]))
-        google_calendar = Package("CalendarGooglePrebuilt", "com.google.android.calendar", Statics.is_priv_app,
+        google_calendar = Package("CalendarGooglePrebuilt", "com.google.android.calendar", Statics.is_system_app,
                                   "GoogleCalendar")
         google_calendar.delete("Calendar")
         google_calendar.delete("Etar")

@@ -174,7 +174,7 @@ class NikGappsConfig:
     def get_user_name_from_config(self):
         if self.config_path is None:
             return "Anonymous"
-        return str(self.config_path).split("/")[-2]
+        return str(self.config_path).split(Statics.dir_sep)[-2]
 
     def get_dictionary_value(self, key):
         if key in self.config_dict:
