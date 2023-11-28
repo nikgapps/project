@@ -1,3 +1,6 @@
+- date: 29th Nov 2023 (Android 10-14)
+  changes:
+      - item: Enable Android 14 for elites
 - date: 07th Nov 2023 (Android 14 beta + Android 10-13)
   changes:
       - item: Initial Android 14 beta Release
