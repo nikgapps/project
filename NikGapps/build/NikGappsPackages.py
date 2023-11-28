@@ -745,7 +745,7 @@ fi
             if float(android_version) >= 12.1:
                 settings_services_overlay = Overlay(settings_services.package_title,
                                                     "com.nikgapps.overlay.settingsintelligence", android_version,
-                                                    Library.get_settings_services_resources())
+                                                    Library.get_settings_services_resources(android_version))
                 settings_services.add_overlay(settings_services_overlay)
             device_intelligence_network_prebuilt = Package("DeviceIntelligenceNetworkPrebuilt",
                                                            "com.google.android.as.oss",
