@@ -258,7 +258,7 @@ class NikGappsConfig:
             appset: AppSet
             result += f"\n-> {appset.title}  "
             list_of_apps.append(f"-> {appset.title}")
-            if len(appset.package_list) > 1:
+            if len(appset.package_list) >= 1:
                 result += "\n"
                 for package in appset.package_list:
                     result += f"- {package.package_title}  \n"
