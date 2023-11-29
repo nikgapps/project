@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'project/NikGapps/helper/assets/changelogs.yaml'
+      - 'NikGapps/helper/assets/changelogs.yaml'
   workflow_dispatch:
 
 jobs:
