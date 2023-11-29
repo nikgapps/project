@@ -405,7 +405,7 @@ class Library:
     def get_settings_services_resources(android_version):
         r = Resources()
         r.add(String('config_systemSettingsIntelligence', 'com.google.android.settings.intelligence'))
-        if android_version >= 14:
+        if float(android_version) >= 14:
             r.add(String('config_settingsintelligence_package_name', 'com.google.android.settings.intelligence'))
             r.add(String('config_settingsintelligence_log_action', 'com.google.android.settings.intelligence.LOG_BRIDGE'))
         return r
