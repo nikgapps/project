@@ -15,7 +15,7 @@ env:
   IMAGE_TAG: main
         
 jobs:
-  deploy:
+  upload-python-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -49,6 +49,7 @@ jobs:
   
   build-and-push:
     runs-on: ubuntu-latest
+    needs: upload-python-package
     steps:
     - name: Check Out Repo
       uses: actions/checkout@v3
