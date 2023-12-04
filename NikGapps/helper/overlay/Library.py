@@ -278,7 +278,6 @@ class Library:
                                            'device_personalization_services/EchoSmartspace__enable_ring_channels_regex=true',
                                            'device_personalization_services/EchoSmartspace__enable_ring_using_ui_template=true',
                                            'device_personalization_services/EchoSmartspace__enable_travel_features_type_merge=true',
-                                           'device_personalization_services/EchoSmartspace__ring_channels_regex=4_ding_channel_notification\d+',
                                            'device_personalization_services/EchoSmartspace__ring_lockscreen_delay_seconds=0',
                                            'device_personalization_services/EchoSmartspace__ring_on_aod_only=true',
                                            'device_personalization_services/EchoSmartspace__runtastic_check_pause_action=true',
