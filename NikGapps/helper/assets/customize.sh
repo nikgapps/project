@@ -265,7 +265,7 @@ case $mode in
     else
       ui_print "x $system/addon.d not found"
     fi
-    for file in "$system"/addon.sh.d/*; do
+    for file in "$system"/addon.d/*; do
       if grep -q "AFZC" "$file"; then
         ui_print "x Removing $(basename "$file")"
         rm -f "$file"
