@@ -1,6 +1,6 @@
-colorama==0.4.4
-psutil==5.9.0
+colorama==0.4.6
+psutil==5.9.7
 pysftp==0.2.9
-pytz==2022.1
-PyYAML==6.0
-requests==2.25.1
+pytz==2023.3.post1
+PyYAML==6.0.1
+requests==2.31.0
