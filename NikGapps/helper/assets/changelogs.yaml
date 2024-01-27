@@ -2,8 +2,8 @@
   changes:
       - item: Fixed the padding issue with GBoard
       - item: Fixed Google Wallpaper crash while accessing from Pixel Launcher home screen
-      - item: Remove game_service flag as many Roms use an oss alternative
-      - item: Add Pixel Weather to Google Clock (Android 14)
+      - item: Removed game_service flag as many Roms use an oss alternative
+      - item: Added Pixel Weather to Google Clock (Android 14)
       - item: Update nikgapps.config to v31
 - date: 29th Nov 2023 (Android 10-14)
   changes:
