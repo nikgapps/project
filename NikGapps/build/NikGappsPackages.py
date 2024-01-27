@@ -467,6 +467,7 @@ fi
         app_set_list.append(AppSet("GoogleSearch", [google_velvet, google_assistant]))
         google_sounds = Package("SoundPickerPrebuilt", "com.google.android.soundpicker", Statics.is_system_app,
                                 "GoogleSounds")
+        google_sounds.delete("SoundPicker")
         google_sounds.clean_flash_only = True
         app_set_list.append(AppSet("GoogleSounds", [google_sounds]))
         return app_set_list
