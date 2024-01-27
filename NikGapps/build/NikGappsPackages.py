@@ -623,6 +623,7 @@ fi
         if float(android_version) >= 14:
             pixel_weather = Package("WeatherPixelPrebuilt", "com.google.android.apps.weather", Statics.is_priv_app,
                                     "PixelWeather")
+            pixel_weather.clean_flash_only = True
             gapps_list.append(pixel_weather)
         return AppSet("GoogleClock", gapps_list)
 
