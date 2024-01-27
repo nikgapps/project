@@ -413,6 +413,8 @@ class Library:
     def get_google_clock_resources():
         r = Resources()
         r.add(String('widget_default_package_name', 'com.google.android.deskclock'))
+        r.add(String('widget_default_class_name', 'com.android.alarmclock.DigitalAppWidgetProvider'))
+        r.add(String('config_dreamsDefaultComponent', 'com.google.android.deskclock/com.android.deskclock.Screensaver'))
         return r
 
     @staticmethod
