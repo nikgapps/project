@@ -10,7 +10,8 @@ def config_upload():
         android_versions = args.get_android_versions()
 
     for android_version in android_versions:
-        if Config.UPLOAD_FILES:
+        if args.upload:
+            print("Uploading NikGapps Config for " + android_version)
             config = NikGappsConfig(android_version=android_version)
             config.upload_nikgapps_config()
 
