@@ -626,11 +626,6 @@ fi
                                            resources=Library.get_google_clock_resources())
             google_clock.add_overlay(google_clock_overlay)
         gapps_list.append(google_clock)
-        if float(android_version) >= 14:
-            pixel_weather = Package("WeatherPixelPrebuilt", "com.google.android.apps.weather", Statics.is_priv_app,
-                                    "PixelWeather")
-            pixel_weather.clean_flash_only = True
-            gapps_list.append(pixel_weather)
         return AppSet("GoogleClock", gapps_list)
 
     @staticmethod
@@ -776,7 +771,11 @@ fi
                                                    Library.get_cinematic_effect_resources())
                 cinematic_effect.add_overlay(cinematic_effect_overlay)
                 gapps_list.append(cinematic_effect)
-        return AppSet("PixelLauncher", gapps_list)
+            if float(android_version) >= 14:
+                pixel_weather = Package("WeatherPixelPrebuilt", "com.google.android.apps.weather", Statics.is_priv_app,
+                                        "PixelWeather")
+                gapps_list.append(pixel_weather)
+        return AppSet("PixelSpecifics", gapps_list)
 
     @staticmethod
     def get_google_play_books():
