@@ -1,3 +1,4 @@
+import glob
 import math
 import os
 from pathlib import Path
@@ -73,6 +74,24 @@ class Statics:
     @staticmethod
     def get_parent_path(file_path):
         return Path(file_path).parent
+
+    @staticmethod
+    def find_latest_aapt():
+        # Try to get the Android SDK path from environment variables
+        sdk_path = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
+        if not sdk_path:
+            raise EnvironmentError("Android SDK path not found. "
+                                   "Set ANDROID_HOME or ANDROID_SDK_ROOT environment variable.")
+        # Build the search pattern
+        search_pattern = os.path.join(sdk_path, "build-tools", "*", "aapt")
+        # Find all matching paths
+        aapt_paths = glob.glob(search_pattern)
+        # Sort the paths to find the latest
+        if aapt_paths:
+            latest_aapt_path = max(aapt_paths, key=os.path.getmtime)
+            return str(latest_aapt_path)
+        else:
+            return None
 
     @staticmethod
     def get_download_link(file_name, sf_path):

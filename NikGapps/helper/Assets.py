@@ -1,5 +1,6 @@
 from pathlib import Path
 from importlib import resources
+from NikGapps.helper.Statics import Statics
 from .FileOp import FileOp
 import os.path
 import platform
@@ -30,7 +31,7 @@ class Assets:
         aapt_path = "adb"
         adb_path = "aapt"
     elif system_name == "Darwin":
-        aapt_path = "/Users/runner/Library/Android/sdk/build-tools/34.0.0/aapt"
+        aapt_path = Statics.find_latest_aapt()
         adb_path = "adb"
     else:
         aapt_path = "adb"
