@@ -619,6 +619,12 @@ fi
                                "GoogleClock")
         google_clock.delete("DeskClock")
         google_clock.clean_flash_only = True
+        if float(android_version) >= 12.1:
+            google_clock_overlay = Overlay(apkName=google_clock.package_title,
+                                           package_name="com.nikgapps.overlay.googleclock",
+                                           android_version=android_version,
+                                           resources=Library.get_google_clock_resources())
+            google_clock.add_overlay(google_clock_overlay)
         gapps_list.append(google_clock)
         if float(android_version) >= 14:
             pixel_weather = Package("WeatherPixelPrebuilt", "com.google.android.apps.weather", Statics.is_priv_app,
