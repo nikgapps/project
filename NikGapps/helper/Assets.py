@@ -30,7 +30,7 @@ class Assets:
         aapt_path = "adb"
         adb_path = "aapt"
     elif system_name == "Darwin":
-        aapt_path = "/Users/runner/Library/Android/sdk/build-tools/30.0.0/aapt"
+        aapt_path = "/Users/runner/Library/Android/sdk/build-tools/34.0.0/aapt"
         adb_path = "adb"
     else:
         aapt_path = "adb"
