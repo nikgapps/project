@@ -3,7 +3,7 @@ from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
 
 
-def config_control():
+def config_upload():
     args = Args()
     android_versions = [Config.TARGET_ANDROID_VERSION]
     if len(args.get_android_versions()) > 0:
@@ -16,4 +16,4 @@ def config_control():
 
 
 if __name__ == "__main__":
-    config_control()
+    config_upload()
