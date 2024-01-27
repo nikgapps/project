@@ -31,6 +31,7 @@ setup(
         'console_scripts': [
             'nikgapps=NikGapps.main:main',
             'nikgapps_overlay=NikGapps.overlay_control:overlay_control',
+            'nikgapps_config_upload=NikGapps.config_upload:config_upload',
         ],
     },
     classifiers=[
