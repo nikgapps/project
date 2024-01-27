@@ -37,8 +37,5 @@ class Operation:
             if Config.OVERRIDE_RELEASE:
                 Release.zip(package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram, upload)
             upload.close_connection()
-            if Config.UPLOAD_FILES:
-                config = NikGappsConfig(android_version=android_version)
-                config.upload_nikgapps_config()
             if is_release:
                 GitOperations.mark_a_release(android_version, Config.RELEASE_TYPE)
