@@ -345,17 +345,7 @@ fi
 
         carrier_services = Package("CarrierServices", "com.google.android.ims", Statics.is_priv_app)
         app_set_list.append(AppSet("CarrierServices", [carrier_services]))
-        google_clock = Package("PrebuiltDeskClockGoogle", "com.google.android.deskclock", Statics.is_system_app,
-                               "GoogleClock")
-        if float(android_version) >= 12.1:
-            google_clock_overlay = Overlay(apkName=google_clock.package_title,
-                                           package_name="com.nikgapps.overlay.googleclock",
-                                           android_version=android_version,
-                                           resources=Library.get_google_clock_resources())
-            google_clock.add_overlay(google_clock_overlay)
-        google_clock.delete("DeskClock")
-        google_clock.clean_flash_only = True
-        app_set_list.append(AppSet("GoogleClock", [google_clock]))
+        app_set_list.append(NikGappsPackages.get_google_clock(android_version))
         return app_set_list
 
     @staticmethod
@@ -621,6 +611,20 @@ fi
     def get_google_camera_go():
         google_camera_lite = Package("GoogleCameraGo", "com.google.android.apps.cameralite", Statics.is_system_app)
         return AppSet("GoogleCameraGo", [google_camera_lite])
+
+    @staticmethod
+    def get_google_clock(android_version):
+        gapps_list = []
+        google_clock = Package("PrebuiltDeskClockGoogle", "com.google.android.deskclock", Statics.is_system_app,
+                               "GoogleClock")
+        google_clock.delete("DeskClock")
+        google_clock.clean_flash_only = True
+        gapps_list.append(google_clock)
+        if float(android_version) >= 14:
+            pixel_weather = Package("WeatherPixelPrebuilt", "com.google.android.apps.weather", Statics.is_priv_app,
+                                    "PixelWeather")
+            gapps_list.append(pixel_weather)
+        return AppSet("GoogleClock", gapps_list)
 
     @staticmethod
     def get_lineageos_recorder():
