@@ -67,7 +67,7 @@ class GitOperations:
 
     @staticmethod
     def get_website_repo_for_changelog(repo_dir=GitStatics.website_repo_dir, repo_url=GitStatics.website_repo_url,
-                                       branch="master"):
+                                       branch="main"):
         repo = Git(repo_dir)
         if repo_url is not None:
             repo.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
