@@ -35,7 +35,8 @@ class Operation:
                     "stable") else "canary")
                 GitOperations.clone_overlay_repo(android_version)
             if Config.OVERRIDE_RELEASE:
-                Release.zip(package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram, upload)
+                Release.zip(package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram,
+                            upload)
             upload.close_connection()
             if is_release:
                 GitOperations.mark_a_release(android_version, Config.RELEASE_TYPE)

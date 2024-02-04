@@ -25,7 +25,7 @@ class Build:
                 package: Package
                 pkg_to_build = package
                 package_title = pkg_to_build.package_title
-                pkg_path = os.path.join(app_set_path, package_title)
+                pkg_path = os.path.join(str(app_set_path), package_title)
                 file_dict = dict()
                 folder_dict = dict()
                 install_list = []
