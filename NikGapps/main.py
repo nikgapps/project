@@ -21,6 +21,9 @@ def main():
     android_versions = [Config.TARGET_ANDROID_VERSION]
     package_list = Config.BUILD_PACKAGE_LIST
     Config.UPLOAD_FILES = args.upload
+    Config.USE_CACHED_APKS = args.use_cached_apks
+    if Config.USE_CACHED_APKS:
+        print("Using Cached Apks")
     Modes.DEFAULT = Modes.TAR_XZ if args.tar else Modes.ZIP
     if len(args.get_package_list()) > 0:
         package_list = args.get_package_list()

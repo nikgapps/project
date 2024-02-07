@@ -14,6 +14,7 @@ class Args:
         #     '-N', '--configName', help="Name of custom nikgapps.config", type=str)
         # parser.add_argument(
         #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
+        self.parser.add_argument('-c', '--cache', help="Use this to operate on cached apks", action="store_true")
         self.parser.add_argument('-a', '--arch', help="It is the architecture for which we need to build the gapps",
                                  default="arm64", type=str)
         self.parser.add_argument('-T', '--tar', help="Use this to make highly compressed builds", action="store_true")
@@ -48,6 +49,7 @@ class Args:
         # self.forceRun = args.forceRun
         # self.config_name = args.configName
         self.update_website = args.updateWebsite
+        self.use_cached_apks = args.cache
         # self.oems = args.oems
 
     def get_package_list(self):

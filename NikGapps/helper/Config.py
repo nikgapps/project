@@ -39,6 +39,9 @@ if ENVIRONMENT_TYPE.__eq__("production"):
 # True if we want the files to upload as soon as they get created
 UPLOAD_FILES = False
 
+# True if we want to use cached apks
+USE_CACHED_APKS = False
+
 # Override the execution if we re-trigger the workflow
 OVERRIDE_RELEASE = True
 

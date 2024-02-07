@@ -30,6 +30,9 @@ class Export:
         build_zip = T()
         file_sizes = ""
         zip_execution_status = False
+        arch = "" if config_obj.arch == "arm64" else "_" + config_obj.arch
+        cache_source_dir = Statics.cwd + Statics.dir_sep + str(
+            android_version) + arch + "_cached" if Config.USE_CACHED_APKS else ""
         try:
             app_set_count = len(app_set_list)
             app_set_index = 1
@@ -50,30 +53,25 @@ class Export:
                     pkg_zip_path = Statics.get_temp_packages_directory(
                         android_version, arch=config_obj.arch) + Statics.dir_sep + "Packages" + Statics.dir_sep + str(
                         pkg.package_title) + compression_mode
-                    pkg_txt_path = pkg_zip_path.replace(compression_mode, ".txt")
+                    pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[1:] + ".txt"
                     print_value = "AppSet (" + str(
                         app_set_progress) + "%): " + app_set.title + " Zipping (" + str(
                         package_progress) + "%): " + pkg.package_title
                     print(print_value)
                     print_progress = print_progress + "\n" + print_value
+                    cached_pkg_zip_path = os.path.join(cache_source_dir, app_set.title,
+                                                       f"{pkg.package_title}{compression_mode}")
+                    if FileOp.file_exists(cached_pkg_zip_path):
+                        pkg_zip_path = cached_pkg_zip_path
+                        pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[
+                                                                                          1:] + ".txt"
                     file_exists = FileOp.file_exists(pkg_zip_path)
                     txt_file_exists = FileOp.file_exists(pkg_txt_path)
                     old_file = True if (
                             file_exists and T.get_mtime(pkg_zip_path) < T.get_local_date_time()) else False
-                    if (fresh_build and old_file) or (not file_exists) or (not txt_file_exists):
-                        cpkg = CompOps.get_compression_obj(pkg_zip_path, compression_mode)
-                        file_index = 1
-                        for x in pkg.file_dict:
-                            file_index = file_index + 1
-                            pkg_size = pkg_size + Statics.get_file_bytes(x)
-                            cpkg.add_file(x, str(x)[str(x).find("___"):].replace("\\", "/"))
-                        if pkg.clean_flash_only:
-                            cpkg.add_string("", "___etc___permissions/" + pkg.package_title + ".prop")
-                        pkg.pkg_size = pkg_size
-                        cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh")
-                        cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
-                        cpkg.close()
-                        FileOp.write_string_file(str(pkg_size), pkg_txt_path)
+                    if cache_source_dir.__eq__("") and (
+                            (fresh_build and old_file) or (not file_exists) or (not txt_file_exists)):
+                        CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
                     else:
                         print(f"Using cached package: {os.path.basename(pkg_zip_path)}")
                         for size_on_file in FileOp.read_string_file(pkg_txt_path):
