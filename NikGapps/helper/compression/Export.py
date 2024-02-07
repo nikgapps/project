@@ -165,7 +165,7 @@ class Export:
             else:
                 other_app_sets.append(app_set)
         sorted_other_app_sets = sorted(other_app_sets,
-                                       key=lambda app__set: sum(pakg.pkg_size for pakg in app__set.package_list),
+                                       key=lambda app__set: sum(int(pakg.pkg_size) for pakg in app__set.package_list),
                                        reverse=True)
         sorted_app_sets = core_app_sets + sorted_other_app_sets
         progress_max = 0.9
