@@ -41,7 +41,7 @@ class Export:
                 app_set: AppSet
                 app_set_progress = round(float(100 * app_set_index / app_set_count))
                 telegram.message(
-                    f"- Gapps is building... {str(app_set_progress)}% done \n{Statics.display_progress(int(app_set_progress))}",
+                    f"- Gapps is building... {str(app_set_progress)}% done",
                     replace_last_message=True)
                 package_count = len(app_set.package_list)
                 package_index = 0
