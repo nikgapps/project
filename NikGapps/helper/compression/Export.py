@@ -74,9 +74,9 @@ class Export:
                         CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
                     else:
                         print(f"Using cached package: {os.path.basename(pkg_zip_path)}")
-                        for size_on_file in FileOp.read_string_file(pkg_txt_path):
-                            pkg_size = size_on_file
-                            pkg.pkg_size = pkg_size
+                    for size_on_file in FileOp.read_string_file(pkg_txt_path):
+                        pkg_size = size_on_file
+                        pkg.pkg_size = pkg_size
                     self.z.add_file(pkg_zip_path,
                                     "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + compression_mode)
                     package_index = package_index + 1
