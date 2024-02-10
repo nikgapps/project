@@ -104,6 +104,9 @@ class Upload:
                                              ur_link={f"Download": f"{download_link}"})
             else:
                 P.red("System incompatible or upload disabled or connection failed!")
+                P.red("system_name: " + system_name)
+                P.red("self.sftp: " + str(self.sftp))
+                P.red("self.upload_files: " + str(self.upload_files))
             return execution_status, download_link, file_size_mb
         else:
             P.red("Connection failed!")
