@@ -534,6 +534,12 @@ find_config() {
     ui_print "- Using config file from the zip"
     nikgapps_config_file_name="$COMMONDIR/nikgapps.config"
     debloater_config_file_name="$COMMONDIR/debloater.config"
+    override_with_zip_config=$(ReadConfigValue "override_with_zip_config" "$COMMONDIR/nikgapps.config")
+    if [ "$override_with_zip_config" = "1" ]; then
+      addToLog "- Overriding config file with the one from the zip"
+      copy_file "$COMMONDIR/nikgapps.config" "$nikGappsDir/nikgapps.config"
+      copy_file "$COMMONDIR/debloater.config" "$nikGappsDir/debloater.config"
+    fi
   else
     found_config="$(find_config_path nikgapps.config)"
     if [ "$found_config" ]; then

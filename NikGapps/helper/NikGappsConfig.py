@@ -85,6 +85,10 @@ class NikGappsConfig:
                 "value": self.use_zip_config,
                 "description": "# if you want to force the installer to use the config from gapps zip file, set below to 1"
             },
+            "override_with_zip_config": {
+                "value": self.disabled_mode,
+                "description": "# if you want to override the config located in /sdcard/NikGapps with gapps zip file, set below to 1. Applicable to decrypted storage only"
+            },
             "gms_optimization": {
                 "value": self.disabled_mode,
                 "description": "# set this to 1 if you want to enable gms optimization, careful while doing it, you may experience issues like delayed notification with some Roms"
