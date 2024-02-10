@@ -15,12 +15,9 @@ else
    }
 fi
 
-if [ -d "/postinstall" ]; then
-  P="/postinstall/system"
+T="/tmp"
+if [ -d "/postinstall/tmp/addon.d" ]; then
   T="/postinstall/tmp"
-else
-  P="$S"
-  T="/tmp"
 fi
 
 beginswith() {
