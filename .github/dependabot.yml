@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: daily
 
-  - package-ecosystem: docker
-    directory: /
+  - package-ecosystem: pip
+    directory: NikGapps/helper
     schedule:
       interval: daily
