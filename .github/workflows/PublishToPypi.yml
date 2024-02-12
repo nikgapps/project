@@ -1,4 +1,4 @@
-name: Upload Python Package
+name: Publish To Pypi
 
 on:
   release:
@@ -15,7 +15,7 @@ on:
 #  IMAGE_TAG: main
         
 jobs:
-  upload-python-package:
+  Publish-Python-Package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
   
 #  build-and-push:
 #    runs-on: ubuntu-latest
-#    needs: upload-python-package
+#    needs: Publish-Python-Package
 #    steps:
 #    - name: Check Out Repo
 #      uses: actions/checkout@v4
