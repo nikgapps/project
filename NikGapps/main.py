@@ -14,7 +14,6 @@ def main():
     args = Args()
     print("Start of the Program")
     SystemStat.show_stats()
-
     t = T()
     P.green("---------------------------------------")
 

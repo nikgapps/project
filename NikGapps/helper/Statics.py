@@ -2,6 +2,7 @@ import glob
 import math
 import os
 from pathlib import Path
+from .C import C
 from .T import T
 
 
@@ -26,10 +27,9 @@ class Statics:
     is_system_app = 1
     is_priv_app = 2
     system_root_dir = "/system/product"
-    cwd = os.getcwd()
+    cwd = C.find_cwd()
     pwd = str(Path(cwd).parent)
     dir_sep = os.path.sep
-    release_directory = cwd + dir_sep + "Releases"
     DELETE_FILES_NAME = "DeleteFilesData"
     meta_inf_dir = "META-INF/com/google/android/"
     nikgapps_config = "nikgapps.config"
@@ -112,7 +112,7 @@ class Statics:
 
     @staticmethod
     def get_overlay_source_directory(android_version):
-        return Statics.cwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}_source"
+        return Statics.pwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}_source"
 
     @staticmethod
     def get_overlay_source_repo(android_version):
@@ -120,7 +120,7 @@ class Statics:
 
     @staticmethod
     def get_overlay_directory(android_version):
-        return Statics.cwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}"
+        return Statics.pwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}"
 
     @staticmethod
     def get_overlay_repo(android_version):
@@ -132,7 +132,7 @@ class Statics:
 
     @staticmethod
     def get_release_directory(android_version):
-        return Statics.release_directory + os.path.sep + str(android_version)
+        return Statics.cwd + os.path.sep + "Releases" + os.path.sep + str(android_version)
 
     @staticmethod
     def get_android_code(android_version):

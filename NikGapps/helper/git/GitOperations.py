@@ -23,7 +23,7 @@ class GitOperations:
     def clone_overlay_repo(android_version, fresh_clone=False, branch="master", source=False, enable_push=False):
         if float(android_version) > 12:
             android_code = Statics.get_android_code(android_version)
-            overlay_source_dir = (Statics.cwd + Statics.dir_sep + f"overlays_{android_code}"
+            overlay_source_dir = (Statics.pwd + Statics.dir_sep + f"overlays_{android_code}"
                                   + ("_source" if source else ""))
             overlay_source_repo = (("git@github.com:nikgapps/" if enable_push else "https://github.com/nikgapps/")
                                    + f"overlays_{android_code}"
@@ -38,7 +38,7 @@ class GitOperations:
                        apk_repo=GitStatics.apk_source_repo, cached=False):
         arch = "" if arch == "arm64" else "_" + arch
         cache = "_cached" if cached else ""
-        apk_source_directory = Statics.cwd + Statics.dir_sep + str(android_version) + arch + cache
+        apk_source_directory = Statics.pwd + Statics.dir_sep + str(android_version) + arch + cache
         apk_source_repo = apk_repo + str(android_version) + arch + cache + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone, commit_depth=1)
 
