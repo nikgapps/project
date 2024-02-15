@@ -32,6 +32,7 @@ def cache():
         arch = "arm64"
         repo_cached = GitOperations.clone_apk_repo(android_version, arch=arch, branch="main", cached=True)
         repo = GitOperations.clone_apk_repo(android_version, arch=arch, branch="main")
+        GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
         config_obj = NikGappsConfig(android_version=android_version, arch=arch)
         app_set_list = NikGappsPackages.get_packages("all", android_version)
         config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
