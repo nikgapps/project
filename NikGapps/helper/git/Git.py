@@ -110,7 +110,7 @@ class Git:
             return True
         return False
 
-    def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False, pull_first=True):
+    def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False, pull_first=False):
         if not self.enable_push:
             print("Git push is disabled, skipping push!")
             return
