@@ -110,7 +110,7 @@ class Git:
             return True
         return False
 
-    def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False):
+    def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False, pull_first=True):
         if not self.enable_push:
             print("Git push is disabled, skipping push!")
             return
@@ -129,6 +129,9 @@ class Git:
                     self.repo.git.pull('--rebase')
                 except git.GitCommandError as e:
                     print(f"Error during rebase: {e}")
+            if pull_first:
+                origin.fetch()
+                origin.pull()
             if debug:
                 print(self.repo.git.status())
             push_info = origin.push()
