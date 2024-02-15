@@ -9,3 +9,4 @@ class C:
         for file in os.listdir(str(Path(cwd).parent)):
             if file.__eq__("requirements.txt"):
                 return str(Path(cwd).parent)
+        return cwd
