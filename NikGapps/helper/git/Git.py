@@ -133,6 +133,13 @@ class Git:
                 origin.fetch()
                 origin.pull()
             if debug:
+                remotes = self.repo.remotes
+                for remote in remotes:
+                    print(f"Remote name: {remote.name}")
+                    for url in remote.urls:
+                        print(f"URL: {url}")
+                print(f"Git user name: {self.repo.config_reader().get_value('user', 'name')}")
+                print(f"Git user email: {self.repo.config_reader().get_value('user', 'email')}")
                 print(self.repo.git.status())
             push_info = origin.push()
             for info in push_info:
