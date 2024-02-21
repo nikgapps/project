@@ -123,15 +123,15 @@ class Git:
                 if commit_message is None:
                     commit_message = "Auto Commit"
                 self.repo.index.commit(commit_message)
+            if pull_first:
+                origin.fetch(self.repo.active_branch)
+                origin.pull(self.repo.active_branch)
             if rebase:
-                origin.fetch()
+                origin.fetch(self.repo.active_branch)
                 try:
                     self.repo.git.pull('--rebase')
                 except git.GitCommandError as e:
                     print(f"Error during rebase: {e}")
-            if pull_first:
-                origin.fetch()
-                origin.pull()
             if debug:
                 remotes = self.repo.remotes
                 for remote in remotes:
@@ -141,7 +141,7 @@ class Git:
                 print(f"Git user name: {self.repo.config_reader().get_value('user', 'name')}")
                 print(f"Git user email: {self.repo.config_reader().get_value('user', 'email')}")
                 print(self.repo.git.status())
-            push_info = origin.push()
+            push_info = origin.push(self.repo.active_branch)
             for info in push_info:
                 if "rejected" in info.summary:
                     print(info.summary)
