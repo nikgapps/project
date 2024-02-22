@@ -15,8 +15,7 @@ class Requests:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
         result = requests.get(url, data=json.dumps(params), headers=headers)
         if result.status_code == 429:
-            Requests.handle_429_response(result)
-            return requests.get(url, data=json.dumps(params), headers=headers)
+            return Requests.handle_429_response(url, params, headers, result)
         return result
 
     @staticmethod
@@ -27,8 +26,7 @@ class Requests:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
         result = requests.put(url, data=json.dumps(params), headers=headers)
         if result.status_code == 429:
-            Requests.handle_429_response(result)
-            return requests.put(url, data=json.dumps(params), headers=headers)
+            return Requests.handle_429_response(url, params, headers, result)
         return result
 
     @staticmethod
@@ -39,8 +37,7 @@ class Requests:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
         result = requests.patch(url, data=json.dumps(params), headers=headers)
         if result.status_code == 429:
-            Requests.handle_429_response(result)
-            return requests.patch(url, data=json.dumps(params), headers=headers)
+            return Requests.handle_429_response(url, params, headers, result)
         return result
 
     @staticmethod
@@ -51,8 +48,7 @@ class Requests:
             headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0'}
         result = requests.post(url, data=json.dumps(params), headers=headers)
         if result.status_code == 429:
-            Requests.handle_429_response(result)
-            return requests.post(url, data=json.dumps(params), headers=headers)
+            return Requests.handle_429_response(url, params, headers, result)
         return result
 
     @staticmethod
@@ -94,10 +90,17 @@ class Requests:
             return ["nikhilmenghani", "nikgapps"]
 
     @staticmethod
-    def handle_429_response(result):
+    def handle_429_response(url, params, headers, result):
         if 'Retry-After' in result.headers:
-            print(f"Sleeping for {result.headers['Retry-After']} seconds")
-            time.sleep(float(result.headers['Retry-After']))
+            wait_time = float(result.headers['Retry-After'])
+            print(f"Sleeping for {wait_time} seconds...")
+            time.sleep(wait_time)
+            return requests.get(url, data=json.dumps(params), headers=headers)
         else:
-            print(f"Sleeping for 120 seconds")
-            time.sleep(120)
+            for delay in [0, 1, 2, 4, 8, 16, 32, 64]:
+                print(f"Rate limit exceeded. Waiting for {delay} seconds before retrying...")
+                time.sleep(delay)
+                result = requests.get(url, data=json.dumps(params), headers=headers)
+                if result.status_code != 429:
+                    return result
+            return result
