@@ -10,3 +10,5 @@ class C:
             if file.__eq__("requirements.txt"):
                 return str(Path(cwd).parent)
         return cwd
+
+    ds = os.path.sep
