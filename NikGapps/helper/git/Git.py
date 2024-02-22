@@ -113,7 +113,7 @@ class Git:
     def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False, pull_first=False):
         if not self.enable_push:
             print("Git push is disabled, skipping push!")
-            return
+            return False
         try:
             origin = self.repo.remote(name='origin')
             if self.repo.is_dirty(untracked_files=True):
@@ -132,23 +132,25 @@ class Git:
                     self.repo.git.pull('--rebase')
                 except git.GitCommandError as e:
                     print(f"Error during rebase: {e}")
+                    return False
             if debug:
                 remotes = self.repo.remotes
                 for remote in remotes:
                     print(f"Remote name: {remote.name}")
                     for url in remote.urls:
                         print(f"URL: {url}")
-                print(f"Git user name: {self.repo.config_reader().get_value('user', 'name')}")
-                print(f"Git user email: {self.repo.config_reader().get_value('user', 'email')}")
-                print(self.repo.git.status())
+                P.blue(self.repo.git.status())
             push_info = origin.push(self.repo.active_branch.name)
             for info in push_info:
                 if "rejected" in info.summary:
                     print(info.summary)
+                    return False
                 else:
                     print("Pushed to origin: " + str(commit_message))
+                    return True
         except Exception as e:
             print(f"An error occurred: {e}")
+        return False
 
     def update_changelog(self):
         source_file = Assets.changelog
