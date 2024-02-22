@@ -24,7 +24,7 @@ setup(
         'psutil>=5.9.8',
         'setuptools>=69.0.3',
         'requests>=2.31.0',
-        'GitPython>=3.1.41',
+        'GitPython>=3.1.42',
         'pexpect>=4.9.0',
     ],
     entry_points={
