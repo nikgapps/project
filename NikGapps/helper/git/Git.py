@@ -124,10 +124,10 @@ class Git:
                     commit_message = "Auto Commit"
                 self.repo.index.commit(commit_message)
             if pull_first:
-                origin.fetch(self.repo.active_branch)
-                origin.pull(self.repo.active_branch)
+                origin.fetch(self.repo.active_branch.name)
+                origin.pull(self.repo.active_branch.name)
             if rebase:
-                origin.fetch(self.repo.active_branch)
+                origin.fetch(self.repo.active_branch.name)
                 try:
                     self.repo.git.pull('--rebase')
                 except git.GitCommandError as e:
@@ -141,7 +141,7 @@ class Git:
                 print(f"Git user name: {self.repo.config_reader().get_value('user', 'name')}")
                 print(f"Git user email: {self.repo.config_reader().get_value('user', 'email')}")
                 print(self.repo.git.status())
-            push_info = origin.push(self.repo.active_branch)
+            push_info = origin.push(self.repo.active_branch.name)
             for info in push_info:
                 if "rejected" in info.summary:
                     print(info.summary)
