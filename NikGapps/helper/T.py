@@ -63,3 +63,19 @@ class T:
     @staticmethod
     def get_mtime(pkg_zip_path):
         return datetime.fromtimestamp(os.path.getmtime(pkg_zip_path))
+
+    @staticmethod
+    def format_time(seconds):
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+        parts = []
+        if days > 0:
+            parts.append(f"{days} {'day' if days == 1 else 'days'}")
+        if hours > 0:
+            parts.append(f"{hours} {'hour' if hours == 1 else 'hours'}")
+        if minutes > 0:
+            parts.append(f"{minutes} {'minute' if minutes == 1 else 'minutes'}")
+        if seconds > 0 or not parts:
+            parts.append(f"{seconds} {'second' if seconds == 1 else 'seconds'}")
+        return ', '.join(parts)
