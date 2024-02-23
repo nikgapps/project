@@ -66,6 +66,7 @@ class T:
 
     @staticmethod
     def format_time(seconds):
+        seconds = int(seconds)
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)

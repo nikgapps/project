@@ -123,8 +123,10 @@ class CmdUpload:
         file_size_mb = None
         if self.successful_connection:
             system_name = platform.system()
+            file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
+            file_size_mb = round(FileOp.get_file_size(file_name), 2)
             if telegram is not None:
-                telegram.message("- The zip is uploading...")
+                telegram.message(f"- The zip {file_size_mb} MB is uploading...")
             if system_name != "Windows" and self.upload_files:
                 t = T()
                 file_type = "gapps"
@@ -145,14 +147,12 @@ class CmdUpload:
                 P.magenta("Download Link: " + download_link)
                 print("uploading file finished...")
                 execution_status = True
-                file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
-                file_size_mb = round(FileOp.get_file_size(file_name), 2)
                 time_taken = t.taken(f"Total time taken to upload file with size {file_size_mb} MB ("
                                      f"{file_size_kb} Kb)")
                 if execution_status:
                     if telegram is not None:
                         telegram.message(
-                            f"- The zip {file_size_mb} MB uploaded in {str(round(time_taken))} seconds\n",
+                            f"- The zip {file_size_mb} MB uploaded in {T.format_time(round(time_taken))} seconds\n",
                             replace_last_message=True)
                         if download_link is not None:
                             telegram.message(f"*Note:* Download link should start working in 10 minutes", escape_text=False,
