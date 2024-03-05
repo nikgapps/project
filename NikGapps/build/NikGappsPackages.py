@@ -356,6 +356,7 @@ fi
         calculator = Package("CalculatorGooglePrebuilt", "com.google.android.calculator", Statics.is_system_app,
                              "GoogleCalculator")
         calculator.delete("ExactCalculator")
+        calculator.delete("MotoCalculator")
         calculator.delete("RevengeOSCalculator")
         app_set_list.append(AppSet("GoogleCalculator", [calculator]))
         google_drive = Package("Drive", "com.google.android.apps.docs", Statics.is_system_app)
@@ -390,6 +391,8 @@ fi
         google_photos.delete("GalleryX")
         google_photos.delete("MiuiGallery")
         google_photos.delete("SnapdragonGallery")
+        google_photos.delete("DotGallery")
+        google_photos.delete("Glimpse")
         app_set_list.append(AppSet("GooglePhotos", [google_photos]))
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", Statics.is_priv_app, "DeviceHealthServices")
         google_turbo.delete("TurboPrebuilt")
