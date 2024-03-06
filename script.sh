@@ -3,6 +3,9 @@
 # Exit on first error
 set -e
 
+# Enable debugging to print each command before it's executed
+set -x
+
 # Setup SSH directory
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
