@@ -9,20 +9,17 @@ set -x
 # Setup SSH directory
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
-
-# Load SSH keys into ssh-agent
+which ssh-keyscan || (apt-get update && apt-get install -y openssh-client)
+# Start ssh-agent
 eval "$(ssh-agent -s)"
 
-# Add SSH keys to the ssh-agent and configure known_hosts
-{
-    # Add SSH keys to the ssh-agent using environment variables
-    echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+# Add SSH private key to the ssh-agent
+echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
 
-    # Configure known_hosts to avoid prompts when connecting
-    ssh-keyscan -H sourceforge.net
-    ssh-keyscan -H github.com
-    ssh-keyscan -H gitlab.com
-} >> ~/.ssh/known_hosts
+# Add SSH keys to known_hosts to avoid prompts
+ssh-keyscan -H sourceforge.net >> ~/.ssh/known_hosts || echo "Failed to scan sourceforge.net"
+ssh-keyscan -H github.com >> ~/.ssh/known_hosts || echo "Failed to scan github.com"
+ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts || echo "Failed to scan gitlab.com"
 
 # Secure the known_hosts file
 chmod 600 ~/.ssh/known_hosts
