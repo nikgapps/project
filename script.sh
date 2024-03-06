@@ -17,7 +17,7 @@ eval "$(ssh-agent -s)"
 echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
 
 # Add SSH keys to known_hosts to avoid prompts
-ssh-keyscan -H sourceforge.net >> ~/.ssh/known_hosts || echo "Failed to scan sourceforge.net"
+ssh-keyscan -H frs.sourceforge.net >> ~/.ssh/known_hosts || echo "Failed to scan frs.sourceforge.net"
 ssh-keyscan -H github.com >> ~/.ssh/known_hosts || echo "Failed to scan github.com"
 ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts || echo "Failed to scan gitlab.com"
 
