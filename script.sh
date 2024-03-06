@@ -33,14 +33,23 @@ git config --global user.email "$USER_EMAIL"
 
 echo "Starting build process..."
 
-# Using the environment variables directly in the nikgapps command
-if [ "$UPDATE_WEBSITE" = "1" ]; then
-    # Update the website in addition to the main command if required
-    echo "Updating website..."
-    nikgapps --sign --upload --release --androidVersion "$ANDROID_VERSION" --packageList "$PACKAGE_LIST" --updateWebsite
-else
-    # Proceed without updating the website
-    nikgapps --sign --upload --release --androidVersion "$ANDROID_VERSION" --packageList "$PACKAGE_LIST"
+# Construct nikgapps command dynamically
+nikgapps_cmd="nikgapps"
+if [ "$SIGN" = "1" ]; then
+    nikgapps_cmd+=" --sign"
 fi
+if [ "$UPLOAD" = "1" ]; then
+    nikgapps_cmd+=" --upload"
+fi
+if [ "$RELEASE" = "1" ]; then
+    nikgapps_cmd+=" --release"
+fi
+nikgapps_cmd+=" --androidVersion \"$ANDROID_VERSION\" --packageList \"$PACKAGE_LIST\""
+if [ "$UPDATE_WEBSITE" = "1" ]; then
+    nikgapps_cmd+=" --updateWebsite"
+fi
+
+echo "Executing: $nikgapps_cmd"
+eval "$nikgapps_cmd"
 
 echo "Build process completed."
