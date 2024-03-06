@@ -1,21 +1,46 @@
 #!/bin/bash
 
-# Assign arguments to variables
-GIT_USER_NAME=$1
-GIT_USER_EMAIL=$2
-ANDROID_VERSION=$3
-PACKAGE_LIST=$4
-UPDATE_WEBSITE=$5
+# Exit on first error
+set -e
 
-# Configure git with the provided username and email
+# Setup SSH directory
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
+# Load SSH keys into ssh-agent
+eval "$(ssh-agent -s)"
+
+# Add SSH keys to the ssh-agent and configure known_hosts
+{
+    # Add SSH keys to the ssh-agent using environment variables
+    echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+
+    # Configure known_hosts to avoid prompts when connecting
+    ssh-keyscan -H sourceforge.net
+    ssh-keyscan -H github.com
+    ssh-keyscan -H gitlab.com
+} >> ~/.ssh/known_hosts
+
+# Secure the known_hosts file
+chmod 600 ~/.ssh/known_hosts
+
+echo "SSH setup complete."
+
+# Configure git with the provided username and email from environment variables
 git config --global http.postBuffer 157286400
-git config --global user.name "$GIT_USER_NAME"
-git config --global user.email "$GIT_USER_EMAIL"
+git config --global user.name "$USER_NAME"
+git config --global user.email "$USER_EMAIL"
 
-echo "nikgapps --sign --upload --release --androidVersion $ANDROID_VERSION --packageList $PACKAGE_LIST $UPDATE_WEBSITE"
-# Now run nikgapps with the provided Android version and package list
+echo "Starting build process..."
+
+# Using the environment variables directly in the nikgapps command
 if [ "$UPDATE_WEBSITE" = "1" ]; then
-    nikgapps --sign --androidVersion $ANDROID_VERSION --packageList $PACKAGE_LIST
+    # Update the website in addition to the main command if required
+    echo "Updating website..."
+    nikgapps --sign --upload --release --androidVersion "$ANDROID_VERSION" --packageList "$PACKAGE_LIST" --updateWebsite
 else
-    nikgapps --sign --androidVersion $ANDROID_VERSION --packageList $PACKAGE_LIST
+    # Proceed without updating the website
+    nikgapps --sign --upload --release --androidVersion "$ANDROID_VERSION" --packageList "$PACKAGE_LIST"
 fi
+
+echo "Build process completed."
