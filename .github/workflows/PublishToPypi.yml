@@ -9,10 +9,10 @@ on:
         description: 'Version'
         required: true
 
-#env:
-#  REGISTRY: ghcr.io
-#  IMAGE_NAME: docker
-#  IMAGE_TAG: main
+env:
+ REGISTRY: ghcr.io
+ IMAGE_NAME: docker
+ IMAGE_TAG: main
         
 jobs:
   Publish-Python-Package:
