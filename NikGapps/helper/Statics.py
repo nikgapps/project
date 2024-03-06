@@ -61,7 +61,7 @@ class Statics:
         if export_directory is not None:
             output = export_directory + os.path.sep
         else:
-            output = Statics.cwd + os.path.sep + "Export" + os.path.sep + str(
+            output = Statics.pwd + os.path.sep + "Export" + os.path.sep + str(
                 target_version) + os.path.sep + T.get_london_date_time("%Y%m%d") + os.path.sep
         if app_set is not None:
             output += app_set + os.path.sep
@@ -108,7 +108,7 @@ class Statics:
 
     @staticmethod
     def get_temp_packages_directory(android_version, arch="arm64"):
-        return Statics.cwd + os.path.sep + "TempPackages" + os.path.sep + str(android_version) + os.path.sep + arch
+        return Statics.pwd + os.path.sep + "TempPackages" + os.path.sep + str(android_version) + os.path.sep + arch
 
     @staticmethod
     def get_overlay_source_directory(android_version):
@@ -132,7 +132,7 @@ class Statics:
 
     @staticmethod
     def get_release_directory(android_version):
-        return Statics.cwd + os.path.sep + "Releases" + os.path.sep + str(android_version)
+        return Statics.pwd + os.path.sep + "Releases" + os.path.sep + str(android_version)
 
     @staticmethod
     def get_android_code(android_version):
