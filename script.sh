@@ -4,7 +4,8 @@
 set -e
 
 # Enable debugging to print each command before it's executed
-set -x
+# set -x
+# Disabling logging since the script is working fine now, can be re-enabled later for debugging purposes
 
 # Setup SSH directory
 mkdir -p ~/.ssh
@@ -35,21 +36,14 @@ echo "Starting build process..."
 
 # Construct nikgapps command dynamically
 nikgapps_cmd="nikgapps"
-if [ "$SIGN" = "1" ]; then
-    nikgapps_cmd+=" --sign"
-fi
-if [ "$UPLOAD" = "1" ]; then
-    nikgapps_cmd+=" --upload"
-fi
-if [ "$RELEASE" = "1" ]; then
-    nikgapps_cmd+=" --release"
-fi
-nikgapps_cmd+=" --androidVersion \"$ANDROID_VERSION\" --packageList \"$PACKAGE_LIST\""
-if [ "$UPDATE_WEBSITE" = "1" ]; then
-    nikgapps_cmd+=" --updateWebsite"
-fi
 
-echo "Executing: $nikgapps_cmd"
+[[ "$SIGN" == "1" ]] && nikgapps_cmd+=" --sign"
+[[ "$UPLOAD" == "1" ]] && nikgapps_cmd+=" --upload"
+[[ "$RELEASE" == "1" ]] && nikgapps_cmd+=" --release"
+nikgapps_cmd+=" --androidVersion \"$ANDROID_VERSION\" --packageList \"$PACKAGE_LIST\""
+[[ "$UPDATE_WEBSITE" == "1" ]] && nikgapps_cmd+=" --updateWebsite"
+
+echo "Executing command: $nikgapps_cmd"
 eval "$nikgapps_cmd"
 
 echo "Build process completed."
