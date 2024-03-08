@@ -8,6 +8,7 @@ on:
       - 'NikGapps/helper/assets/changelogs.yaml'
       - 'script.sh'
       - 'Dockerfile'
+      - 'trigger release'
   workflow_dispatch:
 
 jobs:
