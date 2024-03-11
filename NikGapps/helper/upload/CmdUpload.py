@@ -152,7 +152,7 @@ class CmdUpload:
                 if execution_status:
                     if telegram is not None:
                         telegram.message(
-                            f"- The zip {file_size_mb} MB uploaded in {T.format_time(round(time_taken))} seconds\n",
+                            f"- The zip {file_size_mb} MB uploaded in {T.format_time(round(time_taken))}\n",
                             replace_last_message=True)
                         if download_link is not None:
                             telegram.message(f"*Note:* Download link should start working in 10 minutes", escape_text=False,

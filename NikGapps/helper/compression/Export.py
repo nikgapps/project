@@ -116,7 +116,7 @@ class Export:
         finally:
             self.z.close()
             time_taken = build_zip.taken("Total time taken to build the zip")
-            telegram.message("- Completed in: " + T.format_time(round(time_taken)) + " seconds")
+            telegram.message("- Completed in: " + T.format_time(round(time_taken)))
             file_name = self.file_name
             if sign_zip:
                 sign_zip_time = T()
