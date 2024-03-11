@@ -144,7 +144,7 @@ file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
         prebuiltgmscore.delete("PrebuiltGmsCoreRvc")
         prebuiltgmscore.delete("GmsCore")
         prebuiltgmscore.additional_installer_script = """
-gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
+gms_optimization=$(ReadConfigValue "GmsOptimization" "$nikgapps_config_file_name")
 [ -z "$gms_optimization" ] && gms_optimization=0
 if [ "$gms_optimization" = "1" ]; then
     sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml

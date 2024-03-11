@@ -245,7 +245,7 @@ find_system_size
 find_gapps_size
 calculate_space "system" "product" "system_ext"
 ui_print " "
-mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
+mode=$(ReadConfigValue "Mode" "$nikgapps_config_file_name")
 [ -z "$mode" ] && mode="install"
 mode=$(tolower "$mode")
 # check if the zip name is an instruction and set the mode if it is

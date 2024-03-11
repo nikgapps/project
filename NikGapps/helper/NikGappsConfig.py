@@ -65,7 +65,7 @@ class NikGappsConfig:
                 "value": self.default_mode,
                 "description": "# set to /system, /product or /system_ext if you want to force the installation to aforementioned locations"
             },
-            "mode": {
+            "Mode": {
                 "value": self.install_mode,
                 "description": "# set to uninstall if you want to uninstall any google app, also set the value of google app below to -1"
             },
@@ -77,21 +77,25 @@ class NikGappsConfig:
                 "value": self.disabled_mode,
                 "description": "# set WipeRuntimePermissions=1 if you want to wipe runtime permissions"
             },
-            "execute.d": {
+            "ExecuteBackupRestore": {
                 "value": self.enabled_mode,
-                "description": "# Addon.d config set it to 0 to skip the automatic backup/restore while flashing the rom"
+                "description": "# Addon.d config, set it to 0 to skip the automatic backup/restore while flashing the rom"
             },
-            "use_zip_config": {
+            "UseZipConfig": {
                 "value": self.use_zip_config,
                 "description": "# if you want to force the installer to use the config from gapps zip file, set below to 1"
             },
-            "override_with_zip_config": {
+            "OverwriteWithZipConfig": {
                 "value": self.disabled_mode,
-                "description": "# if you want to override the config located in /sdcard/NikGapps with gapps zip file, set below to 1. Applicable to decrypted storage only"
+                "description": "# if you want to overwrite the config located in /sdcard/NikGapps with gapps zip file, set below to 1. Applicable to decrypted storage only"
             },
-            "gms_optimization": {
+            "GmsOptimization": {
                 "value": self.disabled_mode,
                 "description": "# set this to 1 if you want to enable gms optimization, careful while doing it, you may experience issues like delayed notification with some Roms"
+            },
+            "GenerateLogs": {
+                "value": self.enabled_mode,
+                "description": "# set this to 0 if you want to skip generating nikgapps logs, if you run into issues, enable it and flash the zip again to get the logs"
             }
         }
         if config_dict is not None:
@@ -118,7 +122,7 @@ class NikGappsConfig:
         for line in FileOp.read_string_file(self.config_path) if raw_config is None else raw_config.splitlines():
             if line.__eq__('') or line.__eq__('\n') or line.startswith('#') \
                     or line.startswith("File Not Found") \
-                    or line.startswith("use_zip_config=") \
+                    or line.startswith("UseZipConfig=") \
                     or not line.__contains__("="):
                 continue
             lines[line.split('=')[0]] = line.split('=')[1].replace('\n', '')
@@ -377,7 +381,7 @@ class NikGappsConfig:
             if self.config_dict.get(key) is None:
                 self.config_dict[key] = standard_dict[key]
         self.config_dict["Version"] = self.config_version
-        self.config_dict["use_zip_config"] = 1
+        self.config_dict["UseZipConfig"] = 1
         self.config_objects = self.build_config_objects(self.config_dict)
         self.config_package_list = self.get_config_packages()
         self.config_string = self.get_nikgapps_config(config_dict=self.config_dict, config_objects=self.config_objects,

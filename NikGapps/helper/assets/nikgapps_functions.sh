@@ -478,7 +478,8 @@ exit_install() {
   fi
   ui_print "- Finished Installation"
   ui_print " "
-  copy_logs
+  generate_logs=$(ReadConfigValue "GenerateLogs" "$nikgapps_config_file_name")
+  [ "$generate_logs" != "0" ] && copy_logs
   restore_env
 }
 
@@ -528,15 +529,15 @@ find_config() {
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
   unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
-  use_zip_config=$(ReadConfigValue "use_zip_config" "$COMMONDIR/nikgapps.config")
-  addToLog "- use_zip_config=$use_zip_config"
+  use_zip_config=$(ReadConfigValue "UseZipConfig" "$COMMONDIR/nikgapps.config")
+  addToLog "- UseZipConfig=$use_zip_config"
   if [ "$use_zip_config" = "1" ]; then
     ui_print "- Using config file from the zip"
     nikgapps_config_file_name="$COMMONDIR/nikgapps.config"
     debloater_config_file_name="$COMMONDIR/debloater.config"
-    override_with_zip_config=$(ReadConfigValue "override_with_zip_config" "$COMMONDIR/nikgapps.config")
-    if [ "$override_with_zip_config" = "1" ]; then
-      addToLog "- Overriding config file with the one from the zip"
+    overwrite_with_zip_config=$(ReadConfigValue "OverwriteWithZipConfig" "$COMMONDIR/nikgapps.config")
+    if [ "$overwrite_with_zip_config" = "1" ]; then
+      addToLog "- Overwriting config file with the one from the zip"
       copy_file "$COMMONDIR/nikgapps.config" "$nikGappsDir/nikgapps.config"
       copy_file "$COMMONDIR/debloater.config" "$nikGappsDir/debloater.config"
     fi
