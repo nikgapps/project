@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python3 python3-pip aapt gcc python3-dev git git-lfs openjdk-8-jdk apktool dialog openssh-client && \
+    python3 python3-pip aapt2 gcc python3-dev git git-lfs openjdk-8-jdk apktool dialog openssh-client && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

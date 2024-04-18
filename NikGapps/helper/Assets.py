@@ -35,7 +35,7 @@ class Assets:
         adb_path = "adb"
     else:
         aapt_path = "adb"
-        adb_path = "aapt"
+        adb_path = "aapt2"
     addon_path = cwd + "addon.sh"
     header_path = cwd + "header.sh"
     functions_path = cwd + "functions.sh"
