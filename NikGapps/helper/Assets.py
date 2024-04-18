@@ -28,8 +28,8 @@ class Assets:
         aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt_64.exe')
         adb_path = os.path.join(assets_folder, 'bin', system_name, 'adb.exe')
     elif system_name == "Linux":
-        aapt_path = "adb"
-        adb_path = "aapt"
+        aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2')
+        adb_path = "adb"
     elif system_name == "Darwin":
         aapt_path = Statics.find_latest_aapt()
         adb_path = "adb"
