@@ -25,13 +25,15 @@ class Assets:
     key_path = cwd + "cert.pk8"
     cert_path = cwd + "cert.x509.pem"
     if system_name == "Windows":
-        aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt_64.exe')
+        aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2.exe')
         adb_path = os.path.join(assets_folder, 'bin', system_name, 'adb.exe')
     elif system_name == "Linux":
         aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2')
         adb_path = "adb"
     elif system_name == "Darwin":
-        aapt_path = Statics.find_latest_aapt()
+        aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2')
+        if not FileOp.file_exists(aapt_path):
+            aapt_path = Statics.find_latest_aapt()
         adb_path = "adb"
     else:
         aapt_path = "adb"
