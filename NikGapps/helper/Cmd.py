@@ -12,7 +12,7 @@ class Cmd:
     if str(Assets.system_name).__eq__("Linux"):
         commands_list = []
         adb_path = ['adb']
-        aapt_path = ['aapt']
+        aapt_path = [Assets.aapt_path]
     elif str(Assets.system_name).__eq__("Darwin"):
         commands_list = []
         adb_path = ['adb']
@@ -215,8 +215,12 @@ class Cmd:
         return_list = []
         if FileOp.file_exists(temp_file):
             return_list = FileOp.read_priv_app_temp_file(temp_file)
-        elif output_list.__len__() >= 1 and output_list[0].startswith("package:"):
-            for line in output_list:
+        elif output_list.__len__() >= 1:
+            if output_list[0].startswith("Exception") and len(output_list) == 2:
+                text = output_list[1]
+            else:
+                text = output_list[0]
+            for line in text.split('\n'):
                 if line.startswith("uses-permission:"):
                     try:
                         permissions = line.split('\'')
@@ -237,11 +241,15 @@ class Cmd:
         if FileOp.file_exists(temp_file):
             return_list = FileOp.read_package_name(temp_file)
             FileOp.remove_file(temp_file)
-        elif output_list.__len__() >= 1 and output_list[0].startswith("package:"):
-            text = output_list[0]
+        elif output_list.__len__() >= 1:
+            if output_list[0].startswith("Exception") and len(output_list) == 2:
+                text = output_list[1]
+            else:
+                text = output_list[0]
             if text.startswith("package:"):
                 index1 = text.find(":")
                 text = text[index1 + 2:]
+                text = text.split('\n')[0]
             else:
                 text = "Exception: Package Not Found"
             return text

@@ -1,3 +1,7 @@
+- date: 19th Apr 2024 (Android 10-14)
+  changes:
+      - item: Fixed Potential bootloops on LineageOs 21 (Android 14)
+      - item: Update to QPR2 (Android 14)
 - date: 6th Mar 2024 (Android 10-14)
   changes:
       - item: Removed MotoCalculator with installation of Google Calculator
