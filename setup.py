@@ -26,6 +26,8 @@ setup(
         'requests>=2.31.0',
         'GitPython>=3.1.42',
         'pexpect>=4.9.0',
+        'PyGithub>=2.3.0',
+        'python-gitlab>=4.4.0',
     ],
     entry_points={
         'console_scripts': [
