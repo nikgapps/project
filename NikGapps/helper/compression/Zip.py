@@ -1,3 +1,4 @@
+import os
 import zipfile
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -17,6 +18,10 @@ class Zip:
     CreatedBy = "Nikhil @ XDA"
 
     def __init__(self, name, sign=False, private_key_path=None, comment=DigitalMessage):
+        directory = os.path.dirname(name)
+        if not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+
         self.zipObj = zipfile.ZipFile(name, 'w', compression=zipfile.ZIP_DEFLATED)
         self.comment = comment.encode()
         self.sign = sign
