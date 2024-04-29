@@ -1,7 +1,7 @@
 import os
 
 # The android version that we're targeting this application to run
-TARGET_ANDROID_VERSION = 13
+TARGET_ANDROID_VERSION = 14
 
 # Release type defines the release
 # Possible values are [ 'canary', 'stable' ]
@@ -73,4 +73,5 @@ TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 NIKGAPPS_CHAT_ID = os.environ.get('NIKGAPPS_CHAT_ID')
 MESSAGE_THREAD_ID = os.environ.get('MESSAGE_THREAD_ID')
+ELITE_MESSAGE_THREAD_ID = os.environ.get('ELITE_MESSAGE_THREAD_ID')
 
