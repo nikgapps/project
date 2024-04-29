@@ -118,27 +118,6 @@ class Export:
             time_taken = build_zip.taken("Total time taken to build the zip")
             telegram.message("- Completed in: " + T.format_time(round(time_taken)))
             file_name = self.file_name
-            if sign_zip:
-                sign_zip_time = T()
-                print('Signing The Zip')
-                telegram.message("- The zip is Signing...")
-                # the issue (cannot access class sun.security.pkcs.SignerInfo) is pending with Java 17
-                # https://intellij-support.jetbrains.com/hc/en-us/community/posts/5153987456018-Java-17-cannot-access-class-sun-security-pkcs-PKCS7
-                zip_execution_status = False
-                cmd = Cmd()
-                output_list = cmd.sign_zip_file(file_name)
-                for output in output_list:
-                    if output.__eq__("Success!"):
-                        file_name = file_name[:-4] + "-signed.zip"
-                        print("The zip signed successfully: " + file_name)
-                        zip_execution_status = True
-                    elif output.startswith("Exception occurred while executing"):
-                        print("The zip could not be signed: " + output)
-                        telegram.message("- The zip could not be signed: " + output)
-                time_taken = sign_zip_time.taken("Total time taken to sign the zip")
-                if zip_execution_status:
-                    telegram.message("- The zip signed in: " + str(round(time_taken)) + " seconds",
-                                     replace_last_message=True)
             if send_zip_device:
                 send_zip_device_time = T()
                 cmd = Cmd()
