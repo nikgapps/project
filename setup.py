@@ -28,6 +28,7 @@ setup(
         'pexpect>=4.9.0',
         'PyGithub>=2.3.0',
         'python-gitlab>=4.4.0',
+        'cryptography>=41.0.2',
     ],
     entry_points={
         'console_scripts': [
