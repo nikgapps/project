@@ -16,11 +16,11 @@ from ..web.TelegramApi import TelegramApi
 
 
 class Export:
-    def __init__(self, file_name):
-        self.file_name = file_name
-        self.z = Zip(file_name)
+    def __init__(self, file_name, sign=False):
+        self.file_name = file_name[:-4] + "-signed.zip" if sign else file_name[:-4] + "-unofficial.zip"
+        self.z = Zip(self.file_name, sign=sign, private_key_path=Assets.private_key_pem)
 
-    def zip(self, config_obj: NikGappsConfig, sign_zip, send_zip_device, fresh_build, telegram: TelegramApi,
+    def zip(self, config_obj: NikGappsConfig, send_zip_device, fresh_build, telegram: TelegramApi,
             compression_mode=Modes.DEFAULT):
         app_set_list = config_obj.config_package_list
         config_string = config_obj.get_nikgapps_config(config_dict=config_obj.config_dict)

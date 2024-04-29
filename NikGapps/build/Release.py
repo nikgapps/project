@@ -33,9 +33,9 @@ class Release:
             elif str(pkg_type).lower() == "debloater" or str(pkg_type).lower() == "removeotascripts":
                 file_name = release_directory + Statics.dir_sep + f"{str(pkg_type).capitalize()}-" + str(
                     T.get_current_time()) + ".zip"
-                z = Export(file_name)
+                z = Export(file_name=file_name, sign=sign_zip)
                 config_obj = NikGappsConfig(android_version=android_version)
-                result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,
+                result = z.zip(config_obj=config_obj, send_zip_device=send_zip_device,
                                fresh_build=fresh_build, telegram=telegram, compression_mode=Modes.DEFAULT)
                 if result[1]:
                     if Config.UPLOAD_FILES:
@@ -83,8 +83,8 @@ class Release:
             file_name = package_name
             config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
             print("Exporting " + str(file_name))
-            z = Export(file_name)
-            result = z.zip(config_obj=config_obj, sign_zip=sign_zip, send_zip_device=send_zip_device,
+            z = Export(file_name, sign=sign_zip)
+            result = z.zip(config_obj=config_obj, send_zip_device=send_zip_device,
                            fresh_build=fresh_build, telegram=telegram, compression_mode=Modes.DEFAULT)
             if result[1] and Config.UPLOAD_FILES:
                 print("Uploading " + str(result[0]))

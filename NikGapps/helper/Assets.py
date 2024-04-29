@@ -24,6 +24,7 @@ class Assets:
     apktool_path = cwd + "apktool_2.9.3.jar"
     key_path = cwd + "cert.pk8"
     cert_path = cwd + "cert.x509.pem"
+    private_key_pem = cwd + "private_key.pem"
     if system_name == "Windows":
         aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2.exe')
         adb_path = os.path.join(assets_folder, 'bin', system_name, 'adb.exe')

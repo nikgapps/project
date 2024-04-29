@@ -25,6 +25,8 @@ class SystemStat:
             # If the command fails (e.g., command not found), return the error message from stderr or a custom message
             error_message = result.stderr.strip() if result.stderr.strip() else "Command failed without error output"
             return f"Failed to execute {command}: {e} - {error_message}"
+        except Exception as e:
+            return f"Failed to execute {command}: {e}"
 
     @staticmethod
     def show_stats():
@@ -41,8 +43,11 @@ class SystemStat:
         java_version = SystemStat.run_command(["java", "-version"])
         adb_version = SystemStat.run_command([f"{Assets.adb_path}", "version"])
         aapt_version = SystemStat.run_command([f"{Assets.aapt_path}", "version"])
+        P.green("---------------------------------------")
         P.green(f"Java version: {java_version}")
+        P.green("---------------------------------------")
         P.green(f"ADB version: {adb_version}")
+        P.green("---------------------------------------")
         P.green(f"AAPT version: {aapt_version}")
 
         P.green("---------------------------------------")
