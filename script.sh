@@ -3,6 +3,9 @@
 # Exit on first error
 set -e
 
+# Source the virtual environment
+source /usr/src/nikgapps/venv/bin/activate
+
 # Enable debugging to print each command before it's executed
 # set -x
 # Disabling logging since the script is working fine now, can be re-enabled later for debugging purposes
