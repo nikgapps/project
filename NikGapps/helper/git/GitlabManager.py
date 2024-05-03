@@ -1,3 +1,5 @@
+import time
+
 import gitlab
 
 
@@ -26,6 +28,16 @@ class GitLabManager:
         })
         return member
 
+    def get_project_id(self, project_name):
+        # Fetch all projects for the current user
+        projects = self.gl.projects.list(owned=True, all=True)
+
+        # Print details of each project
+        for project in projects:
+            if project.name == project_name:
+                return project.id
+        return None
+
     def create_and_commit_readme(self, project_id, branch_name="main", content="# Welcome to your new project"):
         """Creates a README.md file and commits it to the specified repository."""
         project = self.gl.projects.get(project_id)
@@ -36,6 +48,23 @@ class GitLabManager:
                 {
                     'action': 'create',
                     'file_path': 'README.md',
+                    'content': content
+                }
+            ]
+        }
+        commit = project.commits.create(commit_data)
+        return commit
+
+    def create_and_commit_file(self, project_id, branch_name="main", file_path="file.txt", content=""):
+        """Creates a file and commits it to the specified repository."""
+        project = self.gl.projects.get(project_id)
+        commit_data = {
+            'branch': branch_name,
+            'commit_message': f'Add {file_path}',
+            'actions': [
+                {
+                    'action': 'create',
+                    'file_path': file_path,
                     'content': content
                 }
             ]
@@ -81,3 +110,30 @@ class GitLabManager:
         for project in projects:
             print(f'Project Name: {project.name}, Project ID: {project.id}, Namespace: {project.namespace["path"]}')
         return projects
+
+    def delete_project(self, project_id):
+        try:
+            project = self.gl.projects.get(project_id)
+            project.delete()
+            print(f"Project {project_id} deleted successfully.")
+        except Exception as e:
+            print(f"Failed to delete project {project_id}: {e}")
+
+    def reset_apk_repository(self, repo_name, message="""*.apk filter=lfs diff=lfs merge=lfs -text
+            *.so filter=lfs diff=lfs merge=lfs -text
+            """, user_id=8064473):
+        try:
+            print(f"Resetting repository {repo_name}...")
+            project_id = self.get_project_id(repo_name)
+            self.delete_project(project_id)
+            print("Waiting for 10 seconds for the project to be completely deleted...")
+            time.sleep(10)
+            project = self.create_repository(repo_name)
+            self.provide_owner_access(project_id=project.id,
+                                      user_id=user_id)
+            self.create_and_commit_readme(project_id=project.id)
+            commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
+                                                 content=message)
+            print(commit)
+        except Exception as e:
+            print(f"Failed to reset repository: {e}")
