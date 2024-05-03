@@ -42,6 +42,15 @@ class GitOperations:
         apk_source_repo = apk_repo + str(android_version) + arch + cache + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone, commit_depth=1)
 
+    # Following method is new method of cloning the apk source from Gitlab - based on release type
+    @staticmethod
+    def clone_apk_source(android_version, arch="arm64", release_type="stable", fresh_clone=False):
+        url = f"{android_version}{('_' + arch if arch != 'arm64' else '')}_{release_type}"
+        apk_source_directory = Statics.pwd + Statics.dir_sep + url
+        apk_source_repo = GitStatics.apk_source_repo + url + ".git"
+        return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch="main", fresh_clone=fresh_clone,
+                                        commit_depth=1)
+
     @staticmethod
     def get_last_commit_date(branch, repo_dir=Statics.cwd, repo_url=None, android_version=None):
         last_commit_datetime = None
