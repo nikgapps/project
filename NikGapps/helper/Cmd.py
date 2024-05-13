@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from .Assets import Assets
 from .FileOp import FileOp
@@ -231,6 +232,60 @@ class Cmd:
         else:
             return_list = ["Exception: File Not Found"]
         return return_list
+
+    def execute_cmd_generic(self, command, capture_output=True, shell=False):
+        try:
+            if sys.platform.startswith('win32'):
+                command = ['cmd', '/c'] + command
+            # Execute the command
+            result = subprocess.run(command, capture_output=capture_output, text=True, shell=shell, check=True)
+
+            # Return the success status, output, and an empty error with the exit code
+            return {
+                'success': True,
+                'output': result.stdout,
+                'error': '',
+                'exit_code': result.returncode
+            }
+        except subprocess.CalledProcessError as e:
+            # Handle non-zero exit codes from the command
+            return {
+                'success': False,
+                'output': e.stdout,
+                'error': e.stderr,
+                'exit_code': e.returncode
+            }
+        except Exception as e:
+            # Handle other exceptions, such as execution errors
+            return {
+                'success': False,
+                'output': '',
+                'error': str(e),
+                'exit_code': -1
+            }
+
+    def get_apk_version_code(self, apk_path):
+        """Extracts the version code from an APK using aapt2."""
+        try:
+            # Run aapt2 to dump the APK's badging information
+            self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
+            result = subprocess.run(["aapt2", "dump", "badging", apk_path], capture_output=True, text=True)
+            output = result.stdout
+
+            # Find the line containing 'versionCode' and parse it
+            version_code_line = next((line for line in output.split('\n') if 'versionCode' in line), None)
+            if version_code_line:
+                # Extract versionCode value from the line
+                parts = version_code_line.split()
+                version_code_part = next((part for part in parts if 'versionCode' in part), '')
+                version_code = version_code_part.split('=')[1].strip("'")
+                return int(version_code)
+            else:
+                print(f"No version code found for {apk_path}")
+                return 0
+        except Exception as e:
+            print(f"Error getting APK version for {apk_path}: {e}")
+            return 0
 
     def get_package_name(self, apk_path):
         self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
