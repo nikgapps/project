@@ -149,6 +149,22 @@ class FileOp:
         return text
 
     @staticmethod
+    def read_key(file_path, key, encoding='cp437'):
+        if FileOp.file_exists(file_path):
+            file = open(file_path, encoding=encoding)
+            text = file.readline()
+            if text.__contains__(f"{key}="):
+                index1 = text.find(f"{key}='")
+                text = text[index1 + len(key) + 2: -1]
+                index1 = text.find("'")
+                text = text[0: index1]
+            file.close()
+            FileOp.remove_file(file_path)
+        else:
+            text = "Exception: " + str(1001)
+        return text
+
+    @staticmethod
     def write_string_file(str_data, file_path):
         FileOp.create_file_dir(file_path)
         if FileOp.file_exists(file_path):

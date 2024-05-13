@@ -263,7 +263,7 @@ class Cmd:
         self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
         output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
         if FileOp.file_exists(temp_file):
-            return_list = FileOp.read_package_version(temp_file)
+            return_list = FileOp.read_key(temp_file, "versionName")
         elif output_list.__len__() >= 1:
             if output_list[0].startswith("Exception") and len(output_list) == 2:
                 text = output_list[1]
@@ -287,7 +287,7 @@ class Cmd:
         self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
         output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
         if FileOp.file_exists(temp_file):
-            return_list = FileOp.read_package_version(temp_file)
+            return_list = FileOp.read_key(temp_file, "versionCode")
         elif output_list.__len__() >= 1:
             if output_list[0].startswith("Exception") and len(output_list) == 2:
                 text = output_list[1]
