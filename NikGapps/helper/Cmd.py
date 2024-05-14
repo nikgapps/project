@@ -7,16 +7,15 @@ import subprocess
 
 
 class Cmd:
-    commands_list = ['cmd', '/c']
-    adb_path = [Assets.adb_path]
+    commands_list = []
+    adb_path = ['adb']
+    if sys.platform.startswith('win32'):
+        commands_list = ['cmd', '/c']
+        adb_path = [Assets.adb_path]
     aapt_path = [Assets.aapt_path]
     if str(Assets.system_name).__eq__("Linux"):
-        commands_list = []
-        adb_path = ['adb']
         aapt_path = [Assets.aapt_path]
     elif str(Assets.system_name).__eq__("Darwin"):
-        commands_list = []
-        adb_path = ['adb']
         aapt_path = [Assets.aapt_path]
     sign_jar_path = Assets.sign_jar
     COMMAND_ADB_DEVICES = adb_path + ["devices"]
@@ -34,9 +33,9 @@ class Cmd:
     COMMAND_LIST_PACKAGES_EXTENDED = adb_path + ["shell", "pm", "list", "packages", "-f"]
     COMMAND_LIST_PACKAGES_SYSTEM = adb_path + ["shell", "pm", "list", "packages", "-s"]
     COMMAND_PATH_PACKAGES = adb_path + ["shell", "pm", "path", "package"]
-    COMMAND_AAPT_DUMP_BADGING = aapt_path + ["dump", "badging", "apkFilePath", ">>", "temp_file"]
-    COMMAND_AAPT_DUMP_PACKAGENAME = aapt_path + ["dump", "packagename", "apkFilePath", ">>", "temp_file"]
-    COMMAND_AAPT_DUMP_PERMISSIONS = aapt_path + ["dump", "permissions", "apkFilePath", ">>", "temp_file"]
+    COMMAND_AAPT_DUMP_BADGING = aapt_path + ["dump", "badging", "apkFilePath"]
+    COMMAND_AAPT_DUMP_PACKAGENAME = aapt_path + ["dump", "packagename", "apkFilePath"]
+    COMMAND_AAPT_DUMP_PERMISSIONS = aapt_path + ["dump", "permissions", "apkFilePath"]
     COMMAND_LIST_FILES_SU = adb_path + ["ls", "/data/app"]
     COMMAND_ADB_SHELL_SU = adb_path + ["shell", "su"]
     COMMAND_ANDROID_VERSION = adb_path + ["shell", "getprop", "ro.build.version.release"]
@@ -60,9 +59,20 @@ class Cmd:
     def execute_adb_command(self, params):
         return self.execute_cmd(self.adb_path + params)
 
+    def execute(self, command, capture_output=True, shell=False):
+        try:
+            command_to_execute = self.commands_list + command
+            result = subprocess.run(command_to_execute, encoding="utf-8", capture_output=capture_output, text=True, shell=shell,
+                                    check=True)
+            return ['', result.stdout.split('\n'), True, result.returncode]
+        except subprocess.CalledProcessError as e:
+            return [e.stderr, e.stdout, False, e.returncode]
+        except Exception as e:
+            return [str(e), '', False, -1]
+
     def execute_cmd(self, command):
         command_to_execute = self.commands_list + command
-        p = subprocess.run(command_to_execute, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run(command_to_execute, encoding="utf-8", universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode == 0:
             return p.stdout.split('\n')
         else:
@@ -210,155 +220,66 @@ class Cmd:
 
     def get_white_list_permissions(self, apk_path):
         self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
-        temp_file = "temp.txt"  # A temporary file where the output will be stored
-        self.COMMAND_AAPT_DUMP_PERMISSIONS[5] = temp_file
-        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_PERMISSIONS)
+        result = self.execute(self.COMMAND_AAPT_DUMP_PERMISSIONS)
         return_list = []
-        if FileOp.file_exists(temp_file):
-            return_list = FileOp.read_priv_app_temp_file(temp_file)
-        elif output_list.__len__() >= 1:
-            if output_list[0].startswith("Exception") and len(output_list) == 2:
-                text = output_list[1]
-            else:
-                text = output_list[0]
-            for line in text.split('\n'):
-                if line.startswith("uses-permission:"):
-                    try:
-                        permissions = line.split('\'')
-                        if permissions.__len__() > 1:
-                            return_list.append(permissions[1])
-                    except Exception as e:
-                        return_list = ["Exception: " + str(e)]
+        if result[2]:
+            key = "uses-permission:"
+            for line in result[1]:
+                if line.startswith(key):
+                    return_list.append(line.split('\'')[1])
         else:
-            return_list = ["Exception: File Not Found"]
+            return_list.append("Exception: " + str(result[0]))
         return return_list
-
-    def execute_cmd_generic(self, command, capture_output=True, shell=False):
-        try:
-            if sys.platform.startswith('win32'):
-                command = ['cmd', '/c'] + command
-            # Execute the command
-            result = subprocess.run(command, capture_output=capture_output, text=True, shell=shell, check=True)
-
-            # Return the success status, output, and an empty error with the exit code
-            return {
-                'success': True,
-                'output': result.stdout,
-                'error': '',
-                'exit_code': result.returncode
-            }
-        except subprocess.CalledProcessError as e:
-            # Handle non-zero exit codes from the command
-            return {
-                'success': False,
-                'output': e.stdout,
-                'error': e.stderr,
-                'exit_code': e.returncode
-            }
-        except Exception as e:
-            # Handle other exceptions, such as execution errors
-            return {
-                'success': False,
-                'output': '',
-                'error': str(e),
-                'exit_code': -1
-            }
-
-    def get_apk_version_code(self, apk_path):
-        """Extracts the version code from an APK using aapt2."""
-        try:
-            # Run aapt2 to dump the APK's badging information
-            self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
-            result = subprocess.run(["aapt2", "dump", "badging", apk_path], capture_output=True, text=True)
-            output = result.stdout
-
-            # Find the line containing 'versionCode' and parse it
-            version_code_line = next((line for line in output.split('\n') if 'versionCode' in line), None)
-            if version_code_line:
-                # Extract versionCode value from the line
-                parts = version_code_line.split()
-                version_code_part = next((part for part in parts if 'versionCode' in part), '')
-                version_code = version_code_part.split('=')[1].strip("'")
-                return int(version_code)
-            else:
-                print(f"No version code found for {apk_path}")
-                return 0
-        except Exception as e:
-            print(f"Error getting APK version for {apk_path}: {e}")
-            return 0
 
     def get_package_name(self, apk_path):
         self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
-        # A temporary file where the output will be stored
-        temp_file = "temp.txt"
-        self.COMMAND_AAPT_DUMP_PERMISSIONS[5] = temp_file
-        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_PERMISSIONS)
-        if FileOp.file_exists(temp_file):
-            return_list = FileOp.read_package_name(temp_file)
-            FileOp.remove_file(temp_file)
-        elif output_list.__len__() >= 1:
-            if output_list[0].startswith("Exception") and len(output_list) == 2:
-                text = output_list[1]
-            else:
-                text = output_list[0]
-            if text.startswith("package:"):
-                index1 = text.find(":")
-                text = text[index1 + 2:]
-                text = text.split('\n')[0]
-            else:
-                text = "Exception: Package Not Found"
-            return text
+        result = self.execute(self.COMMAND_AAPT_DUMP_PERMISSIONS)
+        if result[2]:
+            key = "package:"
+            key_line = next((line for line in result[1] if line.startswith(key)), None)
+            if key_line:
+                value = key_line.split(" ")[1]
+                return value
         else:
-            return_list = "Exception: File Not Found"
-        return return_list
+            return "Exception: Package Name Not Found"
 
     def get_package_version(self, apk_path):
         self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
-        temp_file = "temp.txt"  # A temporary file where the output will be stored
-        self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
-        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
-        if FileOp.file_exists(temp_file):
-            return_list = FileOp.read_key(temp_file, "versionName")
-        elif output_list.__len__() >= 1:
-            if output_list[0].startswith("Exception") and len(output_list) == 2:
-                text = output_list[1]
-            else:
-                text = output_list[0]
-            if text.__contains__("versionName="):
-                index1 = text.find("versionName='")
-                text = text[index1 + 13: -1]
-                index1 = text.find("'")
-                text = text[0: index1]
-            else:
-                text = "Exception: Version Not found!"
-            return text
+        result = self.execute(self.COMMAND_AAPT_DUMP_BADGING)
+        if result[2]:
+            key = "versionName"
+            key_line = next((line for line in result[1] if line.__contains__(key)), None)
+            if key_line:
+                parts = key_line.split()
+                value = next((part.split('=')[1].strip("'") for part in parts if key in part), '')
+                return value
         else:
-            return_list = "Exception: Version Not Found"
-        return return_list
+            return "Exception: Package Name Not Found"
+
+    def get_package_details(self, apk_path, key):
+        self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
+        result = self.execute(self.COMMAND_AAPT_DUMP_BADGING)
+        if result[2]:
+            key_line = next((line for line in result[1] if line.__contains__(key)), None)
+            if key_line:
+                parts = key_line.split()
+                value = next((part for part in parts if key in part), '')
+                return value.split('=')[1].strip("'")
+        else:
+            return f"Exception: {key} Not Found"
 
     def get_package_version_code(self, apk_path):
         self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
-        temp_file = "temp.txt"  # A temporary file where the output will be stored
-        self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
-        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
-        if FileOp.file_exists(temp_file):
-            return_list = FileOp.read_key(temp_file, "versionCode")
-        elif output_list.__len__() >= 1:
-            if output_list[0].startswith("Exception") and len(output_list) == 2:
-                text = output_list[1]
-            else:
-                text = output_list[0]
-            if text.__contains__("versionCode="):
-                index1 = text.find("versionCode='")
-                text = text[index1 + 13: -1]
-                index1 = text.find("'")
-                text = text[0: index1]
-            else:
-                text = "Exception: Version Not found!"
-            return text
+        result = self.execute(self.COMMAND_AAPT_DUMP_BADGING)
+        if result[2]:
+            key = "versionCode="
+            key_line = next((line for line in result[1] if line.__contains__(key)), None)
+            if key_line:
+                parts = key_line.split()
+                value = next((part.split('=')[1].strip("'") for part in parts if key in part), '')
+                return value
         else:
-            return_list = "Exception: Version Not Found"
-        return return_list
+            return "Exception: Package Version Code Not Found"
 
     def sign_zip_file(self, zip_path):
         zip_path = os.path.abspath(zip_path)

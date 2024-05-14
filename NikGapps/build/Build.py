@@ -60,10 +60,12 @@ class Build:
                             pkg_files).__contains__("split_") and not str(pkg_files).__contains__("___m") \
                             and not str(pkg_files).__contains__("___overlay"):
                         primary_app_location = pkg_files.absolute()
-                        package_name = cmd.get_package_name(primary_app_location)
+                        package_name = cmd.get_package_details(primary_app_location, "name")
                         # print("File: " + package_name)
-                        cmd.get_package_version(primary_app_location)
+                        # package_version = cmd.get_package_details(primary_app_location, "versionName")
                         # print("Package Version: " + package_version)
+                        # package_code = cmd.get_package_details(primary_app_location, "versionCode")
+                        # print("Package Code: " + package_code)
                         if str(primary_app_location).__contains__("___priv-app___"):
                             app_type = Statics.is_priv_app
                         elif str(primary_app_location).__contains__("___app___"):
