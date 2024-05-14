@@ -225,7 +225,7 @@ class Cmd:
         result = self.execute(self.COMMAND_AAPT_DUMP_PERMISSIONS)
         return_list = set()
         if result[2]:
-            keys = ["uses-permission:", "permission:"]
+            keys = ["uses-permission", "permission"]
             for line in result[1]:
                 if line.startswith(keys[0]):
                     return_list.add(line.split('\'')[1])
