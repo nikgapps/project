@@ -4,7 +4,7 @@ import gitlab
 
 
 class GitLabManager:
-    def __init__(self, gitlab_url, private_token=None):
+    def __init__(self, gitlab_url='https://gitlab.com', private_token=None):
         self.token = private_token
         self.gl = gitlab.Gitlab(gitlab_url, private_token=private_token)
         self.gl.auth()
