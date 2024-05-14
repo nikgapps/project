@@ -1,3 +1,6 @@
+- date: 15th May 2024 (Android 10-14)
+  changes:
+      - item: Improve how priv-app whitelist permissions are set
 - date: 19th Apr 2024 (Android 10-14)
   changes:
       - item: Fixed Potential bootloops on LineageOs 21 (Android 14)
