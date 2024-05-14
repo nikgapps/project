@@ -62,7 +62,8 @@ class Cmd:
     def execute(self, command, capture_output=True, shell=False):
         try:
             command_to_execute = self.commands_list + command
-            result = subprocess.run(command_to_execute, encoding="utf-8", capture_output=capture_output, text=True, shell=shell,
+            result = subprocess.run(command_to_execute, encoding="utf-8", capture_output=capture_output, text=True,
+                                    shell=shell,
                                     check=True)
             return ['', result.stdout.split('\n'), True, result.returncode]
         except subprocess.CalledProcessError as e:
@@ -72,7 +73,8 @@ class Cmd:
 
     def execute_cmd(self, command):
         command_to_execute = self.commands_list + command
-        p = subprocess.run(command_to_execute, encoding="utf-8", universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run(command_to_execute, encoding="utf-8", universal_newlines=True, stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
         if p.returncode == 0:
             return p.stdout.split('\n')
         else:
@@ -221,15 +223,17 @@ class Cmd:
     def get_white_list_permissions(self, apk_path):
         self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
         result = self.execute(self.COMMAND_AAPT_DUMP_PERMISSIONS)
-        return_list = []
+        return_list = set()
         if result[2]:
-            key = "uses-permission:"
+            keys = ["uses-permission:", "permission:"]
             for line in result[1]:
-                if line.startswith(key):
-                    return_list.append(line.split('\'')[1])
+                if line.startswith(keys[0]):
+                    return_list.add(line.split('\'')[1])
+                elif line.startswith(keys[1]):
+                    return_list.add(line.split(' ')[1])
         else:
-            return_list.append("Exception: " + str(result[0]))
-        return return_list
+            return_list.add("Exception: " + str(result[0]))
+        return list(return_list)
 
     def get_package_name(self, apk_path):
         self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
