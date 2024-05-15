@@ -90,6 +90,16 @@ class Requests:
             return ["nikhilmenghani", "nikgapps"]
 
     @staticmethod
+    def get_package_details():
+        decoded_hand = Requests.get(Statics.package_details_url)
+        package_details = {}
+        if decoded_hand.status_code == 200:
+            return decoded_hand.json()
+        else:
+            print(f"{decoded_hand.status_code} while getting package details")
+            return package_details
+
+    @staticmethod
     def handle_429_response(url, params, headers, result):
         if 'Retry-After' in result.headers:
             wait_time = float(result.headers['Retry-After'])

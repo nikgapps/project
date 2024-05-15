@@ -36,10 +36,12 @@ class Statics:
     release_tracker_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/release_tracker.json"
     folder_access_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/folder_access.json"
     admin_access_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/admin_access.txt"
+    package_details_url = "https://raw.githubusercontent.com/nikgapps/tracker/main/14/GooglePackages.json"
     admin_access = None
     folder_access = None
     in_progress = "○"
     completed = "●"
+    package_details = {}
     # "■ ▤ □ ▥ ▧ ▨ ▩ ▦ ▣ ◈ ◇ ◆ ◉ ◊ ○ ◌ ◍ ◎ ● ◐ ◑ ◒ ◓ ◔ ◕ ◖ ◗ ◘ ◙ ◚ ◛"
 
     @staticmethod
@@ -141,6 +143,10 @@ class Statics:
     @staticmethod
     def get_android_sdk(android_version):
         return Statics.android_versions[str(android_version)]['sdk']
+
+    @staticmethod
+    def get_package_details(android_version):
+        return android_version + Statics.dir_sep + "package_details.json"
 
     @staticmethod
     def get_sourceforge_release_directory(release_dir):
