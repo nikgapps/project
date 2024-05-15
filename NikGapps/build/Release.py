@@ -77,25 +77,22 @@ class Release:
 
     @staticmethod
     def zip_package(package_name, app_set_list, android_version, sign_zip, send_zip_device, fresh_build, telegram,
-                    arch="arm64",
-                    config_obj: NikGappsConfig = None,
-                    upload: Upload = None):
-        if config_obj is not None:
-            config_obj: NikGappsConfig
-            if config_obj.config_package_list.__len__() > 0:
-                app_set_list = config_obj.config_package_list
-        else:
+                    arch="arm64", config_obj: NikGappsConfig = None, upload: Upload = None):
+        if config_obj is None:
             config_obj = NikGappsConfig(android_version=android_version, arch=arch)
+        else:
+            if config_obj.config_package_list:
+                app_set_list = config_obj.config_package_list
 
-        if app_set_list is not None and app_set_list.__len__() > 0:
+        if app_set_list:
             file_name = package_name
             config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
-            print("Exporting " + str(file_name))
+            print(f"Exporting {file_name}")
             z = Export(file_name, sign=sign_zip)
-            result = z.zip(config_obj=config_obj, send_zip_device=send_zip_device,
-                           fresh_build=fresh_build, telegram=telegram, compression_mode=Modes.DEFAULT)
+            result = z.zip(config_obj=config_obj, send_zip_device=send_zip_device, fresh_build=fresh_build,
+                           telegram=telegram, compression_mode=Modes.DEFAULT)
             if result[1] and Config.UPLOAD_FILES:
-                print("Uploading " + str(result[0]))
+                print(f"Uploading {result[0]}")
                 execution_status, download_link, file_size_mb = upload.upload(result[0], telegram=telegram)
                 print("Done")
                 return execution_status
