@@ -56,17 +56,10 @@ BUILD_CONFIG = True
 BUILD_EXCLUSIVE = (RELEASE_TYPE.lower().__eq__("stable"))
 EXCLUSIVE_FOLDER = "Elite"
 
-# Possible Values are ['fetch', 'build']
-# PROJECT_MODE = "fetch"
 PROJECT_MODE = "build"
 
 # This will help fetch the files which requires root access such as overlay files
 ADB_ROOT_ENABLED = False
-
-# Fetch Package is the package you wish to pull from your device
-# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets', '<addon>'
-# (for e.g 'YouTube')]
-FETCH_PACKAGE = "core"
 
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
