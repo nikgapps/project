@@ -1,5 +1,6 @@
 import os
 from NikGapps.build.Build import Build
+from NikGapps.build.PackageManager import PackageManager
 from NikGapps.helper import Config
 from NikGapps.helper.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Statics import Statics
@@ -15,6 +16,20 @@ class Release:
     def zip(build_package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram, upload=None):
         release_directory = Statics.get_release_directory(android_version)
         current_time = T.get_current_time()
+
+        # def zip_package1(package_name, app_set_list, config_obj=None):
+        #     package_manager = PackageManager(android_version, arch)
+        #     package_manager.initialize_packages(app_set_list)
+        #
+        #     if config_obj is None:
+        #         config_obj = NikGappsConfig(android_version=android_version, arch=arch)
+        #     else:
+        #         if config_obj.config_package_list:
+        #             app_set_list = config_obj.config_package_list
+        #
+        #     filtered_packages = package_manager.filter_packages_by_config(config_obj)
+        #
+        #     return package_manager.create_zip(filtered_packages, package_name, config_obj)
 
         def zip_package(package_name, app_set_list, config_obj=None):
             if config_obj is None:
