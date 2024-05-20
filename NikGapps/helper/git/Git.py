@@ -17,6 +17,7 @@ from ..T import T
 class Git:
 
     def __init__(self, working_tree_dir):
+        os.environ["GIT_CLONE_PROTECTION_ACTIVE"] = 'false'
         self.enable_push = Config.GIT_PUSH
         self.working_tree_dir = working_tree_dir
         if FileOp.dir_exists(self.working_tree_dir):
