@@ -1,6 +1,6 @@
 import os
 from NikGapps.build.Build import Build
-from NikGapps.build.PackageManager import PackageManager
+from NikGapps.build.NikGappsManager import NikGappsManager
 from NikGapps.helper import Config
 from NikGapps.helper.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Statics import Statics
@@ -8,6 +8,7 @@ from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.build.NikGappsPackages import NikGappsPackages
 from NikGapps.helper.compression.Export import Export
+from NikGapps.helper.web.Requests import Requests
 
 
 class Release:
@@ -16,20 +17,22 @@ class Release:
     def zip(build_package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram, upload=None):
         release_directory = Statics.get_release_directory(android_version)
         current_time = T.get_current_time()
+        package_manager = NikGappsManager(android_version, arch)
+        package_details = Requests.get_package_details()
+        package_manager.initialize_packages(package_details)
 
-        # def zip_package1(package_name, app_set_list, config_obj=None):
-        #     package_manager = PackageManager(android_version, arch)
-        #     package_manager.initialize_packages(app_set_list)
-        #
-        #     if config_obj is None:
-        #         config_obj = NikGappsConfig(android_version=android_version, arch=arch)
-        #     else:
-        #         if config_obj.config_package_list:
-        #             app_set_list = config_obj.config_package_list
-        #
-        #     filtered_packages = package_manager.filter_packages_by_config(config_obj)
-        #
-        #     return package_manager.create_zip(filtered_packages, package_name, config_obj)
+        def zip_package1(package_name, app_set_list, config_obj=None):
+            pass
+
+            # if config_obj is None:
+            #     config_obj = NikGappsConfig(android_version=android_version, arch=arch)
+            # else:
+            #     if config_obj.config_package_list:
+            #         app_set_list = config_obj.config_package_list
+            #
+            # filtered_packages = package_manager.filter_packages_by_config(config_obj)
+            #
+            # return package_manager.create_zip(filtered_packages, package_name, config_obj)
 
         def zip_package(package_name, app_set_list, config_obj=None):
             if config_obj is None:
@@ -77,7 +80,9 @@ class Release:
         def handle_build_package(package_type_inner):
             file_name = f"{release_directory}{Statics.dir_sep}{T.get_file_name(package_type_inner.lower(), android_version, arch)}"
             print(f"Building for {package_type_inner}")
-            zip_package(file_name, NikGappsPackages.get_packages(package_type_inner, android_version))
+            app_set_list = NikGappsPackages.get_packages(package_type_inner, android_version)
+            app_set_list2 = package_manager.get_packages(package_type_inner, android_version)
+            zip_package(file_name, app_set_list)
 
         def handle_default(default_type):
             for app_set in NikGappsPackages.get_packages(default_type, android_version):

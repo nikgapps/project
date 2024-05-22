@@ -1,35 +1,29 @@
+import os.path
+from pathlib import Path
 from .Assets import Assets
 from .Statics import Statics
 from .XmlOp import XmlOp
+from .Cmd import Cmd
+from .FileOp import FileOp
 from .overlay.Overlay import Overlay
 
 
 class Package:
     def __init__(self, title, package_name, app_type, package_title=None, partition=None):
         self.package_name = package_name
-        package_details = Statics.package_details.get(package_name, None)
-        if package_details:
-            if len(package_details) == 1:
-                file = package_details[0]
-                self.title = file.get("folder", title)
-                self.partition = file.get("partition", partition)
-                self.app_type = file.get("type", app_type)
-            else:
-                for file in package_details:
-                    self.title = file.get("folder", title)
-                    self.partition = file.get("partition", partition)
-                    self.app_type = file.get("type", app_type)
-        else:
-            self.title = title
-            self.partition = partition
-            self.app_type = "priv-app" if app_type == Statics.is_priv_app else "app"
+        self.title = title
         self.package_title = package_title
-        if self.package_title is None:
-            self.package_title = self.title
-        if self.partition is None:
+        if package_title is None:
+            self.package_title = title
+        self.partition = partition
+        if partition is None:
             self.partition = "product"
+        self.app_type = app_type  # Whether the Package is system app or private app
         # target_folder is the folder where the package will be installed
-        self.target_folder = str(Statics.system_root_dir + "/" + self.app_type + "/" + self.title).replace("\\\\", "/")
+        if app_type == Statics.is_priv_app:
+            self.target_folder = str(Statics.system_root_dir + "/" + "priv-app" + "/" + title).replace("\\\\", "/")
+        elif app_type == Statics.is_system_app:
+            self.target_folder = str(Statics.system_root_dir + "/" + "app" + "/" + title).replace("\\\\", "/")
         self.install_list = []  # Stores list of files installed to the package directory
         self.predefined_file_list = []  # Stores list of predefined file list
         self.overlay_list = []  # Stores list of overlay apks
@@ -152,10 +146,12 @@ class Package:
         if not str(self.additional_installer_script).__eq__(""):
             str_data += self.additional_installer_script
             str_data += "\n"
+        str_data += "   chmod 755 \"$COMMONDIR/addon\";\n"
         str_data += "   chmod 755 \"$COMMONDIR/addon.sh\";\n"
         str_data += "   update_prop \"$propFilePath\"" \
                     " \"install\"" \
                     " \"$propFilePath\" \"" + self.package_title + "\" \n"
+        str_data += "   . $COMMONDIR/addon \"" + self.package_title + "\" \"$propFilePath\" " + f"\"{self.addon_index}\"\n"
         str_data += "   . $COMMONDIR/addon.sh \"" + self.package_title + "\" \"$propFilePath\" " + f"\"{self.addon_index}\"\n"
         str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + "\"\n"
         str_data += "}\n"
@@ -188,3 +184,96 @@ class Package:
         str_data += "uninstall_package"
         str_data += "\n"
         return str_data
+
+    # pull the package and update the packages
+    def pull_package_files(self, android_version, app_set=None):
+        cmd = Cmd()
+        self.failure_logs = ""
+        if self.install_list.__len__() > 0 or self.predefined_file_list.__len__() > 0:
+            print("File(s) to fetch: " + str(len(self.install_list)))
+            for file in self.install_list:
+                # Fetch the folder where the app files are located
+                source_folder = str(Path(self.primary_app_location).parent).replace("\\", "/")
+                # Replace the source folder with target so the data app becomes system app
+                install_location = file.replace(source_folder, self.target_folder)
+                # Replace the base.apk with System_App_Name.apk
+                install_location = str(
+                    install_location).replace("base.apk", os.path.basename(self.target_folder) + ".apk")
+                # Prepare the server directory where the pulled files will be stored
+                source = install_location
+                # Encrypt the file names and store it on server
+                server_location = Statics.get_import_path(app_set, self.package_title, source, android_version)
+                # Pull the file from device and store on server
+                cmd.pull_package(file, server_location)
+                # Update the folder dictionary
+                for folder in FileOp.get_dir_list(install_location):
+                    self.folder_dict[folder] = folder
+                # Generate priv-app permissions whitelist
+                if file == self.primary_app_location and self.app_type == Statics.is_priv_app:
+                    output_line = cmd.get_white_list_permissions(server_location)
+                    if output_line.__len__() >= 1 and not output_line[0].__contains__("Exception"):
+                        self.generate_priv_app_whitelist(app_set, output_line, android_version)
+                self.file_dict[server_location] = install_location
+            for file in self.predefined_file_list:
+                # in some cases the files are present in /product folder instead of /system
+                # we will try to pull from both the folder and make sure one of them pulls correctly
+                if cmd.file_exists("/system/product/" + file):
+                    source = "/system/product/" + file
+                elif cmd.file_exists("/system/" + file):
+                    source = "/system/" + file
+                else:
+                    self.failure_logs += self.package_title + ": " + file + "\n"
+                    print("The file " + file + " does not exists!")
+                    continue
+                import_path = source
+                server_location = Statics.get_import_path(app_set, self.package_title, import_path, android_version)
+                cmd.pull_package(source, server_location)
+                # Update the folder dictionary
+                for folder in FileOp.get_dir_list(os.path.basename(server_location).replace("___", "/")):
+                    self.folder_dict[folder] = folder
+                self.file_dict[server_location] = source
+        if self.delete_files_list.__len__() > 0:
+            del_str = ""
+            for delete_folder in self.delete_files_list:
+                del_str += delete_folder + "\n"
+            # if FileOp.dir_exists(C.path.join(C.export_directory, app_set, self.package_title)):
+            #     FileOp.write_string_file(del_str, C.path.join(C.export_directory, app_set,
+            #                                                           self.package_title, C.DELETE_FILES_NAME))
+
+    # validate the package
+    def validate(self):
+        print("Validating " + self.package_title)
+        self.failure_logs = ""
+        cmd = Cmd()
+        if self.package_name is not None:
+            package_path = cmd.get_package_path(self.package_name)
+            if package_path.__contains__("Exception occurred"):
+                print("Package " + self.package_name + " not found!")
+                self.failure_logs += self.package_title + ": " + "Package " + self.package_name + " not found!" + "\n"
+                self.validated = False
+                return
+            if package_path.__len__() > 0:  # Iterate through all the files to get the parent directory
+                parent_folder = None
+                for file in package_path:  # Need to add more validation rules here
+                    if file.startswith("/data/app/") and file.endswith("base.apk"):
+                        path = Path(file)
+                        parent_folder = path.parent
+                        self.primary_app_location = file  # This will be used to fetch priv-app whitelist permissions
+                        break
+                    elif not file.__contains__("split_config") and file.startswith("/system") and file.endswith(".apk"):
+                        path = Path(file)
+                        parent_folder = path.parent
+                        self.primary_app_location = file  # This will be used to fetch priv-app whitelist permissions
+                        self.target_folder = str(path.parent).replace("\\", "/")
+                        break
+                if parent_folder is not None:  # Fetch the list of files to pull
+                    self.install_list = cmd.get_package_files_recursively(parent_folder, self.install_list)
+            else:
+                self.failure_logs = "Seems as if " + self.package_title + " is not installed in device!"
+                print(self.failure_logs)
+                self.failure_logs += "\n"
+        else:
+            if self.title != "ExtraFiles" and self.title != "ExtraFilesGo":
+                self.validated = False
+                print("Something wrong happened!")
+

@@ -5,8 +5,8 @@ from NikGapps.helper.overlay.Manifest import Manifest
 
 
 class Overlay:
-    def __init__(self, apkName, package_name, android_version, resources):
-        self.folder = f"{apkName}Overlay"
+    def __init__(self, apk_name, package_name, android_version, resources):
+        self.folder = f"{apk_name}Overlay"
         self.apk_name = f"{self.folder}.apk"
         self.resources = resources
         self.manifest = Manifest(package=package_name, android_version=android_version)

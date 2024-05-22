@@ -1,10 +1,11 @@
 import json
 import os
-
 from NikGapps.helper.AppSet import AppSet
 from NikGapps.helper.Cmd import Cmd
 from NikGapps.helper.Package import Package
 from NikGapps.helper.Statics import Statics
+from NikGapps.helper.overlay.Overlay import Overlay
+from NikGapps.helper.overlay.Library import Library
 
 
 class NikGappsManager:
@@ -19,16 +20,6 @@ class NikGappsManager:
         self.appsets = []
         self.cmd = Cmd()
         self.package_data = {}
-        # build_package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram, upload=None
-
-        # we want to build a zip file for given package list, android version, arch
-        # we also want to build a caching mechanism that doesn't rebuild the same package if it already exists
-        # we are reading the directory to build package objects which can be used to copy the necessary files
-        # we are copying the files because we don't want to copy over all the files.
-        # we also need to have a list of all the packages to build the config file
-        # we also need to have the ability to filter the package list based on the config file
-        # so, we definitely need to have a config file object that reads from config file if it exists.
-        # if the file doesn't exist, we need to load the defaults from package object that has all the packages loaded
 
     def initialize_packages(self, json_data):
         self.package_data = json_data
@@ -96,12 +87,247 @@ class NikGappsManager:
         package_details = self.get_package_details(package_name)
         # Assume we pick the first entry if there are multiple entries
         package_info = package_details[0]
-        return Package(
+
+        package = Package(
             title=package_info['title'],
             package_name=package_name,
             app_type=Statics.is_priv_app if package_info['type'] == "priv-app" else Statics.is_system_app,
             package_title=package_info['title']
         )
+
+        overlays = self.get_package_overlays(package_name)
+        for overlay in overlays:
+            package.add_overlay(overlay)
+
+        deletes = self.get_package_deletes(package_name)
+        for delete in deletes:
+            package.delete(delete)
+
+        script = self.get_package_script(package_name)
+        if script:
+            package.additional_installer_script = script
+
+        return package
+
+    def get_package_overlays(self, package_name):
+        package_overlays = {
+            "com.google.android.gms": [
+                {
+                    "package_name": "com.nikgapps.overlay.gmscore",
+                    "resources": Library.get_gms_core_resources()
+                }
+            ],
+            "com.google.android.dialer": [
+                {
+                    "package_name": "com.nikgapps.overlay.dialer",
+                    "resources": Library.get_google_dialer_resources()
+                }
+            ],
+            "com.google.android.contacts": [
+                {
+                    "package_name": "com.nikgapps.overlay.contacts",
+                    "resources": Library.get_google_contacts_resources()
+                }
+            ],
+            "com.google.android.tts": [
+                {
+                    "package_name": "com.nikgapps.overlay.googletts",
+                    "resources": Library.get_google_tts_resources()
+                }
+            ],
+            "com.google.android.apps.wellbeing": [
+                {
+                    "package_name": "com.nikgapps.overlay.wellbeing",
+                    "resources": Library.get_digital_wellbeing_resources()
+                }
+            ],
+            "com.google.android.marvin.talkback": [
+                {
+                    "package_name": "com.nikgapps.overlay.talkback",
+                    "resources": Library.get_google_talkback_resources()
+                }
+            ],
+            "com.google.android.flipendo": [
+                {
+                    "package_name": "com.nikgapps.overlay.flipendo",
+                    "resources": Library.get_flipendo_resources()
+                }
+            ],
+            "com.google.android.apps.messaging": [
+                {
+                    "package_name": "com.nikgapps.overlay.messages",
+                    "resources": Library.get_google_messages_resources()
+                }
+            ],
+            "com.google.android.gms.location.history": [
+                {
+                    "package_name": "com.nikgapps.overlay.googlelocationhistory",
+                    "resources": Library.get_google_location_history_resources()
+                }
+            ],
+            "com.google.android.apps.photos": [
+                {
+                    "package_name": "com.nikgapps.overlay.googlephotos",
+                    "resources": Library.get_google_photos_resources()
+                }
+            ],
+            "com.google.android.settings.intelligence": [
+                {
+                    "package_name": "com.nikgapps.overlay.settingsintelligence",
+                    "resources": Library.get_settings_services_resources(self.android_version)
+                }
+            ],
+            "com.google.android.projection.gearhead": [
+                {
+                    "package_name": "com.nikgapps.overlay.androidauto",
+                    "resources": Library.get_android_auto_resources()
+                }
+            ],
+            "com.google.android.apps.nexuslauncher": [
+                {
+                    "package_name": "com.nikgapps.overlay.pixellauncher",
+                    "resources": Library.get_pixel_launcher_resources()
+                }
+            ],
+            "com.google.android.googlequicksearchbox": [
+                {
+                    "package_name": "com.nikgapps.overlay.googlequicksearchbox",
+                    "resources": Library.get_velvet_resources()
+                }
+            ],
+            "com.google.android.deskclock": [
+                {
+                    "package_name": "com.nikgapps.overlay.googleclock",
+                    "resources": Library.get_google_clock_resources()
+                }
+            ],
+            "com.google.android.as": [
+                {
+                    "package_name": "com.nikgapps.overlay.ais",
+                    "resources": Library.get_devices_personalization_services_resources()
+                }
+            ],
+            "com.google.android.wallpaper.effects": [
+                {
+                    "package_name": "com.nikgapps.overlay.cinematiceffect",
+                    "resources": Library.get_cinematic_effect_resources()
+                }
+            ],
+            "com.google.android.apps.youtube.music": [
+                {
+                    "package_name": "com.nikgapps.overlay.youtubemusic",
+                    "resources": Library.get_youtube_music_resources()
+                }
+            ]
+        }
+        return [Overlay(package_name, overlay["package_name"], self.android_version, overlay["resources"]) for overlay in package_overlays.get(package_name, [])]
+
+    def get_package_deletes(self, package_name):
+        package_deletes = {
+            "com.google.android.gms": ["PrebuiltGmsCoreQt", "PrebuiltGmsCoreRvc", "GmsCore"],
+            "com.google.android.dialer": ["Dialer"],
+            "com.google.android.contacts": ["Contacts"],
+            "com.google.android.tts": ["PicoTts"],
+            "com.google.android.inputmethod.latin": ["LatinIME"],
+            "com.google.android.calendar": ["Calendar", "Etar", "SimpleCalendar"],
+            "com.google.android.apps.messaging": ["RevengeMessages", "messaging", "Messaging", "QKSMS", "Mms"],
+            "com.google.android.apps.photos": ["Gallery", "SimpleGallery", "Gallery2", "MotGallery", "MediaShortcuts", "SimpleGallery", "FineOSGallery", "GalleryX", "MiuiGallery", "SnapdragonGallery", "DotGallery", "Glimpse"],
+            "com.google.android.keep": ["Notepad"],
+            "com.google.android.apps.recorder": ["Recorder", "QtiSoundRecorder"],
+            "com.google.android.gm": ["Email", "PrebuiltEmailGoogle"],
+            "com.google.android.apps.wallpaper": ["Wallpapers"],
+            "com.android.chrome": ["Bolt", "Browser", "Browser2", "BrowserIntl", "BrowserProviderProxy", "Chromium", "DuckDuckGo", "Fluxion", "Gello", "Jelly", "PA_Browser", "PABrowser", "YuBrowser", "BLUOpera", "BLUOperaPreinstall", "ViaBrowser", "Duckduckgo"],
+            "com.google.android.youtube.music": ["SnapdragonMusic", "GooglePlayMusic", "Eleven", "CrDroidMusic"],
+            "com.google.android.setupwizard": ["Provision", "SetupWizard", "LineageSetupWizard"]
+        }
+        return package_deletes.get(package_name, [])
+
+    def get_package_script(self, package_name):
+        package_scripts = {
+            "com.google.android.gms": """
+gms_optimization=$(ReadConfigValue "GmsOptimization" "$nikgapps_config_file_name")
+[ -z "$gms_optimization" ] && gms_optimization=0
+if [ "$gms_optimization" = "1" ]; then
+    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+    addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
+    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+    addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
+else
+    addToLog "- Battery Optimization not Enabled" "$package_title"
+fi
+    """,
+            "com.google.android.dialer": """
+   script_text="<permissions>
+    <!-- Shared library required on the device to get Google Dialer updates from
+         Play Store. This will be deprecated once Google Dialer play store
+         updates stop supporting pre-O devices. -->
+    <library name=\\"com.google.android.dialer.support\\"
+      file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
+
+    <!-- Starting from Android O and above, this system feature is required for
+         getting Google Dialer play store updates. -->
+    <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
+    <!-- Feature for Google Dialer Call Recording -->
+    <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
+</permissions>"
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.dialer.support.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
+   fi""",
+            "com.google.android.maps": """
+   script_text="<permissions>
+    <library name=\\"com.google.android.maps\\"
+            file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
+</permissions>"
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.maps.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
+   fi""",
+            "com.google.android.media.effects": """
+   script_text="<permissions>
+<library name=\\"com.google.android.media.effects\\"
+file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
+
+</permissions>"
+   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
+   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
+   update_prop "$install_partition/etc/permissions/com.google.android.media.effects.xml" "install" "$propFilePath" "$package_title"
+   if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
+     addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
+   fi""",
+            "com.google.android.settings.intelligence": """
+   set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.enterprise_mode" "1" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.rotation_locked" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.enable_assist_gesture_training" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.theme" "glif_v3_light" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_pixel_tos" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.show_digital_warranty" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.esim_cid_ignore" "00000001" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "ro.setupwizard.setupwizard.feature.show_support_link_in_deferred_setup" "false" "$product/etc/build.prop" "$package_title"
+   set_prop "setupwizard.feature.enable_wifi_tracker" "true" "$product/etc/build.prop" "$package_title"
+   set_prop "setupwizard.feature.day_night_mode_enabled" "true" "$product/etc/build.prop" "$package_title"
+   set_prop "setupwizard.feature.portal_notification" "true" "$product/etc/build.prop" "$package_title"
+   set_prop "setupwizard.feature.lifecycle_refactoring" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+   set_prop "setupwizard.feature.notification_refactoring" "true" "$product/etc/build.prop" "$package_title"
+    """,
+            "com.google.android.googlequicksearchbox": """
+   set_prop "ro.opa.eligible_device" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+    """
+        }
+        return package_scripts.get(package_name, None)
 
     def get_go_package(self):
         app_set_list = []
@@ -162,14 +388,14 @@ class NikGappsManager:
             "com.google.android.apps.messaging",
             "com.google.android.dialer",
             "com.google.android.contacts",
-            "com.google.android.ims"
+            "com.google.android.ims",
+            "com.google.android.deskclock"
         ]
 
         for package_name in basic_packages:
             package = self.create_package(package_name)
             app_set_list.append(AppSet(package.package_title, [package]))
 
-        app_set_list.append(self.get_google_clock(android_version))
         return app_set_list
 
     def get_omni_package(self, android_version):
