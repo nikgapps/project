@@ -41,8 +41,6 @@ def main():
 
     telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
     for android_version in android_versions:
-        Json.write_dict_to_file(Requests.get_package_details(), Statics.get_package_details(android_version))
-        Statics.package_details = Json.read_dict_from_file(Statics.get_package_details(android_version))
         upload = Upload(android_version=android_version, upload_files=Config.UPLOAD_FILES,
                         release_type=Config.RELEASE_TYPE)
         Config.TARGET_ANDROID_VERSION = android_version
