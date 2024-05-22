@@ -146,7 +146,7 @@ class Statics:
 
     @staticmethod
     def get_package_details(android_version):
-        return android_version + Statics.dir_sep + "package_details.json"
+        return f"{android_version}{Statics.dir_sep}package_details.json"
 
     @staticmethod
     def get_sourceforge_release_directory(release_dir):
