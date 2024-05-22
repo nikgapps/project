@@ -301,7 +301,7 @@ fi
         digital_wellbeing = Package("WellbeingPreBuilt", "com.google.android.apps.wellbeing", Statics.is_priv_app,
                                     "DigitalWellbeing")
         if float(android_version) >= 12.1:
-            digital_wellbeing_overlay = Overlay(apkName=digital_wellbeing.package_title,
+            digital_wellbeing_overlay = Overlay(apk_name=digital_wellbeing.package_title,
                                                 package_name="com.nikgapps.overlay.wellbeing",
                                                 android_version=android_version,
                                                 resources=Library.get_digital_wellbeing_resources())
@@ -310,7 +310,7 @@ fi
         google_messages = Package("PrebuiltBugle", "com.google.android.apps.messaging", Statics.is_priv_app,
                                   "GoogleMessages")
         if float(android_version) >= 12.1:
-            google_messages_overlay = Overlay(apkName=google_messages.package_title,
+            google_messages_overlay = Overlay(apk_name=google_messages.package_title,
                                               package_name="com.nikgapps.overlay.messages",
                                               android_version=android_version,
                                               resources=Library.get_google_messages_resources())
@@ -324,7 +324,7 @@ fi
 
         google_dialer = Package("GoogleDialer", "com.google.android.dialer", Statics.is_priv_app)
         if float(android_version) >= 12.1:
-            google_dialer_overlay = Overlay(apkName=google_dialer.package_title,
+            google_dialer_overlay = Overlay(apk_name=google_dialer.package_title,
                                             package_name="com.nikgapps.overlay.dialer",
                                             android_version=android_version,
                                             resources=Library.get_google_dialer_resources())
@@ -335,7 +335,7 @@ fi
 
         google_contacts = Package("GoogleContacts", "com.google.android.contacts", Statics.is_system_app)
         if float(android_version) >= 12.1:
-            google_contacts_overlay = Overlay(apkName=google_contacts.package_title,
+            google_contacts_overlay = Overlay(apk_name=google_contacts.package_title,
                                               package_name="com.nikgapps.overlay.contacts",
                                               android_version=android_version,
                                               resources=Library.get_google_contacts_resources())
@@ -368,7 +368,7 @@ fi
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               Statics.is_system_app, "GoogleLocationHistory")
             if float(android_version) >= 12.1:
-                google_location_history_overlay = Overlay(apkName=google_location_history.package_title,
+                google_location_history_overlay = Overlay(apk_name=google_location_history.package_title,
                                                           package_name="com.nikgapps.overlay.googlelocationhistory",
                                                           android_version=android_version,
                                                           resources=Library.get_google_location_history_resources())
@@ -376,7 +376,7 @@ fi
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
         google_photos = Package("Photos", "com.google.android.apps.photos", Statics.is_system_app, "GooglePhotos")
         if float(android_version) >= 12.1:
-            google_photos_overlay = Overlay(apkName=google_photos.package_title,
+            google_photos_overlay = Overlay(apk_name=google_photos.package_title,
                                             package_name="com.nikgapps.overlay.googlephotos",
                                             android_version=android_version,
                                             resources=Library.get_google_photos_resources())
@@ -436,7 +436,7 @@ fi
         app_set_list.append(NikGappsPackages.get_google_tts(android_version))
         google_velvet = Package("Velvet", "com.google.android.googlequicksearchbox", Statics.is_priv_app)
         if float(android_version) >= 12.1:
-            google_velvet_overlay = Overlay(apkName=google_velvet.package_title,
+            google_velvet_overlay = Overlay(apk_name=google_velvet.package_title,
                                             package_name="com.nikgapps.overlay.googlequicksearchbox",
                                             android_version=android_version,
                                             resources=Library.get_velvet_resources())
@@ -479,7 +479,7 @@ fi
                                Statics.is_priv_app, "AndroidAuto")
         android_auto.clean_flash_only = True
         if float(android_version) >= 12.1:
-            android_auto_overlay = Overlay(apkName=android_auto.package_title,
+            android_auto_overlay = Overlay(apk_name=android_auto.package_title,
                                            package_name="com.nikgapps.overlay.androidauto",
                                            android_version=android_version,
                                            resources=Library.get_android_auto_resources())
@@ -623,7 +623,7 @@ fi
         google_clock.delete("DeskClock")
         google_clock.clean_flash_only = True
         if float(android_version) >= 12.1:
-            google_clock_overlay = Overlay(apkName=google_clock.package_title,
+            google_clock_overlay = Overlay(apk_name=google_clock.package_title,
                                            package_name="com.nikgapps.overlay.googleclock",
                                            android_version=android_version,
                                            resources=Library.get_google_clock_resources())
