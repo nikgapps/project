@@ -1,6 +1,8 @@
 import hashlib
 import os.path
 import shutil
+import stat
+
 from .Statics import Statics
 
 
@@ -41,9 +43,17 @@ class FileOp:
     @staticmethod
     def remove_dir(dir_path):
         if os.path.exists(dir_path):
-            shutil.rmtree(dir_path)
+            shutil.rmtree(dir_path, onerror=FileOp.remove_readonly)
             return True
         return False
+
+    @staticmethod
+    def remove_readonly(func, path, exc_info):
+        if not os.access(path, os.W_OK):
+            os.chmod(path, stat.S_IWUSR)
+            func(path)
+        else:
+            raise exc_info[1]
 
     @staticmethod
     def remove_file(file_path):
