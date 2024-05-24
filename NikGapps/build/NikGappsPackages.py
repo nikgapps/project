@@ -582,7 +582,6 @@ fi
     @staticmethod
     def get_addon_packages(android_version, addon_name=None):
         addon_set_list = [
-            NikGappsPackages.get_google_fi(),
             NikGappsPackages.get_google_duo(),
             NikGappsPackages.get_google_docs(),
             NikGappsPackages.get_google_slides(),
@@ -594,6 +593,8 @@ fi
             NikGappsPackages.get_pixel_setup_wizard(android_version),
             NikGappsPackages.get_google_talkback(android_version)
         ]
+        if float(Config.TARGET_ANDROID_VERSION) == 11:
+            addon_set_list.append(NikGappsPackages.get_google_fi())
         # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
         #     addon_set_list.append(AddonSet.get_lawnchair())
         # if float(Config.TARGET_ANDROID_VERSION) in (10, 11):
@@ -704,11 +705,10 @@ fi
     @staticmethod
     def get_google_fi():
         google_fi_set = AppSet("GoogleFi")
-        if float(Config.TARGET_ANDROID_VERSION) == 11:
-            google_fi = Package("Tycho", "com.google.android.apps.tycho", Statics.is_system_app)
-            google_fi_set.add_package(google_fi)
-            gcs = Package("GCS", "com.google.android.apps.gcs", Statics.is_priv_app)
-            google_fi_set.add_package(gcs)
+        google_fi = Package("Tycho", "com.google.android.apps.tycho", Statics.is_system_app)
+        google_fi_set.add_package(google_fi)
+        gcs = Package("GCS", "com.google.android.apps.gcs", Statics.is_priv_app)
+        google_fi_set.add_package(gcs)
         return google_fi_set
 
     @staticmethod
