@@ -21,24 +21,13 @@ class NikGappsManager:
         self.appsets = []
         self.cmd = Cmd()
         self.package_data = {}
-        # self.appset_data = {}
         self.extra_files_exceptions = {
             "extra.files": "ExtraFiles",
             "extra.files.go": "ExtraFilesGo"
         }
-        # self.lookup_table = {}
 
     def initialize_packages(self, json_data):
         self.package_data = json_data
-
-    # def initialize_appsets(self, json_data):
-    #     self.appset_data = json_data
-    #     self.lookup_table = {}
-    #     for appset, packages in json_data.items():
-    #         for package_name, package_title in packages.items():
-    #             if package_name not in self.lookup_table:
-    #                 self.lookup_table[package_name] = []
-    #             self.lookup_table[package_name].append((appset, package_title))
 
     def get_packages(self, package_type):
         match package_type:
