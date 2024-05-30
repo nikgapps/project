@@ -90,14 +90,26 @@ class Requests:
             return ["nikhilmenghani", "nikgapps"]
 
     @staticmethod
-    def get_package_details():
-        decoded_hand = Requests.get(Statics.package_details_url)
+    def get_package_details(android_version):
+        package_details_url = f"https://raw.githubusercontent.com/nikgapps/tracker/main/{android_version}/GooglePackages.json"
+        decoded_hand = Requests.get(package_details_url)
         package_details = {}
         if decoded_hand.status_code == 200:
             return decoded_hand.json()
         else:
             print(f"{decoded_hand.status_code} while getting package details")
             return package_details
+
+    @staticmethod
+    def get_appset_details(android_version):
+        appset_details_url = f"https://raw.githubusercontent.com/nikgapps/tracker/main/{android_version}/AppSets.json"
+        decoded_hand = Requests.get(appset_details_url)
+        appset_details = {}
+        if decoded_hand.status_code == 200:
+            return decoded_hand.json()
+        else:
+            print(f"{decoded_hand.status_code} while getting appset details")
+            return appset_details
 
     @staticmethod
     def handle_429_response(url, params, headers, result):

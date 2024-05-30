@@ -1,5 +1,6 @@
-import json
 import os
+
+from NikGapps.build.PackageConstants import PackageConstants
 from NikGapps.helper.AppSet import AppSet
 from NikGapps.helper.Cmd import Cmd
 from NikGapps.helper.Package import Package
@@ -20,43 +21,51 @@ class NikGappsManager:
         self.appsets = []
         self.cmd = Cmd()
         self.package_data = {}
+        # self.appset_data = {}
+        self.extra_files_exceptions = {
+            "extra.files": "ExtraFiles",
+            "extra.files.go": "ExtraFilesGo"
+        }
+        # self.lookup_table = {}
 
     def initialize_packages(self, json_data):
         self.package_data = json_data
 
-    def load_package_data(self, json_data):
-        self.package_data = json_data
-        return self.package_data
+    # def initialize_appsets(self, json_data):
+    #     self.appset_data = json_data
+    #     self.lookup_table = {}
+    #     for appset, packages in json_data.items():
+    #         for package_name, package_title in packages.items():
+    #             if package_name not in self.lookup_table:
+    #                 self.lookup_table[package_name] = []
+    #             self.lookup_table[package_name].append((appset, package_title))
 
-    def get_packages(self, package_type, android_version):
+    def get_packages(self, package_type):
         match package_type:
             case 'core':
-                return self.get_core_package(android_version)
+                return self.get_core_package()
             case 'basic':
-                return self.get_basic_package(android_version)
+                return self.get_basic_package()
             case 'omni':
-                return self.get_omni_package(android_version)
+                return self.get_omni_package()
             case 'stock':
-                return self.get_stock_package(android_version)
+                return self.get_stock_package()
             case 'full':
-                return self.get_full_package(android_version)
+                return self.get_full_package()
             case 'go':
                 return self.get_go_package()
             case 'all':
-                return self.get_all_packages(android_version)
-            case 'addon':
-                return self.get_addon_packages(android_version)
+                return self.get_all_packages()
             case _:
                 return self.get_package_by_name_or_title(package_type)
 
     def get_package_by_name_or_title(self, package_type):
-        try:
-            # Attempt to fetch by package name
-            package = self.create_package(package_type)
-            return [self.get_app_set(package)]
-        except ValueError:
-            # Attempt to fetch by package title
-            for app_set in self.get_full_package(self.android_version):
+        if str(package_type).lower() == "addons":
+            return self.get_addon_packages()
+        if str(package_type).lower() == "addonsets":
+            return self.get_addonsets()
+        else:
+            for app_set in self.get_full_package():
                 if str(app_set.title).lower() == str(package_type).lower():
                     return [app_set]
                 for package in app_set.package_list:
@@ -68,7 +77,7 @@ class NikGappsManager:
                 for package in app_set.package_list:
                     if str(package.package_title).lower() == str(package_type).lower():
                         return [AppSet(app_set.title, [package])]
-            return [None]
+        return [None]
 
     def get_package_details(self, package_name):
         if package_name in self.package_data:
@@ -76,40 +85,70 @@ class NikGappsManager:
         else:
             raise ValueError(f"No details found for package: {package_name}")
 
-    def get_app_set(self, pkg: Package, title=None):
-        if title is None:
-            name = pkg.package_title
-        else:
-            name = title
-        return AppSet(name, [pkg])
+    def get_app_set_title(self, package_name, look_into_go=False):
+        package_details = self.package_data.get(package_name, {})
+        if package_details:
+            appset_list = package_details[0]['appset']
+            for appset in appset_list:
+                if look_into_go:
+                    if str(appset).__contains__("Go"):
+                        return str(appset)
+                else:
+                    return str(appset)
+        return None
+
+    def create_appset_list(self, package_list, look_into_go=False):
+        appset_dict = {}
+        for package in package_list:
+            appset_title = self.get_app_set_title(package.package_name, look_into_go)
+            if appset_title not in appset_dict:
+                appset_dict[appset_title] = AppSet(appset_title, [package])
+            else:
+                appset_dict[appset_title].package_list.append(package)
+        return list(appset_dict.values())
+
+    def create_appset_list_from_packages(self, package_list, look_into_go=False):
+        appset_dict = {}
+        for package_name in package_list:
+            package = self.create_package(package_name)
+            appset_title = self.get_app_set_title(package_name, look_into_go)
+            if appset_title not in appset_dict:
+                appset_dict[appset_title] = AppSet(appset_title, [package])
+            else:
+                appset_dict[appset_title].package_list.append(package)
+        return list(appset_dict.values())
 
     def create_package(self, package_name):
-        package_details = self.get_package_details(package_name)
-        # Assume we pick the first entry if there are multiple entries
-        package_info = package_details[0]
-
-        package = Package(
-            title=package_info['title'],
-            package_name=package_name,
-            app_type=Statics.is_priv_app if package_info['type'] == "priv-app" else Statics.is_system_app,
-            package_title=package_info['title']
-        )
-
-        overlays = self.get_package_overlays(package_name)
-        for overlay in overlays:
-            package.add_overlay(overlay)
-
-        deletes = self.get_package_deletes(package_name)
-        for delete in deletes:
-            package.delete(delete)
-
-        script = self.get_package_script(package_name)
+        if package_name in self.extra_files_exceptions:
+            package = Package(
+                title=self.extra_files_exceptions[package_name],
+                package_name=package_name,
+            )
+        else:
+            package_details = self.get_package_details(package_name)
+            package_info = package_details[0]
+            package = Package(
+                title=package_info['title'],
+                package_name=package_name,
+                app_type=Statics.is_priv_app if package_info['type'] == "priv-app" else Statics.is_system_app,
+                package_title=package_info['package_title'],
+                partition=package_info['partition'] if float(self.android_version) > 10 else "product"
+            )
+            if float(self.android_version) > 12:
+                overlays = self.get_package_overlays(package_name)
+                for overlay in overlays:
+                    package.add_overlay(overlay)
+            deletes = PackageConstants.get_package_deletes(package_name)
+            for delete in deletes:
+                package.delete(delete)
+        script = PackageConstants.get_package_script(package_name)
         if script:
             package.additional_installer_script = script
-
         return package
 
     def get_package_overlays(self, package_name):
+        if not float(self.android_version) > 12:
+            return []
         package_overlays = {
             "com.google.android.gms": [
                 {
@@ -220,133 +259,17 @@ class NikGappsManager:
                 }
             ]
         }
-        return [Overlay(package_name, overlay["package_name"], self.android_version, overlay["resources"]) for overlay in package_overlays.get(package_name, [])]
-
-    def get_package_deletes(self, package_name):
-        package_deletes = {
-            "com.google.android.gms": ["PrebuiltGmsCoreQt", "PrebuiltGmsCoreRvc", "GmsCore"],
-            "com.google.android.dialer": ["Dialer"],
-            "com.google.android.contacts": ["Contacts"],
-            "com.google.android.tts": ["PicoTts"],
-            "com.google.android.inputmethod.latin": ["LatinIME"],
-            "com.google.android.calendar": ["Calendar", "Etar", "SimpleCalendar"],
-            "com.google.android.apps.messaging": ["RevengeMessages", "messaging", "Messaging", "QKSMS", "Mms"],
-            "com.google.android.apps.photos": ["Gallery", "SimpleGallery", "Gallery2", "MotGallery", "MediaShortcuts", "SimpleGallery", "FineOSGallery", "GalleryX", "MiuiGallery", "SnapdragonGallery", "DotGallery", "Glimpse"],
-            "com.google.android.keep": ["Notepad"],
-            "com.google.android.apps.recorder": ["Recorder", "QtiSoundRecorder"],
-            "com.google.android.gm": ["Email", "PrebuiltEmailGoogle"],
-            "com.google.android.apps.wallpaper": ["Wallpapers"],
-            "com.android.chrome": ["Bolt", "Browser", "Browser2", "BrowserIntl", "BrowserProviderProxy", "Chromium", "DuckDuckGo", "Fluxion", "Gello", "Jelly", "PA_Browser", "PABrowser", "YuBrowser", "BLUOpera", "BLUOperaPreinstall", "ViaBrowser", "Duckduckgo"],
-            "com.google.android.youtube.music": ["SnapdragonMusic", "GooglePlayMusic", "Eleven", "CrDroidMusic"],
-            "com.google.android.setupwizard": ["Provision", "SetupWizard", "LineageSetupWizard"]
-        }
-        return package_deletes.get(package_name, [])
-
-    def get_package_script(self, package_name):
-        package_scripts = {
-            "com.google.android.gms": """
-gms_optimization=$(ReadConfigValue "GmsOptimization" "$nikgapps_config_file_name")
-[ -z "$gms_optimization" ] && gms_optimization=0
-if [ "$gms_optimization" = "1" ]; then
-    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-    addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
-    sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-    sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-    sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-    sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-    addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
-else
-    addToLog "- Battery Optimization not Enabled" "$package_title"
-fi
-    """,
-            "com.google.android.dialer": """
-   script_text="<permissions>
-    <!-- Shared library required on the device to get Google Dialer updates from
-         Play Store. This will be deprecated once Google Dialer play store
-         updates stop supporting pre-O devices. -->
-    <library name=\\"com.google.android.dialer.support\\"
-      file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
-
-    <!-- Starting from Android O and above, this system feature is required for
-         getting Google Dialer play store updates. -->
-    <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
-    <!-- Feature for Google Dialer Call Recording -->
-    <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
-</permissions>"
-   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
-   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
-   update_prop "$install_partition/etc/permissions/com.google.android.dialer.support.xml" "install" "$propFilePath" "$package_title"
-   if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-     addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
-   fi""",
-            "com.google.android.maps": """
-   script_text="<permissions>
-    <library name=\\"com.google.android.maps\\"
-            file=\\"$install_partition/framework/com.google.android.maps.jar\\" />
-</permissions>"
-   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
-   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
-   update_prop "$install_partition/etc/permissions/com.google.android.maps.xml" "install" "$propFilePath" "$package_title"
-   if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
-     addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
-   fi""",
-            "com.google.android.media.effects": """
-   script_text="<permissions>
-<library name=\\"com.google.android.media.effects\\"
-file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
-
-</permissions>"
-   echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
-   set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
-   update_prop "$install_partition/etc/permissions/com.google.android.media.effects.xml" "install" "$propFilePath" "$package_title"
-   if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
-     addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
-   fi""",
-            "com.google.android.settings.intelligence": """
-   set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "ro.setupwizard.enterprise_mode" "1" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "ro.setupwizard.rotation_locked" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "setupwizard.enable_assist_gesture_training" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "setupwizard.theme" "glif_v3_light" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "setupwizard.feature.show_pixel_tos" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "setupwizard.feature.show_digital_warranty" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "ro.setupwizard.esim_cid_ignore" "00000001" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "ro.setupwizard.setupwizard.feature.show_support_link_in_deferred_setup" "false" "$product/etc/build.prop" "$package_title"
-   set_prop "setupwizard.feature.enable_wifi_tracker" "true" "$product/etc/build.prop" "$package_title"
-   set_prop "setupwizard.feature.day_night_mode_enabled" "true" "$product/etc/build.prop" "$package_title"
-   set_prop "setupwizard.feature.portal_notification" "true" "$product/etc/build.prop" "$package_title"
-   set_prop "setupwizard.feature.lifecycle_refactoring" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-   set_prop "setupwizard.feature.notification_refactoring" "true" "$product/etc/build.prop" "$package_title"
-    """,
-            "com.google.android.googlequicksearchbox": """
-   set_prop "ro.opa.eligible_device" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-    """
-        }
-        return package_scripts.get(package_name, None)
+        return [Overlay(package_name, overlay["package_name"], self.android_version, overlay["resources"]) for overlay
+                in package_overlays.get(package_name, [])]
 
     def get_go_package(self):
-        app_set_list = []
-
-        core_go = AppSet("CoreGo")
-        packages_to_add = [
+        go_packages = [
+            "extra.files.go",
             "com.google.android.gms",
             "com.android.vending",
             "com.google.android.gsf",
             "com.google.android.syncadapters.contacts",
-            "com.google.android.syncadapters.calendar"
-        ]
-
-        for package_name in packages_to_add:
-            package = self.create_package(package_name)
-            core_go.add_package(package)
-        app_set_list.append(core_go)
-
-        go_packages = [
+            "com.google.android.syncadapters.calendar",
             "com.google.android.apps.searchlite",
             "com.google.android.apps.assistant",
             "com.google.android.apps.mapslite",
@@ -354,35 +277,25 @@ file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
             "com.google.android.apps.photosgo",
             "com.google.android.gm.lite"
         ]
+        return self.create_appset_list_from_packages(go_packages, look_into_go=True)
 
-        for package_name in go_packages:
-            package = self.create_package(package_name)
-            app_set_list.append(AppSet(package.package_title, [package]))
-
-        return app_set_list
-
-    def get_core_package(self, android_version):
-        app_set_list = []
-
-        core = AppSet("Core")
+    def get_core_package(self):
         core_packages = [
             "com.google.android.gms",
             "com.android.vending",
             "com.google.android.gsf",
             "com.google.android.syncadapters.contacts",
-            "com.google.android.syncadapters.calendar"
+            "com.google.android.syncadapters.calendar",
+            "extra.files"
         ]
-
+        package_list = []
         for package_name in core_packages:
             package = self.create_package(package_name)
-            core.add_package(package)
-        app_set_list.append(core)
+            package.addon_index = "05"
+            package_list.append(package)
+        return self.create_appset_list(package_list)
 
-        return app_set_list
-
-    def get_basic_package(self, android_version):
-        app_set_list = self.get_core_package(android_version)
-
+    def get_basic_package(self):
         basic_packages = [
             "com.google.android.apps.wellbeing",
             "com.google.android.apps.messaging",
@@ -391,16 +304,9 @@ file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
             "com.google.android.ims",
             "com.google.android.deskclock"
         ]
+        return self.get_core_package() + self.create_appset_list_from_packages(basic_packages)
 
-        for package_name in basic_packages:
-            package = self.create_package(package_name)
-            app_set_list.append(AppSet(package.package_title, [package]))
-
-        return app_set_list
-
-    def get_omni_package(self, android_version):
-        app_set_list = self.get_basic_package(android_version)
-
+    def get_omni_package(self):
         omni_packages = [
             "com.google.android.setupwizard",
             "com.google.android.calculator",
@@ -413,16 +319,9 @@ file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
             "com.google.android.calendar",
             "com.google.android.keep"
         ]
+        return self.get_basic_package() + self.create_appset_list_from_packages(omni_packages)
 
-        for package_name in omni_packages:
-            package = self.create_package(package_name)
-            app_set_list.append(AppSet(package.package_title, [package]))
-
-        return app_set_list
-
-    def get_stock_package(self, android_version):
-        app_set_list = self.get_omni_package(android_version)
-
+    def get_stock_package(self):
         stock_packages = [
             "com.google.android.play.games",
             "com.google.android.apps.nexuslauncher",
@@ -433,16 +332,9 @@ file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
             "com.google.android.googlequicksearchbox",
             "com.google.android.soundpicker"
         ]
+        return self.get_omni_package() + self.create_appset_list_from_packages(stock_packages)
 
-        for package_name in stock_packages:
-            package = self.create_package(package_name)
-            app_set_list.append(AppSet(package.package_title, [package]))
-
-        return app_set_list
-
-    def get_full_package(self, android_version):
-        app_set_list = self.get_stock_package(android_version)
-
+    def get_full_package(self):
         full_packages = [
             "com.android.chrome",
             "com.google.android.gm",
@@ -452,16 +344,9 @@ file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
             "com.google.android.partnersetup",
             "com.google.android.apps.work.clouddpc"
         ]
+        return self.get_stock_package() + self.create_appset_list_from_packages(full_packages)
 
-        for package_name in full_packages:
-            package = self.create_package(package_name)
-            app_set_list.append(AppSet(package.package_title, [package]))
-
-        return app_set_list
-
-    def get_addon_packages(self, android_version):
-        addon_set_list = []
-
+    def get_addon_packages(self):
         addon_packages = [
             "com.google.android.apps.tycho",
             "com.google.android.apps.tachyon",
@@ -474,26 +359,21 @@ file=\\"$install_partition/framework/com.google.android.media.effects.jar\\" />
             "com.google.android.marvin.talkback",
             "com.google.android.apps.wallpaper.pixel"
         ]
+        return self.create_appset_list_from_packages(addon_packages)
 
-        for package_name in addon_packages:
-            package = self.create_package(package_name)
-            addon_set_list.append(AppSet(package.package_title, [package]))
-
-        return addon_set_list
-
-    def get_all_packages(self, android_version):
+    def get_all_packages(self):
         all_package_list = []
-        for app_set in self.get_full_package(android_version):
+        for app_set in self.get_full_package():
             all_package_list.append(app_set)
         for app_set in self.get_go_package():
             all_package_list.append(app_set)
-        for app_set in self.get_addon_packages(android_version):
+        for app_set in self.get_addon_packages():
             all_package_list.append(app_set)
         return all_package_list
 
-    def get_addonsets(self, android_version):
+    def get_addonsets(self):
         addon_set_list = []
-        for app_set in self.get_full_package(android_version):
+        for app_set in self.get_full_package():
             if app_set.title in ['Core', 'Pixelize']:
                 continue
             addon_set_list.append(app_set)
