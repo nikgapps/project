@@ -892,11 +892,6 @@ fi
         pixel_setup_wizard.delete("LineageSetupWizard")
         android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
                                            Statics.is_priv_app)
-        pixel_config_overlays = Package("PixelConfigOverlays", None, None)
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlay2018.apk")
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlay2019.apk")
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlay2019Midyear.apk")
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlaySunfish.apk")
 
         setup_wizard_set = AppSet("PixelSetupWizard")
         setup_wizard_set.add_package(setup_wizard)
@@ -913,9 +908,6 @@ fi
             setup_wizard_set.add_package(pixel_setup_wizard)
             if float(Config.TARGET_ANDROID_VERSION) < 12:
                 setup_wizard_set.add_package(android_migrate_prebuilt)
-            # setup_wizard_set.add_package(pixel_tips)
-        # if float(Config.TARGET_ANDROID_VERSION) == 11:
-        # setup_wizard_set.add_package(pixel_config_overlays)
         return setup_wizard_set
 
     @staticmethod

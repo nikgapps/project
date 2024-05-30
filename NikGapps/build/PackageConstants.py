@@ -1,6 +1,17 @@
 class PackageConstants:
 
     @staticmethod
+    def get_package_clean_flash_rule(package_name):
+        package_clean_flash_packages = ["com.google.android.googlequicksearchbox",
+                                        "com.google.android.inputmethod.latin",
+                                        "com.google.android.deskclock",
+                                        "com.google.android.apps.googleassistant",
+                                        "com.google.android.soundpicker",
+                                        "com.google.android.projection.gearhead"]
+        return package_name in package_clean_flash_packages
+
+
+    @staticmethod
     def get_package_deletes(package_name):
         package_deletes = {
             "com.google.android.gms": ["PrebuiltGmsCoreQt", "PrebuiltGmsCoreRvc", "GmsCore"],

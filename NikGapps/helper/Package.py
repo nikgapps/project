@@ -9,7 +9,7 @@ from .overlay.Overlay import Overlay
 
 
 class Package:
-    def __init__(self, title, package_name, app_type, package_title=None, partition=None):
+    def __init__(self, title, package_name, app_type = None, package_title=None, partition=None):
         self.package_name = package_name
         self.title = title
         self.package_title = package_title
