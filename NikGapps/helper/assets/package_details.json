@@ -800,7 +800,7 @@
                 "GoogleFiles"
             ],
             "file": "StorageManagerGoogle.apk",
-            "package_title": "StorageManagerGoogle",
+            "package_title": "StorageManager",
             "partition": "system_ext",
             "source": "husky",
             "title": "StorageManagerGoogle",

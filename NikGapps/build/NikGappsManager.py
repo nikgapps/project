@@ -282,12 +282,12 @@ class NikGappsManager:
 
     def get_core_package(self):
         core_packages = [
-            "com.google.android.gms",
+            "extra.files",
             "com.android.vending",
             "com.google.android.gsf",
             "com.google.android.syncadapters.contacts",
             "com.google.android.syncadapters.calendar",
-            "extra.files"
+            "com.google.android.gms"
         ]
         package_list = []
         for package_name in core_packages:
@@ -354,7 +354,8 @@ class NikGappsManager:
         stock_packages = [
             "com.google.android.play.games",
             "com.google.android.apps.recorder",
-            "com.google.android.apps.nbu.files"
+            "com.google.android.apps.nbu.files",
+            "com.google.android.storagemanager"
         ]
         if float(self.android_version) >= 11:
             stock_packages.append("com.google.android.documentsui")
@@ -362,6 +363,7 @@ class NikGappsManager:
             "com.google.android.markup",
             "com.google.android.tts",
             "com.google.android.googlequicksearchbox",
+            "com.google.android.apps.googleassistant",
             "com.google.android.soundpicker"
         ])
         return ((self.get_omni_package() if not delta else [])
