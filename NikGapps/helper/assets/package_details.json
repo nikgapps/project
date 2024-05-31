@@ -60,7 +60,7 @@
             "partition": "product",
             "source": "default",
             "title": "AssistantGo",
-            "type": "app"
+            "type": "priv-app"
         }
     ],
     "com.google.android.apps.books": [
@@ -175,7 +175,7 @@
             "partition": "product",
             "source": "default",
             "title": "Assistant",
-            "type": "app"
+            "type": "priv-app"
         }
     ],
     "com.google.android.apps.maps": [
@@ -319,7 +319,7 @@
             "partition": "product",
             "source": "default",
             "title": "GoogleGo",
-            "type": "app"
+            "type": "priv-app"
         }
     ],
     "com.google.android.apps.tachyon": [
@@ -527,7 +527,7 @@
             "partition": "product",
             "source": "default",
             "title": "DocumentsUIGoogle",
-            "type": "app"
+            "type": "priv-app"
         }
     ],
     "com.google.android.feedback": [
@@ -633,7 +633,7 @@
             "partition": "product",
             "source": "default",
             "title": "CarrierServices",
-            "type": "app"
+            "type": "priv-app"
         }
     ],
     "com.google.android.inputmethod.latin": [
@@ -659,7 +659,7 @@
             "partition": "product",
             "source": "default",
             "title": "PrebuiltKeep",
-            "type": "app"
+            "type": "priv-app"
         }
     ],
     "com.google.android.markup": [
@@ -870,6 +870,19 @@
             "source": "husky",
             "title": "GoogleTTS",
             "type": "app"
+        }
+    ],
+    "com.google.android.wallpaper.effects": [
+        {
+            "appset": [
+                "PixelSpecifics"
+            ],
+            "file": "WallpaperEffect.apk",
+            "package_title": "CinematicEffect",
+            "partition": "product",
+            "source": "husky",
+            "title": "WallpaperEffect",
+            "type": "priv-app"
         }
     ],
     "com.google.android.webview": [
