@@ -25,6 +25,10 @@ class NikGappsManager:
             "extra.files": "ExtraFiles",
             "extra.files.go": "ExtraFilesGo"
         }
+        self.extra_files_appsets = {
+            "extra.files": "Core",
+            "extra.files.go": "CoreGo"
+        }
 
     def initialize_packages(self, json_data):
         self.package_data = json_data
@@ -90,9 +94,11 @@ class NikGappsManager:
                         return str(appset)
                 else:
                     return str(appset)
+        elif package_name in self.extra_files_appsets:
+            return self.extra_files_appsets[package_name]
         return None
 
-    def create_appset_list(self, package_list, look_into_match=False):
+    def create_appset_list(self, package_list, look_into_match=None):
         appset_dict = {}
         for package in package_list:
             appset_title = self.get_app_set_title(package.package_name, look_into_match)
@@ -102,9 +108,9 @@ class NikGappsManager:
                 appset_dict[appset_title].package_list.append(package)
         return list(appset_dict.values())
 
-    def create_appset_list_from_packages(self, package_list, look_into_match=None):
+    def create_appset_list_from_packages(self, package_name_list, look_into_match=None):
         appset_dict = {}
-        for package_name in package_list:
+        for package_name in package_name_list:
             package = self.create_package(package_name)
             appset_title = self.get_app_set_title(package_name, look_into_match)
             if appset_title not in appset_dict:

@@ -1,19 +1,20 @@
 import os
 import xml.etree.ElementTree as eT
+
 from NikGapps.helper.Statics import Statics
 
 
 class Manifest:
-    def __init__(self, package, android_version, targetPackage="android", priority="1337",
-                 isStatic=True):
+    def __init__(self, package, android_version, target_package="android", priority="1337",
+                 is_static=True):
         self.package = package
         self.compileSdkVersion = Statics.get_android_sdk(android_version)
         self.compileSdkVersionCodename = android_version
         self.platformBuildVersionCode = Statics.get_android_sdk(android_version)
         self.platformBuildVersionName = android_version
-        self.targetPackage = targetPackage
+        self.targetPackage = target_package
         self.priority = priority
-        self.isStatic = str(isStatic).lower()
+        self.isStatic = str(is_static).lower()
 
     def to_xml(self):
         root = eT.Element('manifest',
@@ -24,11 +25,11 @@ class Manifest:
                            'platformBuildVersionCode': self.platformBuildVersionCode,
                            'platformBuildVersionName': self.platformBuildVersionName})
 
-        application = eT.SubElement(root, 'application',
-                                    {'android:extractNativeLibs': 'true', 'android:hasCode': 'false'})
-        overlay = eT.SubElement(root, 'overlay',
-                                {'android:targetPackage': self.targetPackage,
-                                 'android:priority': self.priority, 'android:isStatic': self.isStatic})
+        eT.SubElement(root, 'application',
+                      {'android:extractNativeLibs': 'true', 'android:hasCode': 'false'})
+        eT.SubElement(root, 'overlay',
+                      {'android:targetPackage': self.targetPackage,
+                       'android:priority': self.priority, 'android:isStatic': self.isStatic})
         return eT.ElementTree(root)
 
     def indent(self, elem, level=0):

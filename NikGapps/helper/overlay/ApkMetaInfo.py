@@ -5,8 +5,8 @@ from NikGapps.helper.Statics import Statics
 
 
 class ApkMetaInfo:
-    def __init__(self, apkFileName, android_version):
-        self.apkFileName = apkFileName
+    def __init__(self, apk_file_name, android_version):
+        self.apkFileName = apk_file_name
         self.minSdkVersion = Statics.get_android_sdk(android_version)
         self.targetSdkVersion = self.minSdkVersion
         self.versionCode = self.minSdkVersion

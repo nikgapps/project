@@ -1,13 +1,13 @@
 import os
 from NikGapps.build.Build import Build
 from NikGapps.build.NikGappsManager import NikGappsManager
+from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper import Config
-from NikGapps.helper.NikGappsConfig import NikGappsConfig
+from NikGapps.helper.Assets import Assets
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.compression.Export import Export
-from NikGapps.helper.web.Requests import Requests
 
 
 class Release:
@@ -17,17 +17,11 @@ class Release:
         release_directory = Statics.get_release_directory(android_version)
         current_time = T.get_current_time()
         package_manager = NikGappsManager(android_version, arch)
-        package_manager.initialize_packages(Requests.get_package_details(android_version))
+        package_manager.initialize_packages(Assets.package_details)
 
-        def zip_package(package_name, app_set_list, config_obj=None):
-            if config_obj is None:
-                config_obj = NikGappsConfig(android_version=android_version, arch=arch)
-            else:
-                if config_obj.config_package_list:
-                    app_set_list = config_obj.config_package_list
-
+        def zip_package(file_name, app_set_list):
             if app_set_list:
-                file_name = package_name
+                config_obj = NikGappsConfig(package_manager=package_manager)
                 config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
                 print(f"Exporting {file_name}")
                 z = Export(file_name, sign=sign_zip)
@@ -51,7 +45,7 @@ class Release:
         def handle_special_case(special_case_type):
             file_name = f"{release_directory}{Statics.dir_sep}{special_case_type.capitalize()}-{current_time}.zip"
             z = Export(file_name=file_name, sign=sign_zip)
-            config_obj = NikGappsConfig(android_version=android_version)
+            config_obj = NikGappsConfig(package_manager=package_manager)
             zip_result = z.zip(config_obj=config_obj, send_zip_device=send_zip_device, fresh_build=fresh_build,
                                telegram=telegram, compression_mode=Modes.DEFAULT)
             if zip_result[1] and Config.UPLOAD_FILES:

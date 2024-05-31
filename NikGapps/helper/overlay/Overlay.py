@@ -10,7 +10,7 @@ class Overlay:
         self.apk_name = f"{self.folder}.apk"
         self.resources = resources
         self.manifest = Manifest(package=package_name, android_version=android_version)
-        self.apkMetaInfo = ApkMetaInfo(apkFileName=self.apk_name, android_version=android_version)
+        self.apkMetaInfo = ApkMetaInfo(apk_file_name=self.apk_name, android_version=android_version)
 
     def build_apk_source(self, source):
         build_dir = source + Statics.dir_sep + self.folder

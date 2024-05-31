@@ -1,5 +1,4 @@
 from .. import Config
-from ..NikGappsConfig import NikGappsConfig
 from ..P import P
 from ..FileOp import FileOp
 from ..Assets import Assets
@@ -13,6 +12,7 @@ from .Modes import Modes
 from ..Statics import Statics
 from ..T import T
 from ..web.TelegramApi import TelegramApi
+from ...config.NikGappsConfig import NikGappsConfig
 
 
 class Export:
@@ -23,7 +23,7 @@ class Export:
     def zip(self, config_obj: NikGappsConfig, send_zip_device, fresh_build, telegram: TelegramApi,
             compression_mode=Modes.DEFAULT):
         app_set_list = config_obj.config_package_list
-        config_string = config_obj.get_nikgapps_config(config_dict=config_obj.config_dict)
+        config_string = config_obj.get_nikgapps_config()
         android_version = config_obj.android_version
         total_packages = 0
         print_progress = ""

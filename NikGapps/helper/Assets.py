@@ -5,6 +5,8 @@ from .FileOp import FileOp
 import os.path
 import platform
 
+from .Json import Json
+
 
 class Assets:
     with resources.files('NikGapps.helper').joinpath('assets') as asset_path:
@@ -59,6 +61,8 @@ class Assets:
     customize_path = cwd + "customize.sh"
     module_path = cwd + "module.prop"
     magisk_update_binary = cwd + "magisk-update-binary.sh"
+    config_versions =  Json.read_dict_from_file(cwd + "config_versions.json")
+    package_details =  Json.read_dict_from_file(cwd + "package_details.json")
 
     @staticmethod
     def get_string_resource(file_path):

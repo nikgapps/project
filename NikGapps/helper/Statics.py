@@ -16,14 +16,6 @@ class Statics:
         '13': {'sdk': '33', 'code': 'T'},
         '14': {'sdk': '34', 'code': 'U'}
     }
-    config_versions = {
-        '10': '34',
-        '11': '34',
-        '12': '34',
-        '12.1': '34',
-        '13': '34',
-        '14': '34'
-    }
     is_system_app = 1
     is_priv_app = 2
     system_root_dir = "/system/product"
