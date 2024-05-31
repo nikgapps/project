@@ -1,5 +1,6 @@
 import json
 from . import Config
+from .Assets import Assets
 from .ConfigObj import ConfigObj
 from .FileOp import FileOp
 from .AppSet import AppSet
@@ -13,10 +14,14 @@ from NikGapps.helper.upload.Upload import Upload
 
 class NikGappsConfig:
 
-    def __init__(self, android_version, config_path=None, config_version=None, use_zip_config=None, raw_config=None,
-                 arch="arm64"):
-        self.config_version = Statics.config_versions[android_version]
-        self.android_version = android_version
+    def __init__(self,
+                 package_manager,
+                 config_path=None,
+                 config_version=None,
+                 use_zip_config=None,
+                 raw_config=None):
+        self.config_version = Assets.config_versions[package_manager.android_version]
+        self.android_version = package_manager.android_version
         if config_version is not None:
             self.config_version = config_version
         self.default_mode = "default"
@@ -47,7 +52,7 @@ class NikGappsConfig:
             # print("-------------------------------------------------------------------------------------")
         self.exclusive = False
         self.config_string = self.get_nikgapps_config(config_dict=self.config_dict)
-        self.arch = arch
+        self.arch = package_manager.arch
         self.creator = "Nikhil Menghani"
 
     def build_config_objects(self, config_dict=None):
@@ -142,8 +147,6 @@ class NikGappsConfig:
 
     def get_config_packages(self):
         config_dict = self.config_dict
-        # print(json.dumps(config_dict, indent=4))
-        # pprint.pprint(config_dict)
         app_set_list = []
         pre_defined_addons = []
         for addons in NikGappsPackages.get_packages("addons", self.android_version):
@@ -229,8 +232,8 @@ class NikGappsConfig:
         for app_set in NikGappsPackages.get_packages("go", self.android_version):
             if len(app_set.package_list) > 1:
                 nikgapps_config_lines += "\n# Set " + app_set.title + "=0 if you want to skip installing all " \
-                                                                        "packages belonging to " \
-                                                                        "" + app_set.title + " Package\n"
+                                                                      "packages belonging to " \
+                                                                      "" + app_set.title + " Package\n"
                 if config_dict is not None:
                     nikgapps_config_lines += app_set.title + "=" + self.get_dictionary_value(app_set.title) + "\n\n"
                 else:
@@ -343,7 +346,8 @@ class NikGappsConfig:
             u = Upload(android_version=self.android_version, release_type=release_dir, upload_files=Config.UPLOAD_FILES)
             file_type = "config"
             remote_directory = u.get_cd(file_type) + "/v" + str(self.config_version)
-            execution_status, download_link, file_size_mb = u.upload(file_name=temp_nikgapps_config_location, remote_directory=remote_directory)
+            execution_status, download_link, file_size_mb = u.upload(file_name=temp_nikgapps_config_location,
+                                                                     remote_directory=remote_directory)
             u.close_connection()
         return execution_status
 
