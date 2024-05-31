@@ -766,7 +766,7 @@ fi
             emoji_wallpaper = Package("WallpaperEmojiPrebuilt", "com.google.android.apps.emojiwallpaper",
                                       Statics.is_system_app, "EmojiWallpaper")
             gapps_list.append(emoji_wallpaper)
-            if float(android_version) > 14:
+            if float(android_version) >= 14:
                 cinematic_effect = Package("WallpaperEffect", "com.google.android.wallpaper.effects",
                                            Statics.is_priv_app, "CinematicEffect")
                 cinematic_effect_overlay = Overlay(cinematic_effect.package_title,

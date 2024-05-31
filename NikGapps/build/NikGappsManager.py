@@ -346,9 +346,8 @@ class NikGappsManager:
                 pixel_launcher_packages.extend(["com.google.android.settings.intelligence", "com.google.android.as.oss"])
                 if float(self.android_version) >= 13:
                     pixel_launcher_packages.append("com.google.android.apps.customization.pixel")
-                    if float(self.android_version) > 14:
-                        pixel_launcher_packages.append("com.google.android.wallpaper.effects")
                     if float(self.android_version) >= 14:
+                        pixel_launcher_packages.append("com.google.android.wallpaper.effects")
                         pixel_launcher_packages.append("com.google.android.apps.weather")
         pixel_specifics = self.create_appset_list_from_packages(pixel_launcher_packages)
         stock_packages = [
