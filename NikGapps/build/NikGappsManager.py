@@ -2,6 +2,7 @@ import os
 
 from NikGapps.build.PackageConstants import PackageConstants
 from NikGapps.helper.AppSet import AppSet
+from NikGapps.helper.Assets import Assets
 from NikGapps.helper.Cmd import Cmd
 from NikGapps.helper.Package import Package
 from NikGapps.helper.Statics import Statics
@@ -17,10 +18,8 @@ class NikGappsManager:
         self.source_directory = os.path.join(Statics.pwd,
                                              f"{android_version}_{arch}" if arch != "arm64" else f"{android_version}")
 
-        self.packages = []
-        self.appsets = []
         self.cmd = Cmd()
-        self.package_data = {}
+        self.package_data = Assets.package_details
         self.extra_files_exceptions = {
             "extra.files": "ExtraFiles",
             "extra.files.go": "ExtraFilesGo"

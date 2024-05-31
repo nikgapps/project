@@ -3,7 +3,6 @@ from NikGapps.build.Build import Build
 from NikGapps.build.NikGappsManager import NikGappsManager
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper import Config
-from NikGapps.helper.Assets import Assets
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
@@ -17,7 +16,6 @@ class Release:
         release_directory = Statics.get_release_directory(android_version)
         current_time = T.get_current_time()
         package_manager = NikGappsManager(android_version, arch)
-        package_manager.initialize_packages(Assets.package_details)
 
         def zip_package(file_name, app_set_list):
             if app_set_list:
