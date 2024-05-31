@@ -1,5 +1,5 @@
 from NikGapps.build.NikGappsManager import NikGappsManager
-from NikGapps.helper.NikGappsConfig import NikGappsConfig
+from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
 

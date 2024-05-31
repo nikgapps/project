@@ -1,12 +1,12 @@
 import os
 from NikGapps.build.Build import Build
-from NikGapps.helper.NikGappsConfig import NikGappsConfig
+from NikGapps.build.NikGappsManager import NikGappsManager
+from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Package import Package
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.compression.CompOps import CompOps
 from NikGapps.helper.AppSet import AppSet
 from NikGapps.build.NikGappsPackages import NikGappsPackages
-from NikGapps.helper.web.TelegramApi import TelegramApi
 from NikGapps.helper import Config
 from NikGapps.helper.P import P
 from NikGapps.helper.T import T
@@ -27,13 +27,13 @@ def cache():
     print("---------------------------------------")
     print("Android Versions to build: " + str(android_versions))
     print("---------------------------------------")
-    telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
     for android_version in android_versions:
         arch = "arm64"
         repo_cached = GitOperations.clone_apk_repo(android_version, arch=arch, branch="main", cached=True)
-        repo = GitOperations.clone_apk_repo(android_version, arch=arch, branch="main")
+        GitOperations.clone_apk_repo(android_version, arch=arch, branch="main")
         GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
-        config_obj = NikGappsConfig(android_version=android_version, arch=arch)
+        package_manager = NikGappsManager(android_version, arch)
+        config_obj = NikGappsConfig(package_manager=package_manager)
         app_set_list = NikGappsPackages.get_packages("all", android_version)
         config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
         for appset in config_obj.config_package_list:
