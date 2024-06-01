@@ -27,7 +27,7 @@ class PackageConstants:
             "com.google.android.keep": ["Notepad"],
             "com.google.android.apps.recorder": ["Recorder", "QtiSoundRecorder"],
             "com.google.android.gm": ["Email", "PrebuiltEmailGoogle"],
-            "com.google.android.apps.wallpaper": ["Wallpapers"],
+            "com.google.android.apps.wallpaper": ["Wallpapers", "ThemePicker"],
             "com.android.chrome": ["Bolt", "Browser", "Browser2", "BrowserIntl", "BrowserProviderProxy", "Chromium",
                                    "DuckDuckGo", "Fluxion", "Gello", "Jelly", "PA_Browser", "PABrowser", "YuBrowser",
                                    "BLUOpera", "BLUOperaPreinstall", "ViaBrowser", "Duckduckgo"],
