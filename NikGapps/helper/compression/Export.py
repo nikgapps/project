@@ -20,8 +20,8 @@ class Export:
         self.file_name = file_name[:-4] + "-signed.zip" if sign else file_name[:-4] + "-unofficial.zip"
         self.z = Zip(self.file_name, sign=sign, private_key_path=Assets.private_key_pem)
 
-    def zip(self, config_obj: NikGappsConfig, send_zip_device, fresh_build, telegram: TelegramApi,
-            compression_mode=Modes.DEFAULT):
+    def zip(self, config_obj: NikGappsConfig, telegram: TelegramApi,
+            compression_mode=Modes.DEFAULT, send_zip_device=Config.SEND_ZIP_DEVICE, fresh_build=Config.FRESH_BUILD):
         app_set_list = config_obj.config_package_list
         config_string = config_obj.get_nikgapps_config()
         android_version = config_obj.android_version
