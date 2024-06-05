@@ -7,24 +7,28 @@ from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.compression.Export import Export
+from NikGapps.helper.upload.Upload import Upload
+from NikGapps.helper.web.TelegramApi import TelegramApi
 
 
 class Release:
 
     @staticmethod
-    def zip(build_package_list, android_version, arch, sign_zip, send_zip_device, fresh_build, telegram, upload=None):
+    def zip(build_package_list, android_version, arch, sign_zip):
         release_directory = Statics.get_release_directory(android_version)
         current_time = T.get_current_time()
         package_manager = NikGappsManager(android_version, arch)
-
+        telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
+        upload = Upload(android_version=android_version, upload_files=Config.UPLOAD_FILES,
+                        release_type=Config.RELEASE_TYPE)
         def zip_package(file_name, app_set_list):
             if app_set_list:
                 config_obj = NikGappsConfig(package_manager=package_manager)
                 config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
                 print(f"Exporting {file_name}")
                 z = Export(file_name, sign=sign_zip)
-                result = z.zip(config_obj=config_obj, send_zip_device=send_zip_device, fresh_build=fresh_build,
-                               telegram=telegram, compression_mode=Modes.DEFAULT)
+                result = z.zip(config_obj=config_obj,
+                               telegram=telegram)
                 if result[1] and Config.UPLOAD_FILES:
                     print(f"Uploading {result[0]}")
                     execution_status, download_link, file_size_mb = upload.upload(result[0], telegram=telegram)
@@ -85,3 +89,4 @@ class Release:
                 handle_default(pkg_type_outer)
 
             os.environ['pkg_type'] = ''
+        upload.close_connection()

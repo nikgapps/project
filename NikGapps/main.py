@@ -7,8 +7,6 @@ from NikGapps.helper.P import P
 from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.git.GitOperations import GitOperations
-from NikGapps.helper.upload.Upload import Upload
-from NikGapps.helper.web.TelegramApi import TelegramApi
 
 
 def main():
@@ -36,10 +34,7 @@ def main():
     print("Packages to build: " + str(package_list))
     print("---------------------------------------")
 
-    telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
     for android_version in android_versions:
-        upload = Upload(android_version=android_version, upload_files=Config.UPLOAD_FILES,
-                        release_type=Config.RELEASE_TYPE)
         Config.TARGET_ANDROID_VERSION = android_version
         # clone the apk repo if it doesn't exist
         if args.enable_git_clone:
@@ -49,9 +44,7 @@ def main():
             if Config.USE_CACHED_APKS:
                 GitOperations.clone_apk_repo(android_version, branch="main", cached=True)
         if Config.OVERRIDE_RELEASE:
-            Release.zip(package_list, android_version, args.arch, args.sign, Config.SEND_ZIP_DEVICE, Config.FRESH_BUILD, telegram,
-                        upload)
-        upload.close_connection()
+            Release.zip(package_list, android_version, args.arch, args.sign)
         if Config.RELEASE_TYPE:
             GitOperations.mark_a_release(android_version, Config.RELEASE_TYPE)
     if args.release:
