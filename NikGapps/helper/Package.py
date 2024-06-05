@@ -183,61 +183,6 @@ class Package:
         str_data += "\n"
         return str_data
 
-    # pull the package and update the packages
-    def pull_package_files(self, android_version, app_set=None):
-        cmd = Cmd()
-        self.failure_logs = ""
-        if self.install_list.__len__() > 0 or self.predefined_file_list.__len__() > 0:
-            print("File(s) to fetch: " + str(len(self.install_list)))
-            for file in self.install_list:
-                # Fetch the folder where the app files are located
-                source_folder = str(Path(self.primary_app_location).parent).replace("\\", "/")
-                # Replace the source folder with target so the data app becomes system app
-                install_location = file.replace(source_folder, self.target_folder)
-                # Replace the base.apk with System_App_Name.apk
-                install_location = str(
-                    install_location).replace("base.apk", os.path.basename(self.target_folder) + ".apk")
-                # Prepare the server directory where the pulled files will be stored
-                source = install_location
-                # Encrypt the file names and store it on server
-                server_location = Statics.get_import_path(app_set, self.package_title, source, android_version)
-                # Pull the file from device and store on server
-                cmd.pull_package(file, server_location)
-                # Update the folder dictionary
-                for folder in FileOp.get_dir_list(install_location):
-                    self.folder_dict[folder] = folder
-                # Generate priv-app permissions whitelist
-                if file == self.primary_app_location and self.app_type == Statics.is_priv_app:
-                    output_line = cmd.get_white_list_permissions(server_location)
-                    if output_line.__len__() >= 1 and not output_line[0].__contains__("Exception"):
-                        self.generate_priv_app_whitelist(app_set, output_line, android_version)
-                self.file_dict[server_location] = install_location
-            for file in self.predefined_file_list:
-                # in some cases the files are present in /product folder instead of /system
-                # we will try to pull from both the folder and make sure one of them pulls correctly
-                if cmd.file_exists("/system/product/" + file):
-                    source = "/system/product/" + file
-                elif cmd.file_exists("/system/" + file):
-                    source = "/system/" + file
-                else:
-                    self.failure_logs += self.package_title + ": " + file + "\n"
-                    print("The file " + file + " does not exists!")
-                    continue
-                import_path = source
-                server_location = Statics.get_import_path(app_set, self.package_title, import_path, android_version)
-                cmd.pull_package(source, server_location)
-                # Update the folder dictionary
-                for folder in FileOp.get_dir_list(os.path.basename(server_location).replace("___", "/")):
-                    self.folder_dict[folder] = folder
-                self.file_dict[server_location] = source
-        if self.delete_files_list.__len__() > 0:
-            del_str = ""
-            for delete_folder in self.delete_files_list:
-                del_str += delete_folder + "\n"
-            # if FileOp.dir_exists(C.path.join(C.export_directory, app_set, self.package_title)):
-            #     FileOp.write_string_file(del_str, C.path.join(C.export_directory, app_set,
-            #                                                           self.package_title, C.DELETE_FILES_NAME))
-
     # validate the package
     def validate(self):
         print("Validating " + self.package_title)
