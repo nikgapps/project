@@ -181,42 +181,4 @@ class Package:
         str_data += "\n"
         str_data += "uninstall_package"
         str_data += "\n"
-        return str_data
-
-    # validate the package
-    def validate(self):
-        print("Validating " + self.package_title)
-        self.failure_logs = ""
-        cmd = Cmd()
-        if self.package_name is not None:
-            package_path = cmd.get_package_path(self.package_name)
-            if package_path.__contains__("Exception occurred"):
-                print("Package " + self.package_name + " not found!")
-                self.failure_logs += self.package_title + ": " + "Package " + self.package_name + " not found!" + "\n"
-                self.validated = False
-                return
-            if package_path.__len__() > 0:  # Iterate through all the files to get the parent directory
-                parent_folder = None
-                for file in package_path:  # Need to add more validation rules here
-                    if file.startswith("/data/app/") and file.endswith("base.apk"):
-                        path = Path(file)
-                        parent_folder = path.parent
-                        self.primary_app_location = file  # This will be used to fetch priv-app whitelist permissions
-                        break
-                    elif not file.__contains__("split_config") and file.startswith("/system") and file.endswith(".apk"):
-                        path = Path(file)
-                        parent_folder = path.parent
-                        self.primary_app_location = file  # This will be used to fetch priv-app whitelist permissions
-                        self.target_folder = str(path.parent).replace("\\", "/")
-                        break
-                if parent_folder is not None:  # Fetch the list of files to pull
-                    self.install_list = cmd.get_package_files_recursively(parent_folder, self.install_list)
-            else:
-                self.failure_logs = "Seems as if " + self.package_title + " is not installed in device!"
-                print(self.failure_logs)
-                self.failure_logs += "\n"
-        else:
-            if self.title != "ExtraFiles" and self.title != "ExtraFilesGo":
-                self.validated = False
-                print("Something wrong happened!")
-
+        return str_dat
