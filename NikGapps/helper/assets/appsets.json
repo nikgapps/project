@@ -208,7 +208,12 @@
       "min_version": 10,
       "packages": [
         "GoogleFiles",
-        "StorageManager",
+        "StorageManager"
+      ]
+    },
+    {
+      "min_version": 11,
+      "packages": [
         "DocumentsUIGoogle"
       ]
     }
@@ -373,13 +378,32 @@
       "packages": [
         "PixelLauncher",
         "DevicePersonalizationServices",
-        "QuickAccessWallet",
         "GoogleWallpaper",
+      ]
+    },
+    {
+      "min_version": 11,
+      "packages": [
+        "QuickAccessWallet"
+      ]
+    },
+    {
+      "min_version": 12,
+      "packages": [
         "SettingsServices",
-        "PrivateComputeServices",
-        "PixelThemes",
+        "PrivateComputeServices"
+      ]
+    },
+    {
+      "min_version": 13,
+      "packages": [
+        "PixelThemes"
+      ]
+    },
+    {
+      "min_version": 14,
+      "packages": [
         "EmojiWallpaper",
-        "CinematicEffect",
         "PixelWeather"
       ]
     }
