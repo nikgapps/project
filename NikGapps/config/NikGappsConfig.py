@@ -25,6 +25,7 @@ class NikGappsConfig:
         self.config_package_list = self.get_config_packages()
         self.debloater_list = self.get_debloater_list()
         self.creator = "Nikhil Menghani"
+        self.is_elite = False
 
     def build_config_dict(self):
         lines = {}
