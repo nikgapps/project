@@ -339,7 +339,7 @@ class NikGappsManager:
         setup_wizard = self.create_appset_list_from_packages(setup_wizard_packages, fallback_appset="SetupWizard")
         omni_packages = [
             "GoogleCalculator",
-            "GoogleDocs",
+            "Drive",
             "GoogleMaps",
         ]
         if float(self.android_version) >= 11:
