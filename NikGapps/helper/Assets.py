@@ -61,8 +61,9 @@ class Assets:
     customize_path = cwd + "customize.sh"
     module_path = cwd + "module.prop"
     magisk_update_binary = cwd + "magisk-update-binary.sh"
-    config_versions =  Json.read_dict_from_file(cwd + "config_versions.json")
-    package_details =  Json.read_dict_from_file(cwd + "package_details.json")
+    config_versions = Json.read_dict_from_file(cwd + "config_versions.json")
+    package_details = Json.read_dict_from_file(cwd + "packages.json")
+    appsets_details = Json.read_dict_from_file(cwd + "appsets.json")
 
     @staticmethod
     def get_string_resource(file_path):

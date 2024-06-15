@@ -181,4 +181,4 @@ class Package:
         str_data += "\n"
         str_data += "uninstall_package"
         str_data += "\n"
-        return str_dat
+        return str_data

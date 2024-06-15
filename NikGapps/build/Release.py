@@ -21,6 +21,7 @@ class Release:
         telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
         upload = Upload(android_version=android_version, upload_files=Config.UPLOAD_FILES,
                         release_type=Config.RELEASE_TYPE)
+
         def zip_package(file_name, app_set_list):
             if app_set_list:
                 config_obj = NikGappsConfig(package_manager=package_manager)
@@ -48,7 +49,8 @@ class Release:
             file_name = f"{release_directory}{Statics.dir_sep}{special_case_type.capitalize()}-{current_time}.zip"
             z = Export(file_name=file_name, sign=sign_zip)
             config_obj = NikGappsConfig(package_manager=package_manager)
-            zip_result = z.zip(config_obj=config_obj, send_zip_device=send_zip_device, fresh_build=fresh_build,
+            zip_result = z.zip(config_obj=config_obj, send_zip_device=Config.SEND_ZIP_DEVICE,
+                               fresh_build=Config.FRESH_BUILD,
                                telegram=telegram, compression_mode=Modes.DEFAULT)
             if zip_result[1] and Config.UPLOAD_FILES:
                 print(f"Uploading {zip_result[0]}")

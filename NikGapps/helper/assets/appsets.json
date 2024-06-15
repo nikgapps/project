@@ -1,0 +1,427 @@
+{
+  "AndroidAuto": [
+    {
+      "min_version": 10,
+      "packages": [
+        "AndroidAuto"
+      ]
+    }
+  ],
+  "AndroidDevicePolicy": [
+    {
+      "min_version": 10,
+      "packages": [
+        "AndroidDevicePolicy"
+      ]
+    }
+  ],
+  "AssistantGo": [
+    {
+      "min_version": 10,
+      "packages": [
+        "AssistantGo"
+      ]
+    }
+  ],
+  "Books": [
+    {
+      "min_version": 10,
+      "packages": [
+        "Books"
+      ]
+    }
+  ],
+  "CarrierServices": [
+    {
+      "min_version": 10,
+      "packages": [
+        "CarrierServices"
+      ]
+    }
+  ],
+  "Core": [
+    {
+      "min_version": 10,
+      "packages": [
+        "ExtraFiles",
+        "GooglePlayStore",
+        "GoogleServicesFramework",
+        "GoogleContactsSyncAdapter",
+        "GoogleCalendarSyncAdapter",
+        "GmsCore"
+      ]
+    }
+  ],
+  "CoreGo": [
+    {
+      "min_version": 10,
+      "packages": [
+        "ExtraFilesGo",
+        "GmsCore",
+        "GooglePlayStore",
+        "GoogleServicesFramework",
+        "GoogleContactsSyncAdapter",
+        "GoogleCalendarSyncAdapter"
+      ]
+    }
+  ],
+  "DeviceHealthServices": [
+    {
+      "min_version": 10,
+      "packages": [
+        "DeviceHealthServices"
+      ]
+    }
+  ],
+  "DeviceSetup": [
+    {
+      "min_version": 10,
+      "packages": [
+        "DeviceSetup"
+      ]
+    }
+  ],
+  "DigitalWellbeing": [
+    {
+      "min_version": 10,
+      "packages": [
+        "DigitalWellbeing"
+      ]
+    }
+  ],
+  "Drive": [
+    {
+      "min_version": 10,
+      "packages": [
+        "Drive"
+      ]
+    }
+  ],
+  "GBoard": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GBoard"
+      ]
+    }
+  ],
+  "GalleryGo": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GalleryGo"
+      ]
+    }
+  ],
+  "Gmail": [
+    {
+      "min_version": 10,
+      "packages": [
+        "Gmail"
+      ]
+    }
+  ],
+  "GmailGo": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GmailGo"
+      ]
+    }
+  ],
+  "GoogleCalculator": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleCalculator"
+      ]
+    }
+  ],
+  "GoogleCalendar": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleCalendar"
+      ]
+    }
+  ],
+  "GoogleChrome": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleChrome",
+        "WebViewGoogle",
+        "TrichromeLibrary"
+      ]
+    }
+  ],
+  "GoogleClock": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleClock"
+      ]
+    }
+  ],
+  "GoogleContacts": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleContacts"
+      ]
+    }
+  ],
+  "GoogleDialer": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleDialer"
+      ]
+    }
+  ],
+  "GoogleDocs": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleDocs"
+      ]
+    }
+  ],
+  "Meet": [
+    {
+      "min_version": 10,
+      "packages": [
+        "Meet"
+      ]
+    }
+  ],
+  "GoogleFeedback": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleFeedback"
+      ]
+    }
+  ],
+  "GoogleFiles": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleFiles",
+        "StorageManager",
+        "DocumentsUIGoogle"
+      ]
+    }
+  ],
+  "GoogleGo": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleGo"
+      ]
+    }
+  ],
+  "GoogleKeep": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleKeep"
+      ]
+    }
+  ],
+  "GoogleLocationHistory": [
+    {
+      "min_version": 11,
+      "packages": [
+        "GoogleLocationHistory"
+      ]
+    }
+  ],
+  "GoogleMaps": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleMaps"
+      ]
+    }
+  ],
+  "GoogleMessages": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleMessages"
+      ]
+    }
+  ],
+  "GooglePartnerSetup": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GooglePartnerSetup"
+      ]
+    }
+  ],
+  "GooglePhotos": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GooglePhotos"
+      ]
+    }
+  ],
+  "GoogleRecorder": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleRecorder"
+      ]
+    }
+  ],
+  "GoogleSearch": [
+    {
+      "min_version": 10,
+      "packages": [
+        "Velvet",
+        "Assistant"
+      ]
+    }
+  ],
+  "GoogleSheets": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleSheets"
+      ]
+    }
+  ],
+  "GoogleSlides": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleSlides"
+      ]
+    }
+  ],
+  "GoogleSounds": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleSounds"
+      ]
+    }
+  ],
+  "GoogleTTS": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleTTS"
+      ]
+    }
+  ],
+  "GoogleTalkback": [
+    {
+      "min_version": 10,
+      "packages": [
+        "GoogleTalkback"
+      ]
+    }
+  ],
+  "MapsGo": [
+    {
+      "min_version": 10,
+      "packages": [
+        "MapsGo"
+      ]
+    }
+  ],
+  "MarkupGoogle": [
+    {
+      "min_version": 10,
+      "packages": [
+        "MarkupGoogle"
+      ]
+    }
+  ],
+  "NavigationGo": [
+    {
+      "min_version": 10,
+      "packages": [
+        "NavigationGo"
+      ]
+    }
+  ],
+  "PixelSetupWizard": [
+    {
+      "min_version": 10,
+      "packages": [
+        "SetupWizard",
+        "GoogleRestore",
+        "GoogleOneTimeInitializer",
+        "PixelSetupWizard"
+      ]
+    },
+    {
+      "max_version": 12,
+      "packages": [
+        "AndroidMigratePrebuilt"
+      ]
+    }
+  ],
+  "PixelSpecifics": [
+    {
+      "min_version": 10,
+      "packages": [
+        "PixelLauncher",
+        "DevicePersonalizationServices",
+        "QuickAccessWallet",
+        "GoogleWallpaper",
+        "SettingsServices",
+        "PrivateComputeServices",
+        "PixelThemes",
+        "EmojiWallpaper",
+        "CinematicEffect",
+        "PixelWeather"
+      ]
+    }
+  ],
+  "PlayGames": [
+    {
+      "min_version": 10,
+      "packages": [
+        "PlayGames"
+      ]
+    }
+  ],
+  "SetupWizard": [
+    {
+      "min_version": 10,
+      "packages": [
+        "SetupWizard",
+        "GoogleRestore",
+        "GoogleOneTimeInitializer"
+      ]
+    },
+    {
+      "max_version": 12,
+      "packages": [
+        "AndroidMigratePrebuilt"
+      ]
+    }
+  ],
+  "YouTube": [
+    {
+      "min_version": 10,
+      "packages": [
+        "YouTube"
+      ]
+    }
+  ],
+  "YouTubeMusic": [
+    {
+      "min_version": 10,
+      "packages": [
+        "YouTubeMusic"
+      ]
+    }
+  ]
+}

@@ -131,7 +131,7 @@ class NikGappsConfig:
                                                                       "" + app_set.title + " Package\n"
                 nikgapps_config_lines += app_set.title + "=" + "1" + "\n\n"
                 nikgapps_config_lines += "# Setting CoreGo=0 will not skip following packages," \
-                                         " set them to 0 if you want to skip them  \n\n"
+                                         " set them to 0 if you want to skip them  \n"
             else:
                 nikgapps_config_lines += app_set.title + "=" + "1" + "\n"
         nikgapps_config_lines += "\n"

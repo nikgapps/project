@@ -10,7 +10,6 @@ class PackageConstants:
                                         "com.google.android.projection.gearhead"]
         return package_name in package_clean_flash_packages
 
-
     @staticmethod
     def get_package_deletes(package_name):
         package_deletes = {
@@ -57,7 +56,7 @@ class PackageConstants:
     @staticmethod
     def get_package_script(package_name):
         package_scripts = {
-            "extra.files": """   script_text="<permissions>
+            "ExtraFiles": """   script_text="<permissions>
                 <!-- Shared library required on the device to get Google Dialer updates from
                      Play Store. This will be deprecated once Google Dialer play store
                      updates stop supporting pre-O devices. -->
@@ -108,7 +107,7 @@ class PackageConstants:
                  addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
                fi
         """,
-            "extra.files.go": """   script_text="<permissions>
+            "ExtraFilesGo": """   script_text="<permissions>
         <!-- Shared library required on the device to get Google Dialer updates from
              Play Store. This will be deprecated once Google Dialer play store
              updates stop supporting pre-O devices. -->
@@ -159,7 +158,7 @@ class PackageConstants:
          addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
        fi
         """,
-            "com.google.android.gms": """
+            "GmsCore": """
     gms_optimization=$(ReadConfigValue "GmsOptimization" "$nikgapps_config_file_name")
     [ -z "$gms_optimization" ] && gms_optimization=0
     if [ "$gms_optimization" = "1" ]; then
@@ -177,7 +176,7 @@ class PackageConstants:
         addToLog "- Battery Optimization not Enabled" "$package_title"
     fi
         """,
-            "com.google.android.setupwizard": """
+            "SetupWizard": """
        set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "ro.setupwizard.enterprise_mode" "1" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "ro.setupwizard.rotation_locked" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
@@ -195,10 +194,10 @@ class PackageConstants:
        set_prop "setupwizard.feature.lifecycle_refactoring" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "setupwizard.feature.notification_refactoring" "true" "$product/etc/build.prop" "$package_title"
         """,
-            "com.google.android.googlequicksearchbox": """
+            "Velvet": """
        set_prop "ro.opa.eligible_device" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
         """,
-            "com.google.android.inputmethod.latin": """
+            "GBoard": """
        set_prop "ro.com.google.ime.theme_id" "5" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "ro.com.google.ime.kb_pad_port_b" "8" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "ro.com.google.ime.height_ratio" "1.025" "$product/etc/build.prop" "$propFilePath" "$package_title"

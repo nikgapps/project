@@ -570,12 +570,12 @@ fi
         setup_wizard_set = AppSet("SetupWizard")
         setup_wizard_set.add_package(setup_wizard)
         setup_wizard_set.add_package(google_restore)
-        if float(Config.TARGET_ANDROID_VERSION) >= 10:
+        if float(android_version) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
                                                   Statics.is_priv_app,
                                                   partition=Statics.get_partition(android_version, "system_ext"))
             setup_wizard_set.add_package(google_one_time_initializer)
-        if float(Config.TARGET_ANDROID_VERSION) < 12:
+        if float(android_version) < 12:
             setup_wizard_set.add_package(android_migrate_prebuilt)
         return setup_wizard_set
 
@@ -593,13 +593,13 @@ fi
             NikGappsPackages.get_pixel_setup_wizard(android_version),
             NikGappsPackages.get_google_talkback(android_version)
         ]
-        if float(Config.TARGET_ANDROID_VERSION) == 11:
+        if float(android_version) == 11:
             addon_set_list.append(NikGappsPackages.get_google_fi())
-        # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
+        # if float(android_version) == float(12.1):
         #     addon_set_list.append(AddonSet.get_lawnchair())
-        # if float(Config.TARGET_ANDROID_VERSION) in (10, 11):
+        # if float(android_version) in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
-        # if float(Config.TARGET_ANDROID_VERSION) >= 13:
+        # if float(android_version) >= 13:
         #     addon_set_list.append(NikGappsPackages.get_flipendo(android_version))
         if float(android_version) == 13:
             addon_set_list.append(NikGappsPackages.get_pixel_live_wallpapers(android_version))
@@ -896,17 +896,17 @@ fi
         setup_wizard_set = AppSet("PixelSetupWizard")
         setup_wizard_set.add_package(setup_wizard)
         setup_wizard_set.add_package(google_restore)
-        if float(Config.TARGET_ANDROID_VERSION) >= 10:
+        if float(android_version) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
                                                   Statics.is_priv_app,
                                                   partition=Statics.get_partition(android_version, "system_ext"))
             setup_wizard_set.add_package(google_one_time_initializer)
-        if float(Config.TARGET_ANDROID_VERSION) == 10:
+        if float(android_version) == 10:
             setup_wizard_set.add_package(pixel_setup_wizard_overlay)
             setup_wizard_set.add_package(pixel_setup_wizard_aod_overlay)
-        if float(Config.TARGET_ANDROID_VERSION) >= 10:
+        if float(android_version) >= 10:
             setup_wizard_set.add_package(pixel_setup_wizard)
-            if float(Config.TARGET_ANDROID_VERSION) < 12:
+            if float(android_version) < 12:
                 setup_wizard_set.add_package(android_migrate_prebuilt)
         return setup_wizard_set
 

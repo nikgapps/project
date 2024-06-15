@@ -20,17 +20,17 @@ class NikGappsManager:
 
         self.cmd = Cmd()
         self.package_data = Assets.package_details
+        self.appset_data = Assets.appsets_details
         self.extra_files_exceptions = {
             "extra.files": "ExtraFiles",
-            "extra.files.go": "ExtraFilesGo"
+            "extra.files.go": "ExtraFilesGo",
+            "ExtraFiles": "extra.files",
+            "ExtraFilesGo": "extra.files.go"
         }
         self.extra_files_appsets = {
             "extra.files": "Core",
             "extra.files.go": "CoreGo"
         }
-
-    def initialize_packages(self, json_data):
-        self.package_data = json_data
 
     def get_packages(self, package_type):
         match package_type:
@@ -57,12 +57,6 @@ class NikGappsManager:
         if str(package_type).lower() == "addonsets":
             return self.get_addonsets()
         else:
-            for app_set in self.get_addon_packages():
-                if str(app_set.title).lower() == str(package_type).lower():
-                    return [app_set]
-                for package in app_set.package_list:
-                    if str(package.package_title).lower() == str(package_type).lower():
-                        return [AppSet(app_set.title, [package])]
             for app_set in self.get_full_package():
                 if str(app_set.title).lower() == str(package_type).lower():
                     return [app_set]
@@ -70,6 +64,12 @@ class NikGappsManager:
                     if str(package.package_title).lower() == str(package_type).lower():
                         return [AppSet(app_set.title, [package])]
             for app_set in self.get_go_package():
+                if str(app_set.title).lower() == str(package_type).lower():
+                    return [app_set]
+                for package in app_set.package_list:
+                    if str(package.package_title).lower() == str(package_type).lower():
+                        return [AppSet(app_set.title, [package])]
+            for app_set in self.get_addon_packages():
                 if str(app_set.title).lower() == str(package_type).lower():
                     return [app_set]
                 for package in app_set.package_list:
@@ -83,35 +83,52 @@ class NikGappsManager:
         else:
             raise ValueError(f"No details found for package: {package_name}")
 
-    def get_app_set_title(self, package_name, look_into_match=None):
-        package_details = self.package_data.get(package_name, {})
-        if package_details:
-            appset_list = package_details[0]['appset']
-            for appset in appset_list:
-                if look_into_match:
-                    if str(appset).__contains__(look_into_match):
-                        return str(appset)
-                else:
-                    return str(appset)
-        elif package_name in self.extra_files_appsets:
-            return self.extra_files_appsets[package_name]
-        return None
+    def find_appset_by_package(self, package_title, keyword=None, fallback_appset=None):
+        matched_appsets = []
 
-    def create_appset_list(self, package_list, look_into_match=None):
+        for appset, versions in self.appset_data.items():
+            for version_info in versions:
+                min_version = version_info.get("min_version", -1)
+                max_version = version_info.get("max_version", float('inf'))
+                exact_version = version_info.get("exact_version", None)
+                packages = version_info["packages"]
+
+                if exact_version is not None:
+                    if self.android_version == exact_version and package_title in packages:
+                        matched_appsets.append(appset)
+
+                if float(min_version) <= float(self.android_version) <= float(
+                        max_version) and package_title in packages:
+                    matched_appsets.append(appset)
+
+        if not matched_appsets:
+            return None
+
+        if keyword:
+            for appset in matched_appsets:
+                if keyword.lower() in appset.lower():
+                    return appset
+
+        if fallback_appset and fallback_appset in matched_appsets:
+            return fallback_appset
+
+        return matched_appsets[0]
+
+    def create_appset_list(self, package_list, keyword=None, fallback_appset=None):
         appset_dict = {}
         for package in package_list:
-            appset_title = self.get_app_set_title(package.package_name, look_into_match)
+            appset_title = self.find_appset_by_package(package.package_title, keyword=keyword, fallback_appset=fallback_appset)
             if appset_title not in appset_dict:
                 appset_dict[appset_title] = AppSet(appset_title, [package])
             else:
                 appset_dict[appset_title].package_list.append(package)
         return list(appset_dict.values())
 
-    def create_appset_list_from_packages(self, package_name_list, look_into_match=None):
+    def create_appset_list_from_packages(self, package_name_list, keyword=None, fallback_appset=None):
         appset_dict = {}
         for package_name in package_name_list:
             package = self.create_package(package_name)
-            appset_title = self.get_app_set_title(package_name, look_into_match)
+            appset_title = self.find_appset_by_package(package_name, keyword=keyword, fallback_appset=fallback_appset)
             if appset_title not in appset_dict:
                 appset_dict[appset_title] = AppSet(appset_title, [package])
             else:
@@ -121,27 +138,28 @@ class NikGappsManager:
     def create_package(self, package_name):
         if package_name in self.extra_files_exceptions:
             package = Package(
-                title=self.extra_files_exceptions[package_name],
-                package_name=package_name,
+                title=package_name,
+                package_name=self.extra_files_exceptions[package_name],
             )
         else:
             package_details = self.get_package_details(package_name)
             package_info = package_details[0]
+            pkg_name = package_info['package_name']
             package = Package(
                 title=package_info['title'],
-                package_name=package_name,
+                package_name=pkg_name,
                 app_type=Statics.is_priv_app if package_info['type'] == "priv-app" else Statics.is_system_app,
-                package_title=package_info['package_title'],
+                package_title=package_name,
                 partition=package_info['partition'] if float(self.android_version) > 10 else "product"
             )
             if float(self.android_version) > 12:
-                overlays = self.get_package_overlays(package_name)
+                overlays = self.get_package_overlays(pkg_name)
                 for overlay in overlays:
                     package.add_overlay(overlay)
-            deletes = PackageConstants.get_package_deletes(package_name)
+            deletes = PackageConstants.get_package_deletes(pkg_name)
             for delete in deletes:
                 package.delete(delete)
-            package.clean_flash_only = PackageConstants.get_package_clean_flash_rule(package_name)
+            package.clean_flash_only = PackageConstants.get_package_clean_flash_rule(pkg_name)
         script = PackageConstants.get_package_script(package_name)
         if script:
             package.additional_installer_script = script
@@ -265,106 +283,113 @@ class NikGappsManager:
 
     def get_go_package(self):
         go_packages = [
-            "extra.files.go",
-            "com.google.android.gms",
-            "com.android.vending",
-            "com.google.android.gsf",
-            "com.google.android.syncadapters.contacts",
-            "com.google.android.syncadapters.calendar",
-            "com.google.android.apps.searchlite",
-            "com.google.android.apps.assistant",
-            "com.google.android.apps.mapslite",
-            "com.google.android.apps.navlite",
-            "com.google.android.apps.photosgo",
-            "com.google.android.gm.lite"
+            "ExtraFilesGo",
+            "GmsCore",
+            "GooglePlayStore",
+            "GoogleServicesFramework",
+            "GoogleContactsSyncAdapter",
+            "GoogleCalendarSyncAdapter",
+            "GoogleGo",
+            "AssistantGo",
+            "MapsGo",
+            "NavigationGo",
+            "GalleryGo",
+            "GmailGo"
         ]
-        return self.create_appset_list_from_packages(go_packages, look_into_match="Go")
+        appset_list = self.create_appset_list_from_packages(go_packages, keyword="Go")
+        return appset_list
 
     def get_core_package(self):
         core_packages = [
-            "extra.files",
-            "com.android.vending",
-            "com.google.android.gsf",
-            "com.google.android.syncadapters.contacts",
-            "com.google.android.syncadapters.calendar",
-            "com.google.android.gms"
+            "ExtraFiles",
+            "GooglePlayStore",
+            "GoogleServicesFramework",
+            "GoogleContactsSyncAdapter",
+            "GoogleCalendarSyncAdapter",
+            "GmsCore"
         ]
         package_list = []
-        for package_name in core_packages:
-            package = self.create_package(package_name)
+        for package_title in core_packages:
+            package = self.create_package(package_title)
             package.addon_index = "05"
             package_list.append(package)
         return self.create_appset_list(package_list)
 
     def get_basic_package(self, delta=False):
         basic_packages = [
-            "com.google.android.apps.wellbeing",
-            "com.google.android.apps.messaging",
-            "com.google.android.dialer",
-            "com.google.android.contacts",
-            "com.google.android.ims",
-            "com.google.android.deskclock"
+            "DigitalWellbeing",
+            "GoogleMessages",
+            "GoogleDialer",
+            "GoogleContacts",
+            "CarrierServices",
+            "GoogleClock"
         ]
-        return (self.get_core_package() if not delta else []) + self.create_appset_list_from_packages(basic_packages)
+        appset_list = (self.get_core_package() if not delta else []) + self.create_appset_list_from_packages(
+            basic_packages)
+        return appset_list
 
     def get_omni_package(self, delta=False):
         setup_wizard_packages = [
-            "com.google.android.setupwizard",
-            "com.google.android.apps.restore",
-            "com.google.android.onetimeinitializer"
+            "SetupWizard",
+            "GoogleRestore",
+            "GoogleOneTimeInitializer"
         ]
         if float(self.android_version) < 12:
-            setup_wizard_packages.append("com.google.android.apps.pixelmigrate")
-        setup_wizard = self.create_appset_list_from_packages(setup_wizard_packages)
+            setup_wizard_packages.append("AndroidMigratePrebuilt")
+        setup_wizard = self.create_appset_list_from_packages(setup_wizard_packages, fallback_appset="SetupWizard")
         omni_packages = [
-            "com.google.android.calculator",
-            "com.google.android.apps.docs",
-            "com.google.android.apps.maps",
+            "GoogleCalculator",
+            "GoogleDocs",
+            "GoogleMaps",
         ]
         if float(self.android_version) >= 11:
-            omni_packages.append("com.google.android.gms.location.history")
+            omni_packages.append("GoogleLocationHistory")
         omni_packages.extend([
-            "com.google.android.apps.photos",
-            "com.google.android.apps.turbo",
-            "com.google.android.inputmethod.latin",
-            "com.google.android.calendar",
-            "com.google.android.keep"
+            "GooglePhotos",
+            "DeviceHealthServices",
+            "GBoard",
+            "GoogleCalendar",
+            "GoogleKeep"
         ])
-        return ((self.get_basic_package() if not delta else [])
-                + setup_wizard
-                + self.create_appset_list_from_packages(omni_packages))
+        appset_list = ((self.get_basic_package() if not delta else [])
+                       + setup_wizard
+                       + self.create_appset_list_from_packages(omni_packages))
+        return appset_list
 
     def get_stock_package(self, delta=False):
         pixel_launcher_packages = [
-            "com.google.android.apps.nexuslauncher",
-            "com.google.android.as",
-            "com.google.android.apps.wallpaper"
+            "PixelLauncher",
+            "DevicePersonalizationServices",
+            "GoogleWallpaper"
         ]
         if float(self.android_version) >= 11:
-            pixel_launcher_packages.append("com.android.systemui.plugin.globalactions.wallet")
+            pixel_launcher_packages.append("QuickAccessWallet")
             if float(self.android_version) >= 12:
-                pixel_launcher_packages.extend(["com.google.android.settings.intelligence", "com.google.android.as.oss"])
+                pixel_launcher_packages.extend([
+                    "SettingsServices",
+                    "PrivateComputeServices"
+                ])
                 if float(self.android_version) >= 13:
-                    pixel_launcher_packages.append("com.google.android.apps.customization.pixel")
+                    pixel_launcher_packages.append("PixelThemes")
                     if float(self.android_version) >= 14:
-                        # pixel_launcher_packages.append("com.google.android.wallpaper.effects")
-                        pixel_launcher_packages.append("com.google.android.apps.emojiwallpaper")
-                        pixel_launcher_packages.append("com.google.android.apps.weather")
+                        # pixel_launcher_packages.append("CinematicEffect")
+                        pixel_launcher_packages.append("EmojiWallpaper")
+                        pixel_launcher_packages.append("PixelWeather")
         pixel_specifics = self.create_appset_list_from_packages(pixel_launcher_packages)
         stock_packages = [
-            "com.google.android.play.games",
-            "com.google.android.apps.recorder",
-            "com.google.android.apps.nbu.files",
-            "com.google.android.storagemanager"
+            "PlayGames",
+            "GoogleRecorder",
+            "GoogleFiles",
+            "StorageManager"
         ]
         if float(self.android_version) >= 11:
-            stock_packages.append("com.google.android.documentsui")
+            stock_packages.append("DocumentsUIGoogle")
         stock_packages.extend([
-            "com.google.android.markup",
-            "com.google.android.tts",
-            "com.google.android.googlequicksearchbox",
-            "com.google.android.apps.googleassistant",
-            "com.google.android.soundpicker"
+            "MarkupGoogle",
+            "GoogleTTS",
+            "Velvet",
+            "Assistant",
+            "GoogleSounds"
         ])
         return ((self.get_omni_package() if not delta else [])
                 + pixel_specifics
@@ -372,42 +397,42 @@ class NikGappsManager:
 
     def get_full_package(self, delta=False):
         full_packages = [
-            "com.android.chrome",
-            "com.google.android.webview",
-            "com.google.android.trichromelibrary",
-            "com.google.android.gm",
-            "com.google.android.apps.work.oobconfig",
-            "com.google.android.projection.gearhead",
-            "com.google.android.feedback",
-            "com.google.android.partnersetup",
-            "com.google.android.apps.work.clouddpc"
+            "GoogleChrome",
+            "WebViewGoogle",
+            "TrichromeLibrary",
+            "Gmail",
+            "DeviceSetup",
+            "AndroidAuto",
+            "GoogleFeedback",
+            "GooglePartnerSetup",
+            "AndroidDevicePolicy"
         ]
         return (self.get_stock_package() if not delta else []) + self.create_appset_list_from_packages(full_packages)
 
     def get_addon_packages(self, addon_name=None):
         addon_packages = [
-            "com.google.android.apps.tachyon",
-            "com.google.android.apps.docs.editors.docs",
-            "com.google.android.apps.docs.editors.sheets",
-            "com.google.android.apps.docs.editors.slides",
-            "com.google.android.youtube",
-            "com.google.android.apps.youtube.music",
-            "com.google.android.apps.books",
-            "com.google.android.marvin.talkback",
+            "Meet",
+            "GoogleDocs",
+            "GoogleSheets",
+            "GoogleSlides",
+            "YouTube",
+            "YouTubeMusic",
+            "Books",
+            "GoogleTalkback",
         ]
         if float(self.android_version) == 11:
-            addon_packages.append("com.google.android.apps.tycho")
+            addon_packages.append("GoogleFi")
         if float(self.android_version) == 13:
-            addon_packages.append("com.google.android.apps.wallpaper.pixel")
+            addon_packages.append("PixelWallpapers")
         pixel_setup_wizard_packages = [
-            "com.google.android.setupwizard",
-            "com.google.android.apps.restore",
-            "com.google.android.pixel.setupwizard",
-            "com.google.android.onetimeinitializer"
+            "SetupWizard",
+            "GoogleRestore",
+            "PixelSetupWizard",
+            "GoogleOneTimeInitializer"
         ]
         if float(self.android_version) < 12:
-            pixel_setup_wizard_packages.append("com.google.android.apps.pixelmigrate")
-        pixel_setup_wizard = self.create_appset_list_from_packages(pixel_setup_wizard_packages, look_into_match="Pixel")
+            pixel_setup_wizard_packages.append("AndroidMigratePrebuilt")
+        pixel_setup_wizard = self.create_appset_list_from_packages(pixel_setup_wizard_packages, keyword="Pixel")
         addon_set_list = pixel_setup_wizard + self.create_appset_list_from_packages(addon_packages)
         if addon_name:
             return [app_set for app_set in addon_set_list if app_set.title == addon_name]
