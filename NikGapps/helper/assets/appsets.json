@@ -378,7 +378,7 @@
       "packages": [
         "PixelLauncher",
         "DevicePersonalizationServices",
-        "GoogleWallpaper",
+        "GoogleWallpaper"
       ]
     },
     {
@@ -445,6 +445,24 @@
       "min_version": 10,
       "packages": [
         "YouTubeMusic"
+      ]
+    }
+  ],
+  "GoogleFi": [
+    {
+      "exact_version": 11,
+      "packages": [
+        "Tycho",
+        "GCS"
+      ]
+    }
+  ],
+  "PixelLiveWallpapers": [
+    {
+      "exact_version": 13,
+      "packages": [
+        "PixelLiveWallpaper",
+        "PixelWallpapers2022"
       ]
     }
   ]

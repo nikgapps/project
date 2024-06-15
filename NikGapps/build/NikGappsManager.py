@@ -422,8 +422,8 @@ class NikGappsManager:
         ]
         if float(self.android_version) == 11:
             addon_packages.append("GoogleFi")
-        if float(self.android_version) == 13:
-            addon_packages.append("PixelWallpapers")
+        # if float(self.android_version) == 13:
+        #     addon_packages.append("PixelWallpapers")
         pixel_setup_wizard_packages = [
             "SetupWizard",
             "GoogleRestore",
