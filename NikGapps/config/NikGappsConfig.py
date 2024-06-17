@@ -15,12 +15,14 @@ from NikGapps.helper.web.Requests import Requests
 
 
 class NikGappsConfig:
-    def __init__(self, package_manager: NikGappsManager, config_path=None, raw_config=None, config_name=None):
+    def __init__(self, package_manager: NikGappsManager, config_path=None, raw_config=None, config_name=None,
+                 use_zip_config=0):
         self.package_manager = package_manager
         self.android_version = package_manager.android_version
         self.arch = "arm64"
         self.config_version = Assets.config_versions[self.android_version]
         self.config_path = config_path
+        self.use_zip_config = use_zip_config
         if config_path is not None:
             self.raw_config = FileOp.read_string_file(config_path)
             self.config_name = str(Path(self.config_path).name)
@@ -48,7 +50,7 @@ class NikGappsConfig:
     def build_config_objects(self, config_dict=None):
         config_list = []
         default_mode, install_mode = "default", "install"
-        enabled_mode, disabled_mode, use_zip_config = 1, 0, 0
+        enabled_mode, disabled_mode, use_zip_config = 1, 0, self.use_zip_config
         predefined_configs = {
             "AndroidVersion": self.android_version,
             "Version": self.config_version,
