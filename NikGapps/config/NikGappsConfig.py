@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from NikGapps.build.NikGappsManager import NikGappsManager
 from NikGapps.helper import Config
@@ -10,16 +11,22 @@ from NikGapps.helper.Package import Package
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.git.GitOperations import GitOperations
 from NikGapps.helper.upload.Upload import Upload
+from NikGapps.helper.web.Requests import Requests
 
 
 class NikGappsConfig:
-    def __init__(self, package_manager: NikGappsManager, raw_config=None, config_name=None):
+    def __init__(self, package_manager: NikGappsManager, config_path=None, raw_config=None, config_name=None):
         self.package_manager = package_manager
         self.android_version = package_manager.android_version
         self.arch = "arm64"
         self.config_version = Assets.config_versions[self.android_version]
-        self.config_name = "nikgapps.config" if config_name is None else config_name
-        self.raw_config = raw_config if raw_config is not None else self.build_default_nikgapps_config()
+        self.config_path = config_path
+        if config_path is not None:
+            self.raw_config = FileOp.read_string_file(config_path)
+            self.config_name = str(Path(self.config_path).name)
+        else:
+            self.raw_config = raw_config if raw_config is not None else self.build_default_nikgapps_config()
+            self.config_name = "nikgapps.config" if config_name is None else config_name
         self.config_dict = self.build_config_dict()
         self.config_objects = self.build_config_objects(self.config_dict)
         self.config_package_list = self.get_config_packages()
@@ -326,3 +333,30 @@ class NikGappsConfig:
                                                                      remote_directory=remote_directory)
             u.close_connection()
         return execution_status
+
+    def get_release_date(self):
+        release_date = None
+        if self.config_path is not None:
+            file_contents = FileOp.read_string_file(self.config_path)
+            for line in file_contents:
+                if line.startswith("RELEASE_DATE="):
+                    release_date = line.split("=")[1].strip()
+                    break
+        return release_date
+
+    def update_with_release_date(self, release_date=None):
+        if release_date is None:
+            release_date = Requests.get_release_date(self.android_version, Config.RELEASE_TYPE)
+        if self.config_path is not None:
+            file_contents = FileOp.read_string_file(self.config_path)
+            for index, line in enumerate(file_contents):
+                if line.startswith("RELEASE_DATE="):
+                    file_contents[index] = f"RELEASE_DATE={release_date}\n"
+                    break
+                if line.startswith("Version="):
+                    file_contents.insert(index, f"RELEASE_DATE={release_date}\n")
+                    break
+            file_string = "".join(file_contents)
+            FileOp.write_string_in_lf_file(file_string, self.config_path)
+        else:
+            print("Invalid config path!")
