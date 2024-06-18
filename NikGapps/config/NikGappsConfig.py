@@ -15,10 +15,11 @@ from NikGapps.helper.web.Requests import Requests
 
 
 class NikGappsConfig:
-    def __init__(self, package_manager: NikGappsManager, config_path=None, raw_config=None, config_name=None,
+    def __init__(self, android_version=None, config_path=None, raw_config=None,
+                 config_name=None,
                  use_zip_config=0):
-        self.package_manager = package_manager
-        self.android_version = package_manager.android_version
+        self.package_manager = NikGappsManager(android_version)
+        self.android_version = android_version
         self.arch = "arm64"
         self.config_version = Assets.config_versions[self.android_version]
         self.config_path = config_path
