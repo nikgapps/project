@@ -18,24 +18,29 @@ class NikGappsConfig:
     def __init__(self, android_version=None, config_path=None, raw_config=None,
                  config_name=None,
                  use_zip_config=0):
+        self.is_elite = False
+        self.creator = "Nikhil Menghani"
         self.package_manager = NikGappsManager(android_version)
         self.android_version = android_version
         self.arch = "arm64"
         self.config_version = Assets.config_versions[self.android_version]
         self.config_path = config_path
         self.use_zip_config = use_zip_config
+        self.elite_folder = None
         if config_path is not None:
-            self.raw_config = FileOp.read_string_file(config_path)
-            self.config_name = str(Path(self.config_path).name)
+            self.raw_config = "".join(FileOp.read_string_file(config_path))
+            self.config_name = str(Path(self.config_path).name).split(".config")[0]
+            if str(self.config_path).__contains__(Statics.dir_sep + "elite" + Statics.dir_sep):
+                self.is_elite = True
+                self.elite_folder = str(self.config_path).split(Statics.dir_sep)[-2]
+                self.creator = Requests.get_folder_access(self.elite_folder)
         else:
             self.raw_config = raw_config if raw_config is not None else self.build_default_nikgapps_config()
-            self.config_name = "nikgapps.config" if config_name is None else config_name
+            self.config_name = "nikgapps" if config_name is None else config_name
         self.config_dict = self.build_config_dict()
         self.config_objects = self.build_config_objects(self.config_dict)
         self.config_package_list = self.get_config_packages()
         self.debloater_list = self.get_debloater_list()
-        self.creator = "Nikhil Menghani"
-        self.is_elite = False
 
     def build_config_dict(self):
         lines = {}
