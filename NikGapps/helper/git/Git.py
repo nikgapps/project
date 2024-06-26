@@ -143,14 +143,23 @@ class Git:
                 P.blue(self.repo.git.status())
             push_info = origin.push(self.repo.active_branch.name)
             for info in push_info:
-                if "rejected" in info.summary:
-                    print(info.summary)
+                if info.flags & (git.PushInfo.REMOTE_REJECTED | git.PushInfo.ERROR):
+                    print(f"Push failed for ref {info.local_ref}: {info.summary}")
                     return False
-                else:
-                    print("Pushed to origin: " + str(commit_message))
-                    return True
+
+            print("Pushed to origin:", commit_message)
+            return True
+
+        except git.exc.GitCommandError as e:
+            if "failed to push some refs" in e.stderr:  # Check for the specific error
+                self.repo.git.pull("origin", "main")  # Pull changes from remote
+                self.repo.git.push()  # Retry the push
+            else:
+                print(f"Git error: {e}")
+                raise e
+
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"Unexpected error: {e}")
         return False
 
     def update_changelog(self):
