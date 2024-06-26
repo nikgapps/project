@@ -421,7 +421,11 @@ class NikGappsManager:
             "GoogleTalkback",
         ]
         if float(self.android_version) == 11:
-            addon_packages.append("GoogleFi")
+            google_fi_packages = [
+                "Tycho",
+                "GCS"
+            ]
+            addon_packages.extend(google_fi_packages)
         # if float(self.android_version) == 13:
         #     addon_packages.append("PixelWallpapers")
         pixel_setup_wizard_packages = [

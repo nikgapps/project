@@ -261,6 +261,14 @@
             "type": "priv-app"
         }
     ],
+    "Tycho": [
+        {
+            "package_name": "com.google.android.apps.tycho",
+            "partition": "product",
+            "title": "Tycho",
+            "type": "app"
+        }
+    ],
     "GoogleGo": [
         {
             "package_name": "com.google.android.apps.searchlite",
