@@ -1,3 +1,4 @@
+import math
 import time
 
 import gitlab
@@ -96,7 +97,7 @@ class GitLabManager:
 
         return user_access_levels
 
-    def list_projects_with_ids(self):
+    def list_projects_with_ids(self, print_details=False):
         gl = gitlab.Gitlab("https://gitlab.com", private_token=self.token)
         namespace_name = "nikgapps"
         project_full_path = f"{namespace_name}/apkmirror"
@@ -108,8 +109,18 @@ class GitLabManager:
 
         # Print details of each project
         for project in projects:
-            print(f'Project Name: {project.name}, Project ID: {project.id}, Namespace: {project.namespace["path"]}')
+            if not print_details:
+                return projects
+            project_details = self.gl.projects.get(project.id, statistics=True)
+            storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
+            print(f'Project Name: {project.name}, Project ID: {project.id}, Namespace: {project.namespace["path"]}, '
+                  f'Storage Size: {storage_size} MB')
         return projects
+
+    def find_project_allocated_size(self, repo_name):
+        project_id = self.get_project_id(repo_name)
+        project_details = self.gl.projects.get(project_id, statistics=True)
+        return math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
 
     def delete_project(self, project_id):
         try:
@@ -121,19 +132,20 @@ class GitLabManager:
 
     def reset_apk_repository(self, repo_name, message="""*.apk filter=lfs diff=lfs merge=lfs -text
             *.so filter=lfs diff=lfs merge=lfs -text
-            """, user_id=8064473):
+            """, user_id=8064473, sleep_for=10, delete_only=False):
         try:
             print(f"Resetting repository {repo_name}...")
             project_id = self.get_project_id(repo_name)
             self.delete_project(project_id)
-            print("Waiting for 10 seconds for the project to be completely deleted...")
-            time.sleep(10)
-            project = self.create_repository(repo_name)
-            self.provide_owner_access(project_id=project.id,
-                                      user_id=user_id)
-            self.create_and_commit_readme(project_id=project.id)
-            commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
-                                                 content=message)
-            print(commit)
+            if not delete_only:
+                print("Waiting for 10 seconds for the project to be completely deleted...")
+                time.sleep(sleep_for)
+                project = self.create_repository(repo_name)
+                self.provide_owner_access(project_id=project.id,
+                                          user_id=user_id)
+                self.create_and_commit_readme(project_id=project.id)
+                commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
+                                                     content=message)
+                print(commit)
         except Exception as e:
             print(f"Failed to reset repository: {e}")
