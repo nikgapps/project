@@ -1,6 +1,5 @@
 import os
 from NikGapps.build.Build import Build
-from NikGapps.build.NikGappsManager import NikGappsManager
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Package import Package
 from NikGapps.helper.compression.Modes import Modes
@@ -32,8 +31,7 @@ def cache():
         repo_cached = GitOperations.clone_apk_repo(android_version, arch=arch, branch="main", cached=True)
         GitOperations.clone_apk_repo(android_version, arch=arch, branch="main")
         GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
-        package_manager = NikGappsManager(android_version, arch)
-        config_obj = NikGappsConfig(package_manager=package_manager)
+        config_obj = NikGappsConfig(android_version)
         app_set_list = NikGappsPackages.get_packages("all", android_version)
         config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
         for appset in config_obj.config_package_list:

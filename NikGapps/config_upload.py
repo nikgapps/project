@@ -1,4 +1,3 @@
-from NikGapps.build.NikGappsManager import NikGappsManager
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
@@ -14,8 +13,7 @@ def config_upload():
         if args.upload:
             Config.UPLOAD_FILES = True
             print("Uploading NikGapps Config for " + android_version)
-            package_manager = NikGappsManager(android_version)
-            config = NikGappsConfig(package_manager=package_manager)
+            config = NikGappsConfig(android_version)
             config.upload_nikgapps_config()
 
 
