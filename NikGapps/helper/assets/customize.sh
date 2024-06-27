@@ -260,17 +260,24 @@ case $mode in
   "$remove_ota_scripts_mode")
     addToLog "- Cleaning $system/addon.d"
     ui_print " "
+    nikgapps_addon_scripts_exists=0
     if [ -d "$system/addon.d" ]; then
-      ui_print "x Cleaning $system/addon.d"
+      ui_print "- Looking for NikGapps addon.d scripts"
     else
       ui_print "x $system/addon.d not found"
     fi
     for file in "$system"/addon.d/*; do
       if grep -q "AFZC" "$file"; then
+        nikgapps_addon_scripts_exists=1
         ui_print "x Removing $(basename "$file")"
         rm -f "$file"
+      else
+        addToLog "- Skipping $(basename "$file")"
       fi
     done
+    if [ $nikgapps_addon_scripts_exists -eq 0 ]; then
+      ui_print "x No NikGapps addon.d scripts found"
+    fi
     for prop_file in "$system"/etc/permissions/*.prop; do
       sed -i '/^addond=/d' "$prop_file"
     done
