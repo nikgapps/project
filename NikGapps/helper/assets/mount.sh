@@ -12,7 +12,7 @@ begin_mounting() {
   if [ ! "$(getprop 2>/dev/null)" ]; then
     getprop() {
       local propdir propfile propval;
-      for propdir in / /system_root /system /vendor /product /system_ext /odm; do
+      for propdir in / /system_root /system /product /system_ext /odm; do
         for propfile in default.prop build.prop; do
           test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)";
         done;
@@ -41,14 +41,8 @@ mount_all() {
   if ! is_mounted /cache; then
     mount /cache 2>/dev/null && UMOUNT_CACHE=1
   fi
-  if ! is_mounted /data; then
-    ui_print "- Mounting /data" "$mountLog"
-    $BB mount /data && UMOUNT_DATA=1
-  else
-    addToGeneralLog "- /data already mounted!" "$mountLog"
-  fi;
 
-  (for mount in /vendor /product /system_ext /persist; do
+  (for mount in /product /system_ext; do
     ui_print "- Mounting $mount" "$mountLog"
     $BB mount -o ro -t auto $mount;
   done) 2>/dev/null;
@@ -91,7 +85,7 @@ mount_all() {
     ;;
   esac;
   [ -f /system_root/system/build.prop ] && system=/system;
-  for mount in /vendor /product /system_ext; do
+  for mount in /product /system_ext; do
       if ! is_mounted $mount && [ -L /system$mount -o -L /system_root$system$mount ]; then
         setup_mountpoint $mount;
         $BB mount -o ro -t auto /dev/block/$byname$mount$slot $mount;
@@ -101,7 +95,6 @@ mount_all() {
   addToGeneralLog "- Checking if /system_root is mounted.." "$mountLog"
   addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
   if is_mounted /system_root; then
-#    mount_apex;
     $BB mount -o bind /system_root$system /system;
   elif is_mounted /system; then
     addToGeneralLog "- /system is mounted" "$mountLog"
@@ -109,15 +102,11 @@ mount_all() {
     addToGeneralLog "- Could not mount /system" "$mountLog"
     abort "- Could not mount /system, try changing recovery!"
   fi;
-  if ! is_mounted /persist && [ -e /dev/block/bootdevice/by-name/persist ]; then
-    setup_mountpoint /persist;
-    $BB mount -o ro -t auto /dev/block/bootdevice/by-name/persist /persist;
-  fi;
   addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
   system=/system
   if [ -d /dev/block/mapper ]; then
-    addToGeneralLog "- Executing blockdev setrw for /dev/block/mapper/system, vendor, product, system_ext both slots a and b" "$mountLog"
-    for block in system vendor product system_ext; do
+    addToGeneralLog "- Executing blockdev setrw for /dev/block/mapper/system, product, system_ext both slots a and b" "$mountLog"
+    for block in system product system_ext; do
       for slot in "" _a _b; do
         blockdev --setrw /dev/block/mapper/$block$slot 2>/dev/null
       done
@@ -125,7 +114,7 @@ mount_all() {
   addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
   fi
   mount -o rw,remount -t auto /system || $BB mount -o rw,remount -t auto /
-  for partition in "vendor" "product" "system_ext"; do
+  for partition in "product" "system_ext"; do
     addToGeneralLog "- Remounting /$partition as read write" "$mountLog"
     $BB mount -o rw,remount -t auto "/$partition" 2>/dev/null
   done
@@ -154,55 +143,4 @@ mount_all() {
     fi
   fi
   addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
-}
-
-# More info on Apex here -> https://www.xda-developers.com/android-q-apex-biggest-tdynamic_partitionshing-since-project-treble/
-mount_apex() {
-  [ -d /system_root/system/apex ] || return 1;
-  local apex dest loop minorx num shcon var;
-  setup_mountpoint /apex;
-  $BB mount -t tmpfs tmpfs /apex -o mode=755 && $BB touch /apex/apextmp;
-  shcon=$(cat /proc/self/attr/current);
-  echo "u:r:su:s0" > /proc/self/attr/current 2>/dev/null; # work around LOS Recovery not allowing loop mounts in recovery context
-  minorx=1;
-  [ -e /dev/block/loop1 ] && minorx=$($BB ls -l /dev/block/loop1 | $BB awk '{ print $6 }');
-  num=0;
-  for apex in /system_root/system/apex/*; do
-    dest=/apex/$($BB basename $apex | $BB sed -E -e 's;\.apex$|\.capex$;;' -e 's;\.current$|\.release$;;');
-    $BB mkdir -p $dest;
-    case $apex in
-      *.apex|*.capex)
-        $BB unzip -qo $apex original_apex -d /apex;
-        [ -f /apex/original_apex ] && apex=/apex/original_apex;
-        $BB unzip -qo $apex apex_payload.img -d /apex;
-        $BB mv -f /apex/original_apex $dest.apex 2>/dev/null;
-        $BB mv -f /apex/apex_payload.img $dest.img;
-        $BB mount -t ext4 -o ro,noatime $dest.img $dest 2>/dev/null && echo "- $dest (direct)" >&2;
-        if [ $? != 0 ]; then
-          while [ $num -lt 64 ]; do
-            loop=/dev/block/loop$num;
-            [ -e $loop ] || $BB mknod $loop b 7 $((num * minorx));
-            $BB losetup $loop $dest.img 2>/dev/null;
-            num=$((num + 1));
-            $BB losetup $loop | $BB grep -q $dest.img && break;
-          done;
-          $BB mount -t ext4 -o ro,loop,noatime $loop $dest && echo "- $dest (loop)" >&2;
-          if [ $? != 0 ]; then
-            $BB losetup -d $loop 2>/dev/null;
-            if [ $num -eq 64 ] && [ "$(losetup -f)" = "/dev/block/loop0" ]; then
-              ui_print "Aborting apex mounts due to broken environment..." >&2;
-              break;
-            fi;
-          fi;
-        fi;
-      ;;
-      *) $BB mount -o bind $apex $dest && echo "$dest (bind)" >&2;;
-    esac;
-  done;
-  echo "$shcon" > /proc/self/attr/current 2>/dev/null;
-  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB awk '{ print $2 }'); do
-    eval OLD_${var}=\$$var;
-  done;
-  $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB sed 's; /;=/;'); unset export;
-  touch /apex/apexak3;
 }
