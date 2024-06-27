@@ -45,6 +45,7 @@ class Release:
 
         def handle_special_case(special_case_type):
             file_name = f"{release_directory}{Statics.dir_sep}{special_case_type.capitalize()}-{current_time}.zip"
+            config_obj.config_package_list = []
             z = Export(file_name=file_name, sign=sign_zip)
             zip_result = z.zip(config_obj=config_obj, send_zip_device=Config.SEND_ZIP_DEVICE,
                                fresh_build=Config.FRESH_BUILD,
