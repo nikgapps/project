@@ -34,14 +34,14 @@ class GitLabManager:
         })
         return member
 
-    def get_project_id(self, project_name):
+    def get_project(self, project_name):
         # Fetch all projects for the current user
         projects = self.gl.projects.list(owned=True, all=True)
 
         # Print details of each project
         for project in projects:
             if project.name == project_name:
-                return project.id
+                return project
         return None
 
     def create_and_commit_readme(self, project_id, branch_name="main", content="# Welcome to your new project"):
@@ -118,8 +118,8 @@ class GitLabManager:
         return projects
 
     def find_project_allocated_size(self, repo_name):
-        project_id = self.get_project_id(repo_name)
-        project_details = self.gl.projects.get(project_id, statistics=True)
+        project = self.get_project(repo_name)
+        project_details = self.gl.projects.get(project.id, statistics=True)
         return math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
 
     def delete_project(self, project_id):
@@ -130,13 +130,11 @@ class GitLabManager:
         except Exception as e:
             print(f"Failed to delete project {project_id}: {e}")
 
-    def reset_apk_repository(self, repo_name, message="""*.apk filter=lfs diff=lfs merge=lfs -text
-            *.so filter=lfs diff=lfs merge=lfs -text
-            """, user_id=8064473, sleep_for=10, delete_only=False):
+    def reset_repository(self, repo_name, gitattributes=None, user_id=8064473, sleep_for=10, delete_only=False):
         try:
             print(f"Resetting repository {repo_name}...")
-            project_id = self.get_project_id(repo_name)
-            self.delete_project(project_id)
+            project = self.get_project(repo_name)
+            self.delete_project(project.id)
             if not delete_only:
                 print("Waiting for 10 seconds for the project to be completely deleted...")
                 time.sleep(sleep_for)
@@ -144,35 +142,31 @@ class GitLabManager:
                 self.provide_owner_access(project_id=project.id,
                                           user_id=user_id)
                 self.create_and_commit_readme(project_id=project.id)
-                commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
-                                                     content=message)
-                print(commit)
+                if gitattributes is not None:
+                    commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
+                                                         content=gitattributes)
+                    print(commit)
+            return project
         except Exception as e:
             print(f"Failed to reset repository: {e}")
+            return None
 
     def reset_repository_storage(self, repo_name, user_id=8064473, sleep_for=10, storage_cap=9000):
-        project_id = self.get_project_id(repo_name)
-        project_details = self.gl.projects.get(project_id, statistics=True)
+        project = self.get_project(repo_name)
+        project_details = self.gl.projects.get(project.id, statistics=True)
         storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
         if storage_size > storage_cap:
             print(f"Storage size of {storage_size} MB exceeds the limit of {storage_cap} MB "
-                  f"for project id {project_id}. Resetting...")
+                  f"for project id {project.id}. Resetting...")
             old_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_old"
-            repo_url = project_details.ssh_url_to_repo
-            old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=repo_url)
-            self.delete_project(project_id)
-            time.sleep(sleep_for)
-            project = self.create_repository(repo_name)
-            self.provide_owner_access(project_id=project.id, user_id=user_id)
-            self.create_and_commit_readme(project_id=project.id)
+            old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=project_details.ssh_url_to_repo)
+            project = self.reset_repository(repo_name, user_id=user_id, sleep_for=sleep_for)
             new_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_new"
-            new_repo = GitOperations.setup_repo(repo_dir=f"{new_repo_dir}", repo_url=repo_url)
-            old_repo_working_dir = Path(old_repo.working_tree_dir)
-            new_repo_working_dir = Path(new_repo.working_tree_dir)
-            for item in old_repo_working_dir.rglob('*'):
+            new_repo = GitOperations.setup_repo(repo_dir=f"{new_repo_dir}", repo_url=project_details.ssh_url_to_repo)
+            for item in Path(old_repo.working_tree_dir).rglob('*'):
                 if '.git' in item.parts:
                     continue
-                destination = new_repo_working_dir / item.relative_to(old_repo_working_dir)
+                destination = Path(new_repo.working_tree_dir) / item.relative_to(Path(old_repo.working_tree_dir))
                 if item.is_dir():
                     destination.mkdir(parents=True, exist_ok=True)
                 else:
