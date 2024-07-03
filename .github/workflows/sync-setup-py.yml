@@ -1,0 +1,32 @@
+name: Sync setup.py with requirements.txt
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+jobs:
+  sync-setup-py:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install pip-tools
+        run: pip install pip-tools
+
+      - name: Sync setup.py
+        run: |
+          pip-compile requirements.txt --output-file setup.py
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add setup.py
+          git commit -m 'Update setup.py to match requirements.txt' || echo "No changes to commit"
+          git push origin ${{ github.head_ref }}
