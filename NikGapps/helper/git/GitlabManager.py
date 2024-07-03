@@ -1,7 +1,12 @@
 import math
+import shutil
 import time
+from pathlib import Path
 
 import gitlab
+
+from NikGapps.helper.Statics import Statics
+from NikGapps.helper.git.GitOperations import GitOperations
 
 
 class GitLabManager:
@@ -98,14 +103,9 @@ class GitLabManager:
         return user_access_levels
 
     def list_projects_with_ids(self, print_details=False):
-        gl = gitlab.Gitlab("https://gitlab.com", private_token=self.token)
         namespace_name = "nikgapps"
-        project_full_path = f"{namespace_name}/apkmirror"
-        # Fetch the current user's details to get their ID
-        user = gl.user
-
         # Fetch all projects for the current user
-        projects = gl.projects.list(owned=True, all=True)
+        projects = self.gl.projects.list(owned=True, all=True)
 
         # Print details of each project
         for project in projects:
@@ -149,3 +149,40 @@ class GitLabManager:
                 print(commit)
         except Exception as e:
             print(f"Failed to reset repository: {e}")
+
+    def reset_repository_storage(self, repo_name, user_id=8064473, sleep_for=10, storage_cap=9000):
+        project_id = self.get_project_id(repo_name)
+        project_details = self.gl.projects.get(project_id, statistics=True)
+        storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
+        if storage_size > storage_cap:
+            print(f"Storage size of {storage_size} MB exceeds the limit of {storage_cap} MB "
+                  f"for project id {project_id}. Resetting...")
+            old_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_old"
+            repo_url = project_details.ssh_url_to_repo
+            old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=repo_url)
+            self.delete_project(project_id)
+            time.sleep(sleep_for)
+            project = self.create_repository(repo_name)
+            self.provide_owner_access(project_id=project.id, user_id=user_id)
+            self.create_and_commit_readme(project_id=project.id)
+            new_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_new"
+            new_repo = GitOperations.setup_repo(repo_dir=f"{new_repo_dir}", repo_url=repo_url)
+            old_repo_working_dir = Path(old_repo.working_tree_dir)
+            new_repo_working_dir = Path(new_repo.working_tree_dir)
+            for item in old_repo_working_dir.rglob('*'):
+                if '.git' in item.parts:
+                    continue
+                destination = new_repo_working_dir / item.relative_to(old_repo_working_dir)
+                if item.is_dir():
+                    destination.mkdir(parents=True, exist_ok=True)
+                else:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    print(f"Copying {item} to {destination}")
+                    shutil.copy2(item, destination)
+            new_repo.git_push("Initial Commit", push_untracked_files=True)
+            project_details = self.gl.projects.get(project.id, statistics=True)
+            storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
+            print(f"Repository storage for project id {project.id} reset successfully. "
+                  f"New storage size: {storage_size} MB")
+        else:
+            print(f"Storage size of {storage_size} MB is within the limit of {storage_cap} MB. No action required.")
