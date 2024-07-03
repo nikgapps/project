@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os
+from dotenv import load_dotenv
 from NikGapps.build.Release import Release
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
@@ -15,7 +17,10 @@ def main():
     SystemStat.show_stats()
     t = T()
     P.green("---------------------------------------")
-
+    load_dotenv()
+    Config.ENVIRONMENT_TYPE = os.getenv("ENVIRONMENT_TYPE") if os.getenv(
+        "ENVIRONMENT_TYPE") is not None else "production"
+    Config.RELEASE_TYPE = os.getenv("RELEASE_TYPE") if os.getenv("RELEASE_TYPE") is not None else "stable"
     android_versions = [Config.TARGET_ANDROID_VERSION]
     package_list = Config.BUILD_PACKAGE_LIST
     Config.UPLOAD_FILES = args.upload
