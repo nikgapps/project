@@ -5,6 +5,7 @@ from pathlib import Path
 
 import gitlab
 
+from NikGapps.helper.FileOp import FileOp
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.git.GitOperations import GitOperations
 
@@ -178,5 +179,8 @@ class GitLabManager:
             storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
             print(f"Repository storage for project id {project.id} reset successfully. "
                   f"New storage size: {storage_size} MB")
+            FileOp.remove_dir(old_repo.working_tree_dir)
+            FileOp.remove_dir(new_repo.working_tree_dir)
+
         else:
             print(f"Storage size of {storage_size} MB is within the limit of {storage_cap} MB. No action required.")
