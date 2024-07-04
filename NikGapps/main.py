@@ -47,6 +47,7 @@ def main():
                 GitOperations.clone_apk_repo(android_version, branch="main", cached=True)
             else:
                 GitOperations.clone_apk_repo(android_version, args.arch, branch="main")
+                # GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
                 GitOperations.clone_overlay_repo(android_version)
         if Config.OVERRIDE_RELEASE:
             Release.zip(package_list, android_version, args.arch, args.sign)
