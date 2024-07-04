@@ -151,7 +151,7 @@ class GitLabManager:
             print(f"Failed to reset repository: {e}")
             return None
 
-    def reset_repository_storage(self, repo_name, user_id=8064473, sleep_for=10, storage_cap=9000):
+    def reset_repository_storage(self, repo_name, user_id=8064473, sleep_for=10, storage_cap=9000, gitattributes=None):
         project = self.get_project(repo_name)
         project_details = self.gl.projects.get(project.id, statistics=True)
         storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
@@ -160,7 +160,8 @@ class GitLabManager:
                   f"for project id {project.id}. Resetting...")
             old_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_old"
             old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=project_details.ssh_url_to_repo)
-            project = self.reset_repository(repo_name, user_id=user_id, sleep_for=sleep_for)
+            project = self.reset_repository(repo_name, user_id=user_id, sleep_for=sleep_for,
+                                            gitattributes=gitattributes)
             new_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_new"
             new_repo = GitOperations.setup_repo(repo_dir=f"{new_repo_dir}", repo_url=project_details.ssh_url_to_repo)
             for item in Path(old_repo.working_tree_dir).rglob('*'):
