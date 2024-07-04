@@ -43,11 +43,11 @@ def main():
         Config.TARGET_ANDROID_VERSION = android_version
         # clone the apk repo if it doesn't exist
         if args.enable_git_clone:
-            GitOperations.clone_apk_repo(android_version, args.arch, branch="main" if Config.RELEASE_TYPE.__eq__(
-                "stable") else "canary")
-            GitOperations.clone_overlay_repo(android_version)
             if Config.USE_CACHED_APKS:
                 GitOperations.clone_apk_repo(android_version, branch="main", cached=True)
+            else:
+                GitOperations.clone_apk_repo(android_version, args.arch, branch="main")
+                GitOperations.clone_overlay_repo(android_version)
         if Config.OVERRIDE_RELEASE:
             Release.zip(package_list, android_version, args.arch, args.sign)
         if Config.RELEASE_TYPE:
