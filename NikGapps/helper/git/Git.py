@@ -117,6 +117,7 @@ class Git:
             return False
         try:
             origin = self.repo.remote(name='origin')
+            self.repo.git.config('http.postBuffer', '524288000')
             if self.repo.is_dirty(untracked_files=True):
                 self.repo.git.add(u=True)
                 if push_untracked_files:
