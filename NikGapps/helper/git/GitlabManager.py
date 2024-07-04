@@ -129,8 +129,10 @@ class GitLabManager:
     def delete_project(self, project_id):
         try:
             project = self.gl.projects.get(project_id)
+            project_name = project.name
+            project_path = project.path
             project.delete()
-            print(f"Project {project_id} deleted successfully.")
+            print(f"Project with id {project_id}, name {project_name} and path {project_path} deleted successfully.")
         except Exception as e:
             print(f"Failed to delete project {project_id}: {e}")
 
