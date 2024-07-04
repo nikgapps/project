@@ -140,8 +140,7 @@ class GitLabManager:
                 print("Waiting for 10 seconds for the project to be completely deleted...")
                 time.sleep(sleep_for)
                 project = self.create_repository(repo_name)
-                self.provide_owner_access(project_id=project.id,
-                                          user_id=user_id)
+                self.provide_owner_access(project_id=project.id, user_id=user_id)
                 self.create_and_commit_readme(project_id=project.id)
                 if gitattributes is not None:
                     commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
@@ -184,3 +183,27 @@ class GitLabManager:
 
         else:
             print(f"Storage size of {storage_size} MB is within the limit of {storage_cap} MB. No action required.")
+
+    def copy_repository(self, source_repo_name, target_repo_name, user_id=8064473):
+        project = self.get_project(source_repo_name)
+        old_repo_dir = Statics.pwd + Statics.dir_sep + f"{source_repo_name}_old"
+        old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=project.ssh_url_to_repo)
+        if self.get_project(target_repo_name) is not None:
+            print(f"Project {target_repo_name} already exists. Exiting...")
+            return
+        project = self.create_repository(target_repo_name)
+        self.provide_owner_access(project_id=project.id, user_id=user_id)
+        self.create_and_commit_readme(project_id=project.id)
+        new_repo_dir = Statics.pwd + Statics.dir_sep + f"{target_repo_name}_new"
+        new_repo = GitOperations.setup_repo(repo_dir=f"{new_repo_dir}", repo_url=project.ssh_url_to_repo)
+        for item in Path(old_repo.working_tree_dir).rglob('*'):
+            if '.git' in item.parts:
+                continue
+            destination = Path(new_repo.working_tree_dir) / item.relative_to(Path(old_repo.working_tree_dir))
+            if item.is_dir():
+                destination.mkdir(parents=True, exist_ok=True)
+            else:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                print(f"Copying {item} to {destination}")
+                shutil.copy2(item, destination)
+        new_repo.git_push("Initial Commit", push_untracked_files=True)
