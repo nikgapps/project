@@ -1,4 +1,4 @@
-- date: 4th July 2024 (Android 10-14)
+- date: 5th July 2024 (Android 10-14)
   changes:
       - item: Improve how priv-app whitelist permissions are set
       - item: Fixed styles and wallpaper crash on los 21 (Android 14)
