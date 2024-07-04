@@ -44,7 +44,7 @@ class GitLabManager:
 
         # Print details of each project
         for project in projects:
-            if project.name == project_name:
+            if project.path == project_name:
                 return project
         return None
 
@@ -138,11 +138,13 @@ class GitLabManager:
         project = self.get_project(repo_name)
         if new_repo_name is None:
             new_repo_name = f"{repo_name}_{time.strftime('%Y%m%d')}"
-        if self.get_project(new_repo_name) is not None:
+        new_project = self.get_project(new_repo_name)
+        if new_project is not None:
             print(f"Project {new_repo_name} already exists. Deleting...")
-            self.delete_project(self.get_project(new_repo_name).id)
+            self.delete_project(new_project.id)
         project.name = new_repo_name
         project.path = new_repo_name
+        print(f"Repository {repo_name} renaming to {new_repo_name}.")
         project.save()
         print(f"Repository {repo_name} renamed to {new_repo_name}.")
         return project
