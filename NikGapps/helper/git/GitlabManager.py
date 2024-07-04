@@ -21,9 +21,12 @@ class GitLabManager:
         user = self.gl.users.get(user_id)
         return user
 
-    def create_repository(self, project_name):
+    def create_repository(self, project_name, provide_owner_access=False, user_id=8064473):
         """Creates a new repository with the given project name."""
         project = self.gl.projects.create({'name': project_name})
+        if provide_owner_access:
+            self.provide_owner_access(project_id=project.id, user_id=user_id)
+            self.create_and_commit_readme(project_id=project.id)
         return project
 
     def provide_owner_access(self, project_id, user_id):
@@ -131,6 +134,19 @@ class GitLabManager:
         except Exception as e:
             print(f"Failed to delete project {project_id}: {e}")
 
+    def rename_repository(self, repo_name, new_repo_name=None):
+        project = self.get_project(repo_name)
+        if new_repo_name is None:
+            new_repo_name = f"{repo_name}_{time.strftime('%Y%m%d')}"
+        if self.get_project(new_repo_name) is not None:
+            print(f"Project {new_repo_name} already exists. Deleting...")
+            self.delete_project(self.get_project(new_repo_name).id)
+        project.name = new_repo_name
+        project.path = new_repo_name
+        project.save()
+        print(f"Repository {repo_name} renamed to {new_repo_name}.")
+        return project
+
     def reset_repository(self, repo_name, gitattributes=None, user_id=8064473, sleep_for=10, delete_only=False):
         try:
             print(f"Resetting repository {repo_name}...")
@@ -139,9 +155,7 @@ class GitLabManager:
             if not delete_only:
                 print("Waiting for 10 seconds for the project to be completely deleted...")
                 time.sleep(sleep_for)
-                project = self.create_repository(repo_name)
-                self.provide_owner_access(project_id=project.id, user_id=user_id)
-                self.create_and_commit_readme(project_id=project.id)
+                project = self.create_repository(repo_name, provide_owner_access=True, user_id=user_id)
                 if gitattributes is not None:
                     commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
                                                          content=gitattributes)
@@ -151,17 +165,23 @@ class GitLabManager:
             print(f"Failed to reset repository: {e}")
             return None
 
-    def reset_repository_storage(self, repo_name, user_id=8064473, sleep_for=10, storage_cap=9000, gitattributes=None):
-        project = self.get_project(repo_name)
-        project_details = self.gl.projects.get(project.id, statistics=True)
+    def reset_repository_storage(self, repo_name, user_id=8064473, sleep_for=10, storage_cap=7500, gitattributes=None,
+                                 method="rename"):
+        old_project = self.get_project(repo_name)
+        project_details = self.gl.projects.get(old_project.id, statistics=True)
         storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
         if storage_size > storage_cap:
             print(f"Storage size of {storage_size} MB exceeds the limit of {storage_cap} MB "
-                  f"for project id {project.id}. Resetting...")
+                  f"for project id {old_project.id}. Resetting...")
             old_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_old"
             old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=project_details.ssh_url_to_repo)
-            project = self.reset_repository(repo_name, user_id=user_id, sleep_for=sleep_for,
-                                            gitattributes=gitattributes)
+            match method.lower():
+                case "rename":
+                    old_project = self.rename_repository(repo_name)
+                    new_project = self.create_repository(repo_name, provide_owner_access=True, user_id=user_id)
+                case _:
+                    new_project = self.reset_repository(repo_name, user_id=user_id, sleep_for=sleep_for,
+                                                        gitattributes=gitattributes)
             new_repo_dir = Statics.pwd + Statics.dir_sep + f"{repo_name}_new"
             new_repo = GitOperations.setup_repo(repo_dir=f"{new_repo_dir}", repo_url=project_details.ssh_url_to_repo)
             for item in Path(old_repo.working_tree_dir).rglob('*'):
@@ -175,13 +195,15 @@ class GitLabManager:
                     print(f"Copying {item} to {destination}")
                     shutil.copy2(item, destination)
             new_repo.git_push("Initial Commit", push_untracked_files=True)
-            project_details = self.gl.projects.get(project.id, statistics=True)
+            project_details = self.gl.projects.get(new_project.id, statistics=True)
             storage_size = math.ceil(project_details.statistics["storage_size"] / (1024 ** 2) * 100) / 100
-            print(f"Repository storage for project id {project.id} reset successfully. "
+            print(f"Repository storage for project id {new_project.id} reset successfully. "
                   f"New storage size: {storage_size} MB")
             FileOp.remove_dir(old_repo.working_tree_dir)
             FileOp.remove_dir(new_repo.working_tree_dir)
-
+            match method.lower():
+                case "rename":
+                    self.delete_project(old_project.id)
         else:
             print(f"Storage size of {storage_size} MB is within the limit of {storage_cap} MB. No action required.")
 
@@ -192,9 +214,7 @@ class GitLabManager:
         if self.get_project(target_repo_name) is not None:
             print(f"Project {target_repo_name} already exists. Exiting...")
             return
-        project = self.create_repository(target_repo_name)
-        self.provide_owner_access(project_id=project.id, user_id=user_id)
-        self.create_and_commit_readme(project_id=project.id)
+        project = self.create_repository(target_repo_name, provide_owner_access=True, user_id=user_id)
         new_repo_dir = Statics.pwd + Statics.dir_sep + f"{target_repo_name}_new"
         new_repo = GitOperations.setup_repo(repo_dir=f"{new_repo_dir}", repo_url=project.ssh_url_to_repo)
         for item in Path(old_repo.working_tree_dir).rglob('*'):
