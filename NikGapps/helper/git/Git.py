@@ -111,13 +111,15 @@ class Git:
             return True
         return False
 
-    def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False, pull_first=False):
+    def git_push(self, commit_message, push_untracked_files=False, debug=False, rebase=False, pull_first=False,
+                 post_buffer=None):
         if not self.enable_push:
             print("Git push is disabled, skipping push!")
             return False
         try:
             origin = self.repo.remote(name='origin')
-            self.repo.git.config('http.postBuffer', '524288000')
+            if post_buffer is not None:
+                self.repo.git.config('http.postBuffer', post_buffer)
             if self.repo.is_dirty(untracked_files=True):
                 self.repo.git.add(u=True)
                 if push_untracked_files:
