@@ -211,10 +211,15 @@ class GitLabManager:
         else:
             print(f"Storage size of {storage_size} MB is within the limit of {storage_cap} MB. No action required.")
 
-    def copy_repository(self, source_repo_name, target_repo_name, user_id=8064473):
+    def copy_repository(self, source_repo_name, target_repo_name, user_id=8064473, override_target=False):
         project = self.get_project(source_repo_name)
         old_repo_dir = Statics.pwd + Statics.dir_sep + f"{source_repo_name}_old"
         old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=project.ssh_url_to_repo)
+        if override_target:
+            target_project = self.get_project(target_repo_name)
+            if target_project is not None:
+                print(f"Project {target_repo_name} already exists. Deleting...")
+                self.delete_project(target_project.id)
         if self.get_project(target_repo_name) is not None:
             print(f"Project {target_repo_name} already exists. Exiting...")
             return
