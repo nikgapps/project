@@ -21,9 +21,9 @@ class GitLabManager:
         user = self.gl.users.get(user_id)
         return user
 
-    def create_repository(self, project_name, provide_owner_access=False, user_id=8064473):
+    def create_repository(self, project_name, provide_owner_access=False, user_id=8064473, visibility='public'):
         """Creates a new repository with the given project name."""
-        project = self.gl.projects.create({'name': project_name})
+        project = self.gl.projects.create({'name': project_name, 'visibility': visibility})
         if provide_owner_access:
             self.provide_owner_access(project_id=project.id, user_id=user_id)
             self.create_and_commit_readme(project_id=project.id)
