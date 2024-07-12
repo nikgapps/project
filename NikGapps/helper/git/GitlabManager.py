@@ -36,6 +36,7 @@ class GitLabManager:
             'user_id': user_id,
             'access_level': 50
         })
+        print(f"Owner access provided to user with ID {user_id}.")
         return member
 
     def get_project(self, project_name):
@@ -63,6 +64,8 @@ class GitLabManager:
             ]
         }
         commit = project.commits.create(commit_data)
+        print(f"README.md created and committed to the repository {project.name}.")
+        print(commit)
         return commit
 
     def create_and_commit_file(self, project_id, branch_name="main", file_path="file.txt", content=""):
@@ -80,6 +83,8 @@ class GitLabManager:
             ]
         }
         commit = project.commits.create(commit_data)
+        print(f"{file_path} created and committed to the repository {project.name}.")
+        print(commit)
         return commit
 
     def create_gitlab_repository(self, project_name, visibility='public'):
