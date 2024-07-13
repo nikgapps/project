@@ -23,7 +23,7 @@ class NikGappsConfig:
         self.package_manager = NikGappsManager(android_version)
         self.android_version = android_version
         self.arch = "arm64"
-        self.config_version = Assets.config_versions[self.android_version]
+        self.config_version = Assets.config_versions[str(self.android_version)]
         self.config_path = config_path
         self.use_zip_config = use_zip_config
         self.elite_folder = None

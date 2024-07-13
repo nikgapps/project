@@ -18,9 +18,8 @@ def main():
     t = T()
     P.green("---------------------------------------")
     load_dotenv()
-    Config.ENVIRONMENT_TYPE = os.getenv("ENVIRONMENT_TYPE") if os.getenv(
-        "ENVIRONMENT_TYPE") is not None else "production"
-    Config.RELEASE_TYPE = os.getenv("RELEASE_TYPE") if os.getenv("RELEASE_TYPE") is not None else "stable"
+    Config.ENVIRONMENT_TYPE = os.getenv("ENVIRONMENT_TYPE") if os.getenv("ENVIRONMENT_TYPE") else "production"
+    Config.RELEASE_TYPE = os.getenv("RELEASE_TYPE") if os.getenv("RELEASE_TYPE") else "stable"
     android_versions = [Config.TARGET_ANDROID_VERSION]
     package_list = Config.BUILD_PACKAGE_LIST
     Config.UPLOAD_FILES = args.upload
