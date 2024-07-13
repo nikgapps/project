@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Package import Package
@@ -19,6 +20,9 @@ def cache():
     print("Start of the Program")
     SystemStat.show_stats()
     P.green("---------------------------------------")
+    load_dotenv()
+    Config.ENVIRONMENT_TYPE = os.getenv("ENVIRONMENT_TYPE") if os.getenv("ENVIRONMENT_TYPE") else "production"
+    Config.RELEASE_TYPE = os.getenv("RELEASE_TYPE") if os.getenv("RELEASE_TYPE") else "stable"
     android_versions = [Config.TARGET_ANDROID_VERSION]
     Config.UPLOAD_FILES = args.upload
     if len(args.get_android_versions()) > 0:
@@ -28,11 +32,12 @@ def cache():
     print("---------------------------------------")
     for android_version in android_versions:
         arch = "arm64"
-        repo_cached = GitOperations.clone_apk_repo(android_version, arch=arch, branch="main", cached=True)
-        GitOperations.clone_apk_repo(android_version, arch=arch, branch="main")
+        repo_cached = GitOperations.clone_apk_source(android_version, arch=arch, release_type=Config.RELEASE_TYPE,
+                                                     cached=True)
+        GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
         GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
         config_obj = NikGappsConfig(android_version)
-        app_set_list = NikGappsPackages.get_packages("all", android_version)
+        app_set_list = config_obj.package_manager.get_packages("all")
         config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
         for appset in config_obj.config_package_list:
             appset: AppSet

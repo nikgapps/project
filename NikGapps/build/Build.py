@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+
+from NikGapps.helper import Config
 from NikGapps.helper.Package import Package
 from NikGapps.helper.FileOp import FileOp
 from NikGapps.helper.Cmd import Cmd
@@ -15,6 +17,7 @@ class Build:
     def build_from_directory(app_set_build_list, android_version, arch="arm64"):
         arch = "" if arch == "arm64" else "_" + arch
         source_directory = Statics.pwd + Statics.dir_sep + str(android_version) + arch
+        source_directory = source_directory + f"_{Config.RELEASE_TYPE}"
         cmd = Cmd()
         app_set_list = []
         for app_set in app_set_build_list:
