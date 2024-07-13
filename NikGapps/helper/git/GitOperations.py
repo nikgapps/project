@@ -44,8 +44,9 @@ class GitOperations:
 
     # Following method is new method of cloning the apk source from Gitlab - based on release type
     @staticmethod
-    def clone_apk_source(android_version, arch="arm64", release_type="stable", fresh_clone=False):
+    def clone_apk_source(android_version, arch="arm64", release_type="stable", fresh_clone=False, cached=False):
         url = f"{android_version}{('_' + arch if arch != 'arm64' else '')}_{release_type}"
+        url = url + ("_cached" if cached else "")
         apk_source_directory = Statics.pwd + Statics.dir_sep + url
         apk_source_repo = GitStatics.apk_source_repo + url + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch="main", fresh_clone=fresh_clone,
