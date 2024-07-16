@@ -49,7 +49,7 @@ def main():
                 GitOperations.clone_overlay_repo(android_version)
         if Config.OVERRIDE_RELEASE:
             Release.zip(package_list, android_version, args.arch, args.sign)
-        if Config.RELEASE_TYPE:
+        if Config.RELEASE_TYPE and Config.ENVIRONMENT_TYPE == "production":
             GitOperations.mark_a_release(android_version, Config.RELEASE_TYPE)
     if args.release:
         if args.update_website:
