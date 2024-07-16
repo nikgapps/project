@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # The android version that we're targeting this application to run
 TARGET_ANDROID_VERSION = 14
@@ -21,7 +24,7 @@ if environment_type is not None:
 BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 
 # Send the zip to device after creation, Possible values are True and False
-SEND_ZIP_DEVICE = False
+SEND_ZIP_DEVICE = True if ENVIRONMENT_TYPE == "dev" else False
 SEND_ZIP_LOCATION = "/sdcard"
 
 # This will allow the program to sign the zip
