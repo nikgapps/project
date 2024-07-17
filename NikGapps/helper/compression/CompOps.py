@@ -30,10 +30,10 @@ class CompOps:
             if pkg.clean_flash_only:
                 cpkg.add_string("", "___etc___permissions/" + pkg.package_title + ".prop")
             pkg.pkg_size = pkg_size
-            cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh")
-            cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
             if pkg.priv_app_permissions_str is not None:
                 cpkg.add_string(pkg.priv_app_permissions_str, "___etc___permissions/" + pkg.package_name + ".xml")
+            cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh")
+            cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
             cpkg.close()
             FileOp.write_string_file(str(pkg_size), pkg_txt_path)
         except Exception as e:
