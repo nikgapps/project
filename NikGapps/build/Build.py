@@ -103,8 +103,9 @@ class Build:
                     for perm in pkg_to_build.priv_app_permissions:
                         permissions_list.append(perm)
                     if permissions_list.__len__() >= 1 and not permissions_list[0].__contains__("Exception"):
-                        pkg.generate_priv_app_whitelist(app_set.title, permissions_list,
-                                                        android_version=android_version, pkg_path=source_directory)
+                        pkg.priv_app_permissions_str = pkg.generate_priv_app_whitelist(app_set.title, permissions_list,
+                                                                                       android_version=android_version,
+                                                                                       pkg_path=source_directory)
                 # Add the deleted files from the pkg_to_build object
                 for delete_file in pkg_to_build.delete_files_list:
                     delete_files_list.append(delete_file)

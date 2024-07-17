@@ -42,6 +42,7 @@ class Package:
         self.pkg_size = 0
         self.validation_script = None
         self.addon_index = "09"
+        self.priv_app_permissions_str = None
 
     def add_overlay(self, overlay: Overlay):
         for overlay_item in self.overlay_list:
@@ -66,11 +67,12 @@ class Package:
         for perm in self.priv_app_permissions:
             if perm not in permissions_list:
                 permissions_list.append(perm)
-        permissions_path = "/etc/permissions/" + str(self.package_name) + ".xml"
-        import_path = Statics.get_import_path(app_set, self.package_title, permissions_path, android_version,
-                                              pkg_path)
-        self.file_dict[import_path] = "etc/permissions/" + str(self.package_name) + ".xml"
-        XmlOp(self.package_name, permissions_list, import_path)
+        # permissions_path = "/etc/permissions/" + str(self.package_name) + ".xml"
+        # import_path = Statics.get_import_path(app_set, self.package_title, permissions_path, android_version,
+        #                                       pkg_path)
+        # self.file_dict[import_path] = "etc/permissions/" + str(self.package_name) + ".xml"
+        xml_op = XmlOp(self.package_name, permissions_list)
+        return xml_op.to_string()
 
     def get_installer_script(self, pkg_size):
         lines = Assets.get_string_resource(Assets.installer_path)
