@@ -242,3 +242,5 @@ class GitLabManager:
                 print(f"Copying {item} to {destination}")
                 shutil.copy2(item, destination)
         new_repo.git_push("Initial Commit", push_untracked_files=True)
+        FileOp.remove_dir(old_repo.working_tree_dir)
+        FileOp.remove_dir(new_repo.working_tree_dir)
