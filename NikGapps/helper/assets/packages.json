@@ -577,14 +577,6 @@
             "type": "app"
         }
     ],
-    "Tycho": [
-        {
-            "package_name": "com.google.android.apps.tycho",
-            "partition": "product",
-            "title": "Tycho",
-            "type": "app"
-        }
-    ],
     "Velvet": [
         {
             "package_name": "com.google.android.googlequicksearchbox",
