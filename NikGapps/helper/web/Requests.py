@@ -126,3 +126,14 @@ class Requests:
                 if result.status_code != 429:
                     return result
             return result
+
+    @staticmethod
+    def get_data_in_json(url):
+        url = f"{url}"
+        decoded_hand = Requests.get(url)
+        details = {}
+        if decoded_hand.status_code == 200:
+            return decoded_hand.json()
+        else:
+            print(f"{decoded_hand.status_code} while getting package details")
+            return details
