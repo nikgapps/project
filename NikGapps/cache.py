@@ -6,7 +6,6 @@ from NikGapps.helper.Package import Package
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.compression.CompOps import CompOps
 from NikGapps.helper.AppSet import AppSet
-from NikGapps.build.NikGappsPackages import NikGappsPackages
 from NikGapps.helper import Config
 from NikGapps.helper.P import P
 from NikGapps.helper.T import T

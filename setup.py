@@ -37,6 +37,7 @@ setup(
             'nikgapps_overlay=NikGapps.overlay_control:overlay_control',
             'nikgapps_config_upload=NikGapps.config_upload:config_upload',
             'cache=NikGapps.cache:cache',
+            'copy_repos=NikGapps.copy_repos:copy_repos',
         ],
     },
     classifiers=[
