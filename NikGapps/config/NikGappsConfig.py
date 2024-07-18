@@ -288,7 +288,7 @@ class NikGappsConfig:
                     version_on_server = decoded_hand[key]
                     print("version on server is: " + version_on_server)
                     if int(version_on_server) < int(self.config_version):
-                        print("server needs updating")
+                        print("server needs updating to " + self.config_version)
                         if self.upload():
                             decoded_hand[key] = str(self.config_version)
                             with open(config_version_json, "w") as file:
@@ -333,9 +333,9 @@ class NikGappsConfig:
             self.android_version) + Statics.dir_sep + "nikgapps.config"
         FileOp.write_string_in_lf_file(self.get_nikgapps_config(for_release=True), temp_nikgapps_config_location)
         if FileOp.file_exists(temp_nikgapps_config_location):
-            release_dir = "Releases/Config"
+            release_dir = "NikGappsConfigs"
             u = Upload(android_version=self.android_version, release_type=release_dir, upload_files=Config.UPLOAD_FILES)
-            file_type = "config"
+            file_type = "nikgappsconfig"
             remote_directory = u.get_cd(file_type) + "/v" + str(self.config_version)
             execution_status, download_link, file_size_mb = u.upload(file_name=temp_nikgapps_config_location,
                                                                      remote_directory=remote_directory)

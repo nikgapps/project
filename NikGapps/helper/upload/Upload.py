@@ -11,6 +11,7 @@ from NikGapps.helper.web.TelegramApi import TelegramApi
 
 class Upload:
     def __init__(self, android_version, release_type, upload_files, password=None):
+        self.android_version = android_version
         self.android_version_code = Statics.get_android_code(android_version)
         self.upload_files = upload_files
         self.host = "frs.sourceforge.net"
@@ -34,21 +35,24 @@ class Upload:
         self.release_dir = release_dir
 
     def get_cd(self, file_type):
-        folder_name = "Test"
+        folder_name = f"{self.release_dir}/Test/{self.release_date}"
         match file_type:
-            case "gapps":
-                folder_name = "NikGapps-" + self.android_version_code
-            case "config":
-                folder_name = "NikGapps-" + self.android_version_code
-                return self.release_dir + "/" + folder_name
+            case "gapps" | "config":
+                folder_name = f"{self.release_dir}/Android-{self.android_version}/{self.release_date}"
             case "addons":
-                folder_name = "Addons-" + self.android_version_code
+                folder_name = f"{self.release_dir}/Android-{self.android_version}/{self.release_date}/Addons"
             case "debloater":
-                folder_name = "Debloater"
+                tools_dir = Statics.get_sourceforge_release_directory("NikGappsTools/Debloater")
+                folder_name = f"{tools_dir}/{self.release_date}"
+            case "removeotascripts":
+                tools_dir = Statics.get_sourceforge_release_directory("NikGappsTools/RemoveOtaScripts")
+                folder_name = f"{tools_dir}/{self.release_date}"
+            case "nikgappsconfig":
+                folder_name = f"{self.release_dir}/Android-{self.android_version}"
             case _:
                 print(file_type)
-        print("Upload Dir: " + self.release_dir + "/" + folder_name)
-        return self.release_dir + "/" + folder_name + "/" + self.release_date
+        print("Upload Dir: " + folder_name)
+        return folder_name
 
     def upload(self, file_name, telegram: TelegramApi = None, remote_directory=None):
         if self.sftp is not None:

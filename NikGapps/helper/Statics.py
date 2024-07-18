@@ -146,9 +146,15 @@ class Statics:
             case ("config"):
                 return f"{sourceforge_root_directory}/Config-Releases"
             case ("canary"):
-                return f"{sourceforge_root_directory}/Canary-Releases"
+                return f"{sourceforge_root_directory}/Swift-Releases"
+            case ("swift"):
+                return f"{sourceforge_root_directory}/Swift-Releases"
             case ("stable"):
                 return f"{sourceforge_root_directory}/Releases"
+            case ("beta"):
+                return f"{sourceforge_root_directory}/Next-Releases"
+            case ("next"):
+                return f"{sourceforge_root_directory}/Next-Releases"
             case _:
                 return f"{sourceforge_root_directory}/{release_dir}"
 
