@@ -59,6 +59,8 @@ class Build:
                         continue
                     pkg_files_path = str(pkg_files)
                     pkg_files_path = pkg_files_path[pkg_files_path.find("___") + 3:]
+                    if pkg_files_path.replace("\\", "/").__eq__(f"etc___permissions/{package.package_name}.xml"):
+                        continue
                     if pkg_to_build.package_name is not None and str(pkg_files_path).endswith(".apk") and not str(
                             pkg_files).__contains__("split_") and not str(pkg_files).__contains__("___m") \
                             and not str(pkg_files).__contains__("___overlay"):
