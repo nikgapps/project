@@ -47,7 +47,9 @@ Make sure you have [python3](https://www.python.org/), [git](https://git-scm.com
 **Your gapps package will be at releases directory**
 
 ## Total Downloads  
-<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=Total%20Downloads&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">
+<!-- 7312415 from 2019-07-22 to 2024-07-18 -->
+![Static Badge](https://img.shields.io/badge/7.3M-red?label=Before%2018th%20July%202024&color=green)
+<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=After%2018th%20July%202024&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">
 
 <!--
 sudo apt install binfmt-support qemu qemu-user-static
