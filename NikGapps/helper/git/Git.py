@@ -148,6 +148,17 @@ class Git:
             for info in push_info:
                 if info.flags & (git.PushInfo.REMOTE_REJECTED | git.PushInfo.ERROR):
                     print(f"Push failed for ref {info.local_ref}: {info.summary}")
+                    if info.summary.__contains__("remote rejected") and info.summary.__contains__(
+                            "is at") and info.summary.__contains__("but expected"):
+                        print("Remote rejected, trying to pull!")
+                        origin.fetch(self.repo.active_branch.name)
+                        origin.pull(self.repo.active_branch.name)
+                        # rebase if this fails.
+                        push_info = origin.push(self.repo.active_branch.name)
+                        for nested_info in push_info:
+                            if nested_info.flags & (git.PushInfo.REMOTE_REJECTED | git.PushInfo.ERROR):
+                                print(f"Push failed for ref {nested_info.local_ref}: {nested_info.summary}")
+                                return False
                     return False
 
             print("Pushed to origin:", commit_message)

@@ -106,6 +106,7 @@ class GitOperations:
                 json.dump(decoded_hand, file, indent=2, sort_keys=True)
             if tracker_repo.due_changes():
                 tracker_repo.git_push(
-                    f"Updated release_tracker.json with latest {release_type} release date: " + Statics.time)
+                    f"Updated release_tracker.json with latest {release_type} release date: " + Statics.time,
+                    pull_first=True)
             else:
                 print("No changes to commit!")
