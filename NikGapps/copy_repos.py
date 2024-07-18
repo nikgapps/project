@@ -12,7 +12,7 @@ def copy_repos():
 
     for android_version in android_versions:
         gitlab_manager = GitLabManager(private_token=os.getenv("GITLAB_TOKEN"))
-        gitlab_manager.copy_repository(f"{android_version}_stable", f"{android_version}_ondemand")
+        gitlab_manager.copy_repository(f"{android_version}_stable", f"{android_version}_ondemand", override_target=True)
 
 
 if __name__ == "__main__":
