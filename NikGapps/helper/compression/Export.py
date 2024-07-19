@@ -31,8 +31,8 @@ class Export:
         file_sizes = ""
         zip_execution_status = False
         arch = "" if config_obj.arch == "arm64" else "_" + config_obj.arch
-        cache_source_dir = Statics.pwd + Statics.dir_sep + str(
-            android_version) + arch + "_cached" if Config.USE_CACHED_APKS else ""
+        cache_source_dir = Statics.pwd + Statics.dir_sep + str(android_version) + arch + f"_{Config.RELEASE_TYPE}" + (
+            f"_cached" if Config.USE_CACHED_APKS else "")
         try:
             app_set_count = len(app_set_list)
             app_set_index = 1
