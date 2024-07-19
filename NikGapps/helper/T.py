@@ -55,10 +55,10 @@ class T:
         return datetime_london.strftime("%Y%m%d")
 
     @staticmethod
-    def get_path(user_name, android_code):
+    def get_path(user_name, android_version):
         tz_london = pytz.timezone('Europe/London')
         datetime_london = datetime.now(tz_london)
-        return user_name + "/" + "NikGapps-" + str(android_code) + "/" + str(datetime_london.strftime("%d-%b-%Y"))
+        return user_name + "/" + "Android-" + str(android_version) + "/" + str(datetime_london.strftime("%d-%b-%Y"))
 
     @staticmethod
     def get_mtime(pkg_zip_path):
