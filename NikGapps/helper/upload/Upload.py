@@ -70,6 +70,8 @@ class Upload:
                     file_type = "addons"
                 elif os.path.basename(file_name).__contains__("Debloater"):
                     file_type = "debloater"
+                elif os.path.basename(file_name).lower().__contains__("removeotascripts"):
+                    file_type = "removeotascripts"
 
                 if remote_directory is None:
                     remote_directory = self.get_cd(file_type)
