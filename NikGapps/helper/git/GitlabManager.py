@@ -162,7 +162,7 @@ class GitLabManager:
             project = self.get_project(repo_name)
             self.delete_project(project.id)
             if not delete_only:
-                print("Waiting for 10 seconds for the project to be completely deleted...")
+                print(f"Waiting for {sleep_for} seconds for the project to be completely deleted...")
                 time.sleep(sleep_for)
                 project = self.create_repository(repo_name, provide_owner_access=True, user_id=user_id)
                 if gitattributes is not None:
