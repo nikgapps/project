@@ -51,7 +51,7 @@ def cache():
                     print("Done!") if CompOps.compress_package(pkg_zip_path, pkg, mode) else print("Failed!")
                     t.taken(f"Total time taken to process the {pkg.package_title}, compressing into {mode}")
                 repo_cached.git_push(commit_message=f"Compressed {pkg.package_title} for {appset.title}",
-                                     push_untracked_files=True, rebase=True, post_buffer="1048576000")
+                                     push_untracked_files=True, pull_first=True, post_buffer="1048576000")
 
 
 if __name__ == "__main__":
