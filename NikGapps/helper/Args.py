@@ -31,6 +31,9 @@ class Args:
         self.parser.add_argument(
             '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
             default="-1", type=str)
+        self.parser.add_argument(
+            '-r', '--releaseType', help="It is the release type for which we need to build the gapps",
+            default="stable", type=str)
         self.parser.add_argument('-P', '--packageList', help="List of packages to build", type=str)
 
         args = self.parser.parse_args()
@@ -50,6 +53,7 @@ class Args:
         # self.config_name = args.configName
         self.update_website = args.updateWebsite
         self.use_cached_apks = args.cache
+        self.release_type = args.releaseType
         # self.oems = args.oems
 
     def get_package_list(self):
