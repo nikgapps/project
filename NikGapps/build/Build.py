@@ -14,10 +14,10 @@ class Build:
 
     # Just provide the package list, and it will pick them up from the directory and build them for you
     @staticmethod
-    def build_from_directory(app_set_build_list, android_version, arch="arm64"):
+    def build_from_directory(app_set_build_list, android_version, arch="arm64", cached=False):
         arch = "" if arch == "arm64" else "_" + arch
         source_directory = Statics.pwd + Statics.dir_sep + str(android_version) + arch
-        source_directory = source_directory + f"_{Config.RELEASE_TYPE}"
+        source_directory = source_directory + f"_{Config.RELEASE_TYPE}" + (f"_cached" if cached else "")
         cmd = Cmd()
         app_set_list = []
         for app_set in app_set_build_list:
