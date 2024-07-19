@@ -2,6 +2,7 @@ import os
 from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper import Config
+from NikGapps.helper.P import P
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
@@ -20,6 +21,7 @@ class Release:
         telegram = TelegramApi(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT_ID)
         upload = Upload(android_version=android_version, upload_files=Config.UPLOAD_FILES,
                         release_type=Config.RELEASE_TYPE)
+        P.green(f"Package List: {build_package_list}")
 
         def zip_package(file_name, app_set_list):
             if app_set_list:
