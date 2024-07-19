@@ -1,14 +1,14 @@
-- date: 18th July 2024 (Android 10-14)
+- date: 19th July 2024 (Android 10-14)
   changes:
       - item: Update the apps to QPR3 (Android 14)
       - item: Renamed the Release folders on sourceforge to make better sense of android versions
       - item: Improve how priv-app whitelist permissions are set
-      - item: Fixed styles and wallpaper crash on los 21 (Android 14)
+      - item: Removed styles and wallpaper setting on los 21 causing crash (Android 14)
       - item: Rebase NikGapps user builds code to make it more efficient
       - item: Installer script improvements
       - item: Fixed missing necessary files from Go packages (Android 10)
       - item: Added missing fsverity certificates to Android 12.1 and below
-      - item: GoogleDuo is not Meet
+      - item: GoogleDuo is now Meet
       - item: Enabled selecting single package under GoogleChrome while creating user/custom builds
       - item: Update NikGapps config to v35
 - date: 19th Apr 2024 (Android 10-14)
