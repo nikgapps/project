@@ -183,8 +183,6 @@ class NikGappsConfig:
                         continue
                     if config_dict[str(">>" + pkg.package_title)] in ("1", "2"):
                         new_app_set.add_package(pkg)
-                    else:
-                        print("Package disabled " + pkg.package_title)
             elif pkg_len == 1 and str(config_dict[app_set.title]) in ("1", "2"):
                 new_app_set = app_set
             if new_app_set is not None:
