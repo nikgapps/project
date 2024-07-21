@@ -88,6 +88,7 @@ class Git:
         if commits_touching_path:
             for commit in commits_touching_path:
                 if skip_containing is not None and str(skip_containing).lower() in commit.message.lower():
+                    P.magenta(f"Skipping commit: {commit.message} as it contains {skip_containing}")
                     continue
                 return commit.committed_datetime.strftime(str_format)
         else:
