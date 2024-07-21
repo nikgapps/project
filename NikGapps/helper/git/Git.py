@@ -83,11 +83,13 @@ class Git:
             return commit_datetime
         return None
 
-    def get_file_commit_date(self, file_path, str_format="%y%m%d%H%M"):
+    def get_file_commit_date(self, file_path, str_format="%y%m%d%H%M", skip_containing=None):
         commits_touching_path = list(self.repo.iter_commits(paths=file_path))
         if commits_touching_path:
-            latest_commit = commits_touching_path[0]
-            return latest_commit.committed_datetime.strftime(str_format)
+            for commit in commits_touching_path:
+                if skip_containing is not None and skip_containing in commit.message:
+                    continue
+                return commit.committed_datetime.strftime(str_format)
         else:
             return None
 
