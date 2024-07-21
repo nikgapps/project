@@ -87,7 +87,7 @@ class Git:
         commits_touching_path = list(self.repo.iter_commits(paths=file_path))
         if commits_touching_path:
             for commit in commits_touching_path:
-                if skip_containing is not None and skip_containing in commit.message:
+                if skip_containing is not None and str(skip_containing).lower() in commit.message.lower():
                     continue
                 return commit.committed_datetime.strftime(str_format)
         else:
