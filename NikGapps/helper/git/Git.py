@@ -88,8 +88,10 @@ class Git:
         if commits_touching_path:
             for commit in commits_touching_path:
                 if skip_containing is not None and str(skip_containing).lower() in commit.message.lower():
-                    P.blue(f"Skipping commit ({commit.hexsha[:7]}): {commit.message} as it contains {skip_containing}")
+                    P.blue(f"Skipping commit ({commit.hexsha[:7]}): "
+                           f"{commit.message} as it contains '{skip_containing}'")
                     continue
+                P.green(f"Commit ({commit.hexsha[:7]}): {commit.message} found for {file_path}")
                 return commit.committed_datetime.strftime(str_format)
         else:
             return None
