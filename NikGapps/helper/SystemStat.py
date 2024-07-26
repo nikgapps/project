@@ -29,6 +29,13 @@ class SystemStat:
             return f"Failed to execute {command}: {e}"
 
     @staticmethod
+    def display_time(location, time_str):
+        if "AM" in time_str:
+            P.yellow(f"{location}: {time_str}")
+        else:
+            P.green(f"{location}: {time_str}")
+
+    @staticmethod
     def show_stats():
         # Memory and CPU info
         mem = psutil.virtual_memory()
@@ -40,18 +47,22 @@ class SystemStat:
         P.green("---------------------------------------")
         P.green(f"Running on system: {platform.system()}")
         # Versions of Java, ADB, and AAPT
-        java_version = SystemStat.run_command(["java", "-version"])
+        # java_version = SystemStat.run_command(["java", "-version"])
         adb_version = SystemStat.run_command([f"{Assets.adb_path}", "version"])
         aapt_version = SystemStat.run_command([f"{Assets.aapt_path}", "version"])
         P.green("---------------------------------------")
-        P.green(f"Java version: {java_version}")
-        P.green("---------------------------------------")
+        # P.green(f"Java version: {java_version}")
+        # P.green("---------------------------------------")
         P.green(f"ADB version: {adb_version}")
         P.green("---------------------------------------")
         P.green(f"AAPT version: {aapt_version}")
 
         P.green("---------------------------------------")
         t = T()
-        P.green("Local: " + t.get_local_date_time("%a, %m/%d/%Y, %H:%M:%S"))
-        P.green("NY: " + t.get_new_york_date_time("%a, %m/%d/%Y, %H:%M:%S"))
-        P.green("London: " + t.get_london_date_time().strftime("%a, %m/%d/%Y, %H:%M:%S"))
+        local_time = t.get_local_date_time("%a, %m/%d/%Y, %I:%M:%S %p")
+        ny_time = t.get_new_york_date_time("%a, %m/%d/%Y, %I:%M:%S %p")
+        london_time = t.get_london_date_time().strftime("%a, %m/%d/%Y, %I:%M:%S %p")
+
+        SystemStat.display_time("Local", local_time)
+        SystemStat.display_time("NY", ny_time)
+        SystemStat.display_time("London", london_time)
