@@ -69,8 +69,7 @@ class Export:
                     txt_file_exists = FileOp.file_exists(pkg_txt_path)
                     old_file = True if (
                             file_exists and T.get_mtime(pkg_zip_path) < T.get_local_date_time()) else False
-                    if cache_source_dir.__eq__("") and (
-                            (fresh_build and old_file) or (not file_exists) or (not txt_file_exists)):
+                    if fresh_build or (not file_exists or not txt_file_exists):
                         CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
                     else:
                         print(f"Using cached package: {os.path.basename(pkg_zip_path)}")

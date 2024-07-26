@@ -1,3 +1,10 @@
+- date: 27th July 2024 (Android 10-14)
+  changes:
+      - item: Fixed styles and wallpaper crash (Android 14)
+      - item: Added necessary permissions for GoogleWallpaper (to fix the crash due to missing permissions)
+      - item: Add more permissions to enable Precise Location in apps like Google Maps
+      - item: Fixed battery widget in pixel launcher not responding to battery updates
+      - item: Now Playing History works now on Pixel Devices
 - date: 19th July 2024 (Android 10-14)
   changes:
       - item: Update the apps to QPR3 (Android 14)
