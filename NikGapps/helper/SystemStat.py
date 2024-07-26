@@ -66,3 +66,5 @@ class SystemStat:
         SystemStat.display_time("Local", local_time)
         SystemStat.display_time("NY", ny_time)
         SystemStat.display_time("London", london_time)
+        P.green("---------------------------------------")
+        print(" ")
