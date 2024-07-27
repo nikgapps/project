@@ -1,4 +1,4 @@
-- date: 27th July 2024 (Android 10-14)
+- date: 28th July 2024 (Android 10-14)
   changes:
       - item: Fixed styles and wallpaper crash (Android 14)
       - item: Added necessary permissions for GoogleWallpaper (to fix the crash due to missing permissions)
