@@ -13,6 +13,7 @@ from NikGapps.helper.T import T
 from NikGapps.helper.SystemStat import SystemStat
 from NikGapps.helper.Args import Args
 from NikGapps.helper.git.GitOperations import GitOperations
+from NikGapps.helper.git.GitlabManager import GitLabManager
 
 
 def cache():
@@ -32,9 +33,16 @@ def cache():
     print("---------------------------------------")
     for android_version in android_versions:
         arch = "arm64"
-        repo_cached = GitOperations.clone_apk_source(android_version, arch=arch, release_type=Config.RELEASE_TYPE,
-                                                     cached=True)
-        GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
+        url = f"{android_version}{('_' + arch if arch != 'arm64' else '')}_{Config.RELEASE_TYPE}"
+        cached_url = url + "_cached"
+        gitlab_manager = GitLabManager(private_token=os.getenv("GITLAB_TOKEN"))
+        project = gitlab_manager.get_project(cached_url)
+        if project:
+            gitattributes = """*.zip filter=lfs diff=lfs merge=lfs -text
+*.tar.xz filter=lfs diff=lfs merge=lfs -text"""
+            gitlab_manager.reset_repository(cached_url, sleep_for=5, gitattributes=gitattributes)
+        repo_cached = GitOperations.clone_apk_url(url=cached_url)
+        GitOperations.clone_apk_url(url=url)
         GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
         config_obj = NikGappsConfig(android_version)
         app_set_list = config_obj.package_manager.get_packages("all")
