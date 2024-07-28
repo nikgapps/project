@@ -1,3 +1,5 @@
+import re
+
 import git.exc
 from git import Repo, Commit
 from shutil import copyfile
@@ -20,6 +22,7 @@ class Git:
         os.environ["GIT_CLONE_PROTECTION_ACTIVE"] = 'false'
         self.enable_push = Config.GIT_PUSH
         self.working_tree_dir = working_tree_dir
+        self.repo_name = None
         if FileOp.dir_exists(self.working_tree_dir):
             self.repo = Repo(working_tree_dir)
 
@@ -45,6 +48,7 @@ class Git:
                     P.yellow(f"git clone -b {branch} --depth={commit_depth} {repo_url}")
                     self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
             t.taken(f"Time taken to clone -b {branch} {repo_url}")
+            self.update_repo_name(repo_url)
             assert self.repo.__class__ is Repo  # clone an existing repository
             assert Repo.init(self.working_tree_dir).__class__ is Repo
             return True
@@ -82,6 +86,15 @@ class Git:
             commit_datetime = datetime.strptime(london_time_in_string, '%Y-%m-%d %H:%M:%S')
             return commit_datetime
         return None
+
+    def update_repo_name(self, git_url):
+        git_pattern = re.compile(r'git@[^:]+:[^/]+/(.+)\.git')
+        https_pattern = re.compile(r'https?://[^/]+/[^/]+/(.+)\.git')
+        match = git_pattern.match(git_url) or https_pattern.match(git_url)
+        if match:
+            self.repo_name = match.group(1)
+        else:
+            raise ValueError("Invalid Git URL")
 
     def get_file_commit_date(self, file_path, str_format="%y%m%d%H%M", skip_containing=None):
         commits_touching_path = list(self.repo.iter_commits(paths=file_path))

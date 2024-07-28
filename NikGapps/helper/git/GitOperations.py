@@ -47,6 +47,10 @@ class GitOperations:
     def clone_apk_source(android_version, arch="arm64", release_type="stable", fresh_clone=False, cached=False):
         url = f"{android_version}{('_' + arch if arch != 'arm64' else '')}_{release_type}"
         url = url + ("_cached" if cached else "")
+        return GitOperations.clone_apk_url(url, fresh_clone)
+
+    @staticmethod
+    def clone_apk_url(url, fresh_clone=False):
         apk_source_directory = Statics.pwd + Statics.dir_sep + url
         apk_source_repo = GitStatics.apk_source_repo + url + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch="main", fresh_clone=fresh_clone,
