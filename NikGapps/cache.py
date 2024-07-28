@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
+from NikGapps.helper.FileOp import FileOp
 from NikGapps.helper.Package import Package
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.compression.CompOps import CompOps
@@ -52,6 +53,8 @@ def cache():
                     t.taken(f"Total time taken to process the {pkg.package_title}, compressing into {mode}")
                 repo_cached.git_push(commit_message=f"Compressed {pkg.package_title} for {appset.title}",
                                      push_untracked_files=True, pull_first=True, post_buffer="1048576000")
+        if Config.ENVIRONMENT_TYPE.__eq__("production") and FileOp.dir_exists(repo_cached.working_tree_dir):
+            FileOp.remove_dir(repo_cached.working_tree_dir)
 
 
 if __name__ == "__main__":
