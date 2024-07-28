@@ -218,6 +218,9 @@ class GitLabManager:
 
     def copy_repository(self, source_repo_name, target_repo_name, user_id=8064473, override_target=False):
         project = self.get_project(source_repo_name)
+        if project is None:
+            print(f"Project {source_repo_name} does not exist. Exiting...")
+            return
         old_repo_dir = Statics.pwd + Statics.dir_sep + f"{source_repo_name}_old"
         old_repo = GitOperations.setup_repo(repo_dir=f"{old_repo_dir}", repo_url=project.ssh_url_to_repo)
         if override_target:
