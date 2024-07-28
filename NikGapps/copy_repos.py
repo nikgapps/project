@@ -24,7 +24,7 @@ def copy_repos():
     for android_version in android_versions:
         gitlab_manager = GitLabManager(private_token=os.getenv("GITLAB_TOKEN"))
         gitlab_manager.copy_repository(f"{android_version}_stable", f"{android_version}_ondemand", override_target=True)
-        gitlab_manager.copy_repository(f"f{android_version}_stable_cached", f"{android_version}_ondemand_cached",
+        gitlab_manager.copy_repository(f"{android_version}_stable_cached", f"{android_version}_ondemand_cached",
                                        override_target=True)
 
 
