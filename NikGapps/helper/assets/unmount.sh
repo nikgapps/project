@@ -35,4 +35,6 @@ umount_all() {
     $BB umount /cache
     $BB umount -l /cache
   fi) 2>/dev/null;
+  rm -rf "$nikGappsLog"
+  rm -rf "$mountLog"
 }

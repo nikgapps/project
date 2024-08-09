@@ -35,7 +35,7 @@ start_time=$(date +%Y_%m_%d_%H_%M_%S)
 #nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
 nikGappsLogFile="Logs-"$actual_file_name.tar.gz
 recoveryLog=/tmp/recovery.log
-logDir="$TMPDIR/NikGapps/logs"
+logDir="$TMPDIR/NikGapps"
 logfilesDir="$logDir/logfiles"
 addon_scripts_logDir="$logDir/addonscripts"
 package_logDir="$logfilesDir/package_log"
@@ -49,6 +49,7 @@ sdcard="/sdcard"
 addon_index=10
 master_addon_file="$addon_index-nikgapps-addon.sh"
 remove_ota_scripts_mode="removeotascripts"
+remove_all_ota_scripts_mode="removeallotascripts"
 
 addToLog() {
   [ -z "$2" ] && echo "$1" >> "$nikGappsLog" || echo "$1" >> "$package_logDir/$2.log"
@@ -77,6 +78,10 @@ initializeSizeLog(){
   echo "-------------------------------------------------------------" >> "$installation_size_log"
   addSizeToLog "Partition" "InstallPartition" "Package" "Before" "After" "Required" "Spent"
   echo "-------------------------------------------------------------" >> "$installation_size_log"
+}
+
+print_in_recovery(){
+  echo "$1" >> "$recoveryLog"
 }
 
 nikGappsLogo() {
@@ -181,6 +186,9 @@ get_mode_by_name(){
     *"$remove_ota_scripts_mode"*)
       mode="$remove_ota_scripts_mode"
       ;;
+    *"$remove_all_ota_scripts_mode"*)
+      mode="$remove_all_ota_scripts_mode"
+      ;;
     *)
       mode="$mode"
       ;;
@@ -188,8 +196,56 @@ get_mode_by_name(){
   echo "$mode"
 }
 
+remove_ota_scripts(){
+  filter_afzc=$1
+  [ -z "$filter_afzc" ] && filter_afzc=false || filter_afzc=true
+  addToLog "- Cleaning $system/addon.d with filter $filter_afzc"
+  ui_print " "
+  nikgapps_addon_scripts_exists=0
+  if $filter_afzc; then
+    if [ -d "$system/addon.d" ]; then
+      ui_print "- Looking for NikGapps addon.d scripts"
+    else
+      ui_print "x $system/addon.d not found"
+    fi
+  else
+    if [ -d "$system/addon.d" ]; then
+      ui_print "- Looking for addon.d scripts"
+    else
+      ui_print "x $system/addon.d not found"
+    fi
+  fi
+  for file in "$system"/addon.d/*; do
+    if $filter_afzc; then
+      if grep -q "AFZC" "$file"; then
+        nikgapps_addon_scripts_exists=1
+        ui_print "x Removing $(basename "$file")"
+        rm -f "$file"
+      else
+        addToLog "- Skipping $(basename "$file")"
+      fi
+    else
+      if [ -f "$file" ]; then
+        nikgapps_addon_scripts_exists=1
+        rm -f "$file"
+      fi
+    fi
+  done
+  if [ $nikgapps_addon_scripts_exists -eq 0 ]; then
+    ui_print "x No addon.d scripts found to remove"
+  else
+    addToLog "- Cleaning up prop files to remove addon.d entries"
+    for prop_file in "$system"/etc/permissions/*.prop; do
+      sed -i '/^addond=/d' "$prop_file"
+    done
+  fi
+  exit_install
+  ui_print " "
+}
+
 unpack "creator.txt" "$TMPDIR/creator.txt"
 creator=$(cat_file "$TMPDIR/creator.txt")
+rm -rf "$TMPDIR/creator.txt"
 [ -z "$creator" ] && creator="Nikhil Menghani"
 nikGappsLogo "$creator"
 setup_flashable
@@ -251,6 +307,7 @@ mode=$(tolower "$mode")
 # check if the zip name is an instruction and set the mode if it is
 mode=$(get_mode_by_name "$ZIP_NAME_LOWER")
 zip_name=$(tolower "$(cat_file "$TMPDIR/zip_name.txt")")
+rm -rf "$TMPDIR/zip_name.txt"
 # check in sideloading mode if the zip name is an instruction and set the mode if it is
 [ "$sideloading" = "true" ] && mode=$(get_mode_by_name "$zip_name")
 addToLog "- Install mode is $mode"
@@ -258,31 +315,10 @@ ui_print "--> Running the installer"
 
 case $mode in
   "$remove_ota_scripts_mode")
-    addToLog "- Cleaning $system/addon.d"
-    ui_print " "
-    nikgapps_addon_scripts_exists=0
-    if [ -d "$system/addon.d" ]; then
-      ui_print "- Looking for NikGapps addon.d scripts"
-    else
-      ui_print "x $system/addon.d not found"
-    fi
-    for file in "$system"/addon.d/*; do
-      if grep -q "AFZC" "$file"; then
-        nikgapps_addon_scripts_exists=1
-        ui_print "x Removing $(basename "$file")"
-        rm -f "$file"
-      else
-        addToLog "- Skipping $(basename "$file")"
-      fi
-    done
-    if [ $nikgapps_addon_scripts_exists -eq 0 ]; then
-      ui_print "x No NikGapps addon.d scripts found"
-    fi
-    for prop_file in "$system"/etc/permissions/*.prop; do
-      sed -i '/^addond=/d' "$prop_file"
-    done
-    exit_install
-    ui_print " "
+    remove_ota_scripts "1"
+  ;;
+  "$remove_all_ota_scripts_mode")
+    remove_ota_scripts
   ;;
   *)
     # run the debloater

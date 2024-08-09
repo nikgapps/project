@@ -33,36 +33,36 @@ calculate_space_after(){
   size_before=$3
   pkg_size=$4
   case "$2" in
-    "/product") size_left=$(get_available_size_again "/product");
+    "/product") size_left=$(get_available_partition_size "/product");
       addToLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
       addSizeToLog "/product" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
     ;;
-    "/system_ext") size_left=$(get_available_size_again "/system_ext");
+    "/system_ext") size_left=$(get_available_partition_size "/system_ext");
       addToLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
       addSizeToLog "/system_ext" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
     ;;
-    "/system") size_left=$(get_available_size_again "/system");
+    "/system") size_left=$(get_available_partition_size "/system");
       addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
       addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
     ;;
     "/system/product")
       if [ -n "$PRODUCT_BLOCK" ]; then
-        size_left=$(get_available_size_again "/product");
+        size_left=$(get_available_partition_size "/product");
         addToLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/product" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       else
-        size_left=$(get_available_size_again "/system");
+        size_left=$(get_available_partition_size "/system");
         addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       fi
     ;;
     "/system/system_ext")
       if [ -n "$SYSTEM_EXT_BLOCK" ]; then
-        size_left=$(get_available_size_again "/system_ext");
+        size_left=$(get_available_partition_size "/system_ext");
         addToLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/system_ext" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       else
-        size_left=$(get_available_size_again "/system");
+        size_left=$(get_available_partition_size "/system");
         addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       fi
@@ -80,22 +80,22 @@ calculate_space_before() {
   size_left=0
   case "$dir" in
     "/product")
-      size_left=$(get_available_size_again "$dir" "$1") ;;
+      size_left=$(get_available_partition_size "$dir" "$1") ;;
     "/system_ext")
-      size_left=$(get_available_size_again "$dir" "$1") ;;
+      size_left=$(get_available_partition_size "$dir" "$1") ;;
     "/system")
-      size_left=$(get_available_size_again "$dir" "$1") ;;
+      size_left=$(get_available_partition_size "$dir" "$1") ;;
     "/system/product")
       if [ -n "$PRODUCT_BLOCK" ]; then
-        size_left=$(get_available_size_again "/product" "$1")
+        size_left=$(get_available_partition_size "/product" "$1")
       else
-        size_left=$(get_available_size_again "/system" "$1")
+        size_left=$(get_available_partition_size "/system" "$1")
       fi ;;
     "/system/system_ext")
       if [ -n "$SYSTEM_EXT_BLOCK" ]; then
-        size_left=$(get_available_size_again "/system_ext" "$1")
+        size_left=$(get_available_partition_size "/system_ext" "$1")
       else
-        size_left=$(get_available_size_again "/system" "$1")
+        size_left=$(get_available_partition_size "/system" "$1")
       fi ;;
   esac
   addToLog "- ${dir} size left=$size_left" "$1"
@@ -123,7 +123,7 @@ calculate_space() {
     addToLog "- Total System Size (KB) $total_system_size_kb"
     addToLog "- Used System Space (KB) $used_system_size_kb"
     addToLog "- Current Free Space (KB) $free_system_size_kb"
-    size_fetched_again=$(get_available_size_again "/$partition")
+    size_fetched_again=$(get_available_partition_size "/$partition")
   done
 }
 
@@ -241,39 +241,30 @@ get_prop_file_path() {
   echo "$prop_file_path"
 }
 
-get_available_size_again() {
-  input_data=$1
+get_available_partition_size(){
+  partition=$1
   log_file_name=$2
   case $1 in
     "/"*) addToLog "- fetching size for $1" "$log_file_name" ;;
-    *) input_data="/$1" ;;
+    *) partition="/$1" ;;
   esac
-  tmp_file=$COMMONDIR/available.txt
-  available_size=""
-  if ! is_mounted "$1"; then
+  if ! is_mounted "$partition"; then
     addToLog "- $1 not mounted!" "$log_file_name"
-  else
-    df | grep -vE '^Filesystem|tmpfs|cdrom' | while read output;
-    do
-      mounted_on=$(echo $output | $BB awk '{ print $5 }' )
-      available_size=$(echo $output | $BB awk '{ print $3 }' )
-      case $mounted_on in
-        *"%"*)
-        mounted_on=$(echo $output | $BB awk '{ print $6 }' )
-        available_size=$(echo $output | $BB awk '{ print $4 }' )
-        ;;
-      esac
-      if [ "$mounted_on" = "$1" ] || ([ "/system" = "$input_data" ] && [ "$mounted_on" = "/system_root" ]); then
-        addToLog "- $input_data($mounted_on) available size: $available_size KB" "$log_file_name"
-        echo $available_size > $tmp_file
-        break
-      fi
-    done
+    continue
   fi
-  [ -f $tmp_file ] && available_size=$(cat $tmp_file)
-  rm -rf $tmp_file
-  [ -z $available_size ] && available_size=0
-  echo $available_size
+  addToLog "--> Calculating space in /$partition" "$log_file_name"
+  df=$(df -k /"$partition" | tail -n 1)
+  addToLog "$df"
+  case $df in
+  /dev/block/*) df=$(echo "$df" | $BB awk '{ print substr($0, index($0,$2)) }') ;;
+  esac
+  total_system_size_kb=$(echo "$df" | $BB awk '{ print $1 }')
+  used_system_size_kb=$(echo "$df" | $BB awk '{ print $2 }')
+  free_system_size_kb=$(echo "$df" | $BB awk '{ print $3 }')
+  addToLog "- Total System Size (KB) $total_system_size_kb" "$log_file_name"
+  addToLog "- Used System Space (KB) $used_system_size_kb" "$log_file_name"
+  addToLog "- Current Free Space (KB) $free_system_size_kb" "$log_file_name"
+  echo $free_system_size_kb
 }
 
 get_total_size_required() {
@@ -286,9 +277,11 @@ get_total_size_required() {
 }
 
 copy_size_logs() {
+  log_file="$logDir/partitions/$1/size.txt"
+  log_file_human="$logDir/partitions/$1/size_readable.txt"
   mkdir -p "$logDir/partitions/$1"
-  df >"$logDir/partitions/$1/size.txt"
-  df -h >"$logDir/partitions/$1/size_readable.txt"
+  echo $(df -k 2>/dev/null) > "$log_file"
+  echo $(df -h 2>/dev/null) > $log_file_human
 }
 
 copy_file_logs() {
@@ -354,20 +347,26 @@ copy_logs() {
   done
   IFS="$OLD_IFS"
 
-  if [ -f "$nikgapps_log_dir/$nikGappsLogFile" ]; then
-    ui_print "- Copying Logs at $nikgapps_log_dir/$nikGappsLogFile"
-  elif [ -f "$nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile" ]; then
-    ui_print "- Copying Logs at $nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile"
-  elif [ -f "$nikGappsDir/nikgapps_logs/$nikGappsLogFile" ]; then
-    ui_print "- Copying Logs at $nikGappsDir/nikgapps_logs/$nikGappsLogFile"
-  else
-    if [ -f "$backup_logs_dir/nikgapps_logs/$nikGappsLogFile" ]; then
-      ui_print "- Copying Logs at $backup_logs_dir/nikgapps_logs/$nikGappsLogFile"
-    else
-      ui_print "- Couldn't copy logs, something went wrong!"
-    fi
+  ui_print "--> Installation Logs can be found at:"
+  if [ -f "$TMPDIR/$nikGappsLogFile" ]; then
+    ui_print "- $TMPDIR/$nikGappsLogFile"
   fi
-  
+  if [ -f "$nikgapps_log_dir/$nikGappsLogFile" ]; then
+    ui_print "- $nikgapps_log_dir/$nikGappsLogFile"
+  fi
+  if [ -f "$nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile" ]; then
+    ui_print "- $nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile"
+  fi
+  if [ -f "$nikGappsDir/nikgapps_logs/$nikGappsLogFile" ]; then
+    ui_print "- $nikGappsDir/nikgapps_logs/$nikGappsLogFile"
+  fi
+  if [ -f "$backup_logs_dir/nikgapps_logs/$nikGappsLogFile" ]; then
+    ui_print "- $backup_logs_dir/nikgapps_logs/$nikGappsLogFile"
+  fi
+  rm -rf "$logDir"
+  rm -rf "$addonDir"
+  rm -rf "$busyboxLog"
+  rm -rf "$installation_size_log"
   ui_print " "
   cd /
 }
@@ -678,7 +677,7 @@ find_partitions_type() {
   SYSTEM_BLOCK=$(find_block "system")
   [ -n "$SYSTEM_BLOCK" ] && addToGeneralLog "- Found block for /system" "$mountLog"
   system="/system"
-  system_size=$(get_available_size_again "/system")
+  system_size=$(get_available_partition_size "/system")
   [ "$system_size" != "0" ] && addToGeneralLog "- /system is mounted as dedicated partition" "$mountLog"
   is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
   [ ! "$is_system_writable" ] && system=""
@@ -703,7 +702,7 @@ find_partitions_type() {
         if [ -n "$PRODUCT_BLOCK" ]; then
           addToGeneralLog "- Found block for $mnt_point" "$mountLog"
           product="/product"
-          product_size=$(get_available_size_again "/product")
+          product_size=$(get_available_partition_size "/product")
           ui_print "- /$partition is a dedicated partition" "$mountLog"
         else
           addToGeneralLog "- /$partition block not found in this device" "$mountLog"
@@ -728,7 +727,7 @@ find_partitions_type() {
         if [ -n "$SYSTEM_EXT_BLOCK" ]; then
           addToGeneralLog "- Found block for $mnt_point" "$mountLog"
           system_ext="/system_ext"
-          system_ext_size=$(get_available_size_again "/system_ext")
+          system_ext_size=$(get_available_partition_size "/system_ext")
           ui_print "- /$partition is a dedicated partition" "$mountLog"
         else
           addToGeneralLog "- /$partition block not found in this device" "$mountLog"
@@ -817,18 +816,6 @@ find_zip_type() {
   addToLog "- Sideloading is $sideloading"
 }
 
-get_available_size() {
-    df=$(df -k /"$1" | tail -n 1)
-    case $df in
-        /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }');;
-    esac
-    free_size_kb=$(echo "$df" | awk '{ print $3 }')
-    size_of_partition=$(echo "$df" | awk '{ print $5 }')
-    addToLog "- free_size_kb: $free_size_kb for $size_of_partition which should be $1"
-    [ "$free_size_kb" = "Used" ] && free_size_kb=0
-    echo "$free_size_kb"
-}
-
 get_block_for_mount_point() {
   grep -v "^#" /etc/recovery.fstab | grep "[[:blank:]]$1[[:blank:]]" | tail -n1 | tr -s [:blank:] ' ' | cut -d' ' -f1
 }
@@ -872,7 +859,7 @@ get_install_partition(){
   case $1 in
     system)
       install_partition=""
-      system_available_size=$(get_available_size_again "/system" "$pkg_name")
+      system_available_size=$(get_available_partition_size "/system" "$pkg_name")
       addToLog "- fetched the system size to check if it's enough: $system_available_size" "$pkg_name"
       if [ $system_available_size -gt $size_required ]; then
         addToLog "- it's big enough" "$pkg_name"
@@ -897,7 +884,7 @@ get_install_partition(){
       install_partition="" 
       addToLog "- if product is a block, we will check if it's big enough" "$pkg_name"
       if [ -n "$PRODUCT_BLOCK" ]; then
-        product_available_size=$(get_available_size_again "/product" "$pkg_name")
+        product_available_size=$(get_available_partition_size "/product" "$pkg_name")
         addToLog "- fetched the product size to check if it's enough: $product_available_size" "$pkg_name"
         if [ $product_available_size -gt $size_required ]; then
           addToLog "- it's big enough, we'll use it" "$pkg_name"
@@ -914,7 +901,7 @@ get_install_partition(){
         fi
       else
         addToLog "- product is not a block, we'll try system and install to /system/product as it will take up system space" "$pkg_name"
-        system_available_size=$(get_available_size_again "/system" "$pkg_name")
+        system_available_size=$(get_available_partition_size "/system" "$pkg_name")
         addToLog "- fetched the system size to check if it's enough: $system_available_size" "$pkg_name"
         if [ $system_available_size -gt $size_required ]; then
           addToLog "- system is big enough, we'll use it" "$pkg_name"
@@ -929,7 +916,7 @@ get_install_partition(){
       install_partition=""
       addToLog "- if system_ext is a block, we will check if it's big enough" "$pkg_name"
       if [ -n "$SYSTEM_EXT_BLOCK" ]; then
-        system_ext_available_size=$(get_available_size_again "/system_ext" "$pkg_name")
+        system_ext_available_size=$(get_available_partition_size "/system_ext" "$pkg_name")
         addToLog "- fetched the system_ext size to check if it's enough: $system_ext_available_size" "$pkg_name"
         if [ $system_ext_available_size -gt $size_required ]; then
           addToLog "- it's big enough, we'll use it" "$pkg_name"
@@ -949,7 +936,7 @@ get_install_partition(){
           install_partition="$(get_install_partition product product-$chain_partition $size_required "$pkg_name")"
         else
           addToLog "- product isn't a block, we'll try system and see if it has space" "$pkg_name"
-          system_available_size=$(get_available_size_again "/system" "$pkg_name")
+          system_available_size=$(get_available_partition_size "/system" "$pkg_name")
           addToLog "- fetched the system size to check if it's enough: $system_available_size" "$pkg_name"
           if [ $system_available_size -gt $size_required ]; then
             addToLog "- system is big enough, we'll use it" "$pkg_name"
@@ -1007,9 +994,9 @@ get_total_available_size(){
   product_available_size=0
   system_ext_available_size=0
   # system would always be block
-  system_available_size=$(get_available_size_again "/system")
-  [ -n "$SYSTEM_EXT_BLOCK" ] && system_ext_available_size=$(get_available_size_again "/system_ext")
-  [ -n "$PRODUCT_BLOCK" ] && product_available_size=$(get_available_size_again "/product")
+  system_available_size=$(get_available_partition_size "/system")
+  [ -n "$SYSTEM_EXT_BLOCK" ] && system_ext_available_size=$(get_available_partition_size "/system_ext")
+  [ -n "$PRODUCT_BLOCK" ] && product_available_size=$(get_available_partition_size "/product")
   addToLog "- total_available_size=$system_available_size + $product_available_size + $system_ext_available_size"
   total_available_size=$(($system_available_size + $product_available_size + $system_ext_available_size))
   addToLog "- total available size = $total_available_size"
@@ -1094,7 +1081,7 @@ install_app_set() {
               else
                 size_partition=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
                 addToLog "- size_partition=$size_partition" "$current_package_title"
-                available_size=$(get_available_size_again "$size_partition" "$pkg_name")
+                available_size=$(get_available_partition_size "$size_partition" "$pkg_name")
                 addToLog "- available_size=$available_size and package_size=$package_size" "$current_package_title"
                 if [ "$available_size" -lt "$package_size" ]; then
                   addToLog "- there is not enough space" "$current_package_title"
@@ -1114,12 +1101,14 @@ install_app_set() {
                 size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before" "$package_size")
               else
                 ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
+                addToLog "x Skipping $current_package_title as no space is left"
               fi
             elif [ "$value" -eq -1 ] ; then
               addToLog "- uninstalling $current_package_title" "$current_package_title"
               uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
             elif [ "$value" -eq 0 ] ; then
               ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
+              addToLog "x Skipping $current_package_title"
             fi
           done
         ;;

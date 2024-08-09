@@ -81,7 +81,7 @@ class Release:
 
             if "addons" in str(pkg_type_outer).lower():
                 handle_addons(pkg_type_outer)
-            elif str(pkg_type_outer).lower() in ["debloater", "removeotascripts"]:
+            elif str(pkg_type_outer).lower() in ["debloater", "removeotascripts", "removeallotascripts"]:
                 special_case_result = handle_special_case(pkg_type_outer)
                 if special_case_result:
                     return special_case_result
