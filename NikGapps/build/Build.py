@@ -18,6 +18,7 @@ class Build:
         arch = "" if arch == "arm64" else "_" + arch
         source_directory = Statics.pwd + Statics.dir_sep + str(android_version) + arch
         source_directory = source_directory + f"_{Config.RELEASE_TYPE}" + (f"_cached" if cached else "")
+        print(f"Building from {source_directory}")
         cmd = Cmd()
         app_set_list = []
         for app_set in app_set_build_list:

@@ -25,7 +25,8 @@ class Release:
 
         def zip_package(file_name, app_set_list):
             if app_set_list:
-                config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
+                config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch,
+                                                                            cached=Config.USE_CACHED_APKS)
                 print(f"Exporting {file_name}")
                 z = Export(file_name, sign=sign_zip)
                 result = z.zip(config_obj=config_obj,

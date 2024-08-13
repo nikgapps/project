@@ -50,29 +50,26 @@ class Export:
                     # Creating <Packages>.zip for all the packages
                     pkg: Package
                     package_progress = round(float(100 * package_index / package_count))
-                    pkg_zip_path = Statics.get_temp_packages_directory(
-                        android_version, arch=config_obj.arch) + Statics.dir_sep + "Packages" + Statics.dir_sep + str(
-                        pkg.package_title) + compression_mode
+                    pkg_zip_path = (Statics.get_temp_packages_directory(android_version, arch=config_obj.arch)
+                                    + Statics.dir_sep + "Packages" + Statics.dir_sep + str(
+                                pkg.package_title) + compression_mode)
                     pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[1:] + ".txt"
-                    print_value = "AppSet (" + str(
-                        app_set_progress) + "%): " + app_set.title + " Zipping (" + str(
-                        package_progress) + "%): " + pkg.package_title
+                    print_value = (f"AppSet ({str(app_set_progress)}%): {app_set.title} "
+                                   f"Zipping ({str(package_progress)}%): {pkg.package_title}")
                     print(print_value)
                     print_progress = print_progress + "\n" + print_value
-                    cached_pkg_zip_path = os.path.join(cache_source_dir, app_set.title,
-                                                       f"{pkg.package_title}{compression_mode}")
-                    if FileOp.file_exists(cached_pkg_zip_path):
-                        pkg_zip_path = cached_pkg_zip_path
-                        pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[
-                                                                                          1:] + ".txt"
-                    file_exists = FileOp.file_exists(pkg_zip_path)
-                    txt_file_exists = FileOp.file_exists(pkg_txt_path)
-                    old_file = True if (
-                            file_exists and T.get_mtime(pkg_zip_path) < T.get_local_date_time()) else False
-                    if fresh_build or (not file_exists or not txt_file_exists):
-                        CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
-                    else:
+                    if Config.USE_CACHED_APKS:
                         print(f"Using cached package: {os.path.basename(pkg_zip_path)}")
+                        cached_pkg_zip_path = os.path.join(cache_source_dir, app_set.title,
+                                                           f"{pkg.package_title}{compression_mode}")
+                        if FileOp.file_exists(cached_pkg_zip_path):
+                            pkg_zip_path = cached_pkg_zip_path
+                            pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[
+                                                                                              1:] + ".txt"
+                        else:
+                            print(cached_pkg_zip_path + " doesn't exist!")
+                    else:
+                        CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
                     for size_on_file in FileOp.read_string_file(pkg_txt_path):
                         pkg_size = size_on_file
                         pkg.pkg_size = pkg_size
