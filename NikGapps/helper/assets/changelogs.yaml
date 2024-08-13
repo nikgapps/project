@@ -1,3 +1,11 @@
+- date: 13th Aug 2024 (Android 10-14)
+  changes:
+      - item: Fixed Edit button crash in Google Photos
+      - item: Remove the files breaking Now Playing in Pixel Devices
+      - item: Summarize the locations where installation logs can be found at the end of installation
+      - item: Fixed df /sideload Function not implemented errors in recovery when sideloading the zip
+      - item: Improved Size calculations in installer script
+      - item: A lot of improvements in the installer script
 - date: 28th July 2024 (Android 10-14)
   changes:
       - item: Fixed styles and wallpaper crash (Android 14)
