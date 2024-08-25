@@ -5,11 +5,13 @@ class B64:
 
     @staticmethod
     def b64e(s):
+        print("Encoding: " + s)
         return base64.b64encode(s.encode()).decode()
 
     @staticmethod
     def b64d(s):
         try:
+            print("Decoding: " + s)
             val = base64.b64decode(s).decode()
         except Exception as e:
             print(str(e))

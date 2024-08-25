@@ -1,4 +1,6 @@
 import argparse
+
+
 # from helper.B64 import B64
 
 
@@ -9,9 +11,9 @@ class Args:
                 description="NikGapps build command help!")
         # parser.add_argument(
         #     '-U', '--userID', help="Telegram User Id", default='-1', type=str)
-        self.parser.add_argument('-C', '--config', help="byte64 value of nikgapps.config", type=str)
-        # parser.add_argument(
-        #     '-N', '--configName', help="Name of custom nikgapps.config", type=str)
+        self.parser.add_argument('-C', '--configValue', help="byte64 value of nikgapps.config", type=str)
+        self.parser.add_argument(
+            '-N', '--configName', help="Name of custom nikgapps.config", type=str)
         # parser.add_argument(
         #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
         self.parser.add_argument('-c', '--cache', help="Use this to operate on cached apks", action="store_true")
@@ -25,6 +27,8 @@ class Args:
         self.parser.add_argument('-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
         self.parser.add_argument('-X', '--sign', help="Use this to sign the zip", action="store_true")
         self.parser.add_argument('-R', '--release', help="Use this to mark the Release", action="store_true")
+        self.parser.add_argument('-S', '--sshClone', help="Use this to clone with SSH", action="store_true")
+        self.parser.add_argument('-D', '--sendToDevice', help="Use this to enable sending zip to connected device", action="store_true")
         # parser.add_argument(
         #     '-F', '--skipForceRun', help="Overrides the release constraints and doesn't run the program",
         #     action="store_true")
@@ -40,7 +44,7 @@ class Args:
 
         self.arch = args.arch
         # self.user_id = args.userID
-        self.config_value = args.config
+        self.config_value = args.configValue
         self.upload = args.upload
         self.sign = args.sign
         self.tar = args.tar
@@ -50,10 +54,12 @@ class Args:
         self.android_version = args.androidVersion
         self.package_list = args.packageList
         # self.forceRun = args.forceRun
-        # self.config_name = args.configName
+        self.config_name = args.configName
         self.update_website = args.updateWebsite
         self.use_cached_apks = args.cache
         self.release_type = args.releaseType
+        self.ssh_clone = args.sshClone
+        self.send_zip_device = args.sendToDevice
         # self.oems = args.oems
 
     def get_package_list(self):

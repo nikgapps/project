@@ -35,32 +35,34 @@ class GitOperations:
 
     @staticmethod
     def clone_apk_repo(android_version, arch="arm64", fresh_clone=False, branch="main",
-                       apk_repo=GitStatics.apk_source_repo, cached=False):
+                       cached=False, use_ssh_clone=False):
         arch = "" if arch == "arm64" else "_" + arch
         cache = "_cached" if cached else ""
         apk_source_directory = Statics.pwd + Statics.dir_sep + str(android_version) + arch + cache
-        apk_source_repo = apk_repo + str(android_version) + arch + cache + ".git"
+        apk_source_repo = GitStatics.apk_source_repo_ssh if use_ssh_clone else GitStatics.apk_source_repo + str(
+            android_version) + arch + cache + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone, commit_depth=1)
 
     # Following method is new method of cloning the apk source from Gitlab - based on release type
     @staticmethod
-    def clone_apk_source(android_version, arch="arm64", release_type="stable", fresh_clone=False, cached=False):
+    def clone_apk_source(android_version, arch="arm64", release_type="stable", fresh_clone=False, cached=False,
+                         use_ssh_clone=False):
         url = f"{android_version}{('_' + arch if arch != 'arm64' else '')}_{release_type}"
         url = url + ("_cached" if cached else "")
-        return GitOperations.clone_apk_url(url, fresh_clone)
+        return GitOperations.clone_apk_url(url, fresh_clone, use_ssh_clone)
 
     @staticmethod
-    def clone_apk_url(url, fresh_clone=False):
+    def clone_apk_url(url, fresh_clone=False, use_ssh_clone=False):
         apk_source_directory = Statics.pwd + Statics.dir_sep + url
-        apk_source_repo = GitStatics.apk_source_repo + url + ".git"
+        apk_source_repo = GitStatics.apk_source_repo_ssh if use_ssh_clone else GitStatics.apk_source_repo + url + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch="main", fresh_clone=fresh_clone,
                                         commit_depth=1)
 
     @staticmethod
-    def get_last_commit_date(branch, repo_dir=Statics.cwd, repo_url=None, android_version=None):
+    def get_last_commit_date(branch, repo_dir=Statics.cwd, repo_url=None, android_version=None, use_ssh_clone=False):
         last_commit_datetime = None
         if android_version is not None:
-            repository = GitOperations.clone_apk_repo(android_version, branch=branch)
+            repository = GitOperations.clone_apk_repo(android_version, branch=branch, use_ssh_clone=use_ssh_clone)
         else:
             repository = Git(repo_dir)
             if repo_url is not None:
