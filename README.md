@@ -15,7 +15,7 @@ NikGapps provides custom GApps packages tailored to individual needs, offering f
 - **Battery Optimization**: Optimize Google Play Services by turning off "Find My Device" (requires ROM support).
 - **Privileged Permissions**: Ensures privileged apps get necessary permissions without disabling Privileged Permission Whitelisting.
 
-## Installation
+## Build NikGapps Yourself
 
 ### Prerequisites
 
@@ -24,7 +24,7 @@ Ensure you have the following tools installed:
 - **Linux/MacOS**: `sudo apt-get install -y --no-install-recommends python3 python3-pip aapt git git-lfs apktool`
 - **Windows**: [Python3](https://www.python.org/), [Git](https://git-scm.com/), and [AAPT](https://packages.debian.org/buster/aapt).
 
-### Building NikGapps
+### Steps
 
 1. **Configure git user name and email to make Git LFS to work**
    ```bash
