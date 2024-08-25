@@ -1,6 +1,6 @@
 ![](https://raw.githubusercontent.com/nikgapps/nikgapps.github.io/master/images/nikgapps-logo.webp)
 
-# NikGapps
+# Introduction
 
 NikGapps provides custom GApps packages tailored to individual needs, offering full configurability to install exactly the set of Google apps you want. Available in six variants, NikGapps is a unique GApps solution built from scratch to meet the needs of Android users.
 
