@@ -36,8 +36,7 @@ Ensure you have the following tools installed:
    mkdir nikgapps
    cd nikgapps
 
-3. **Create a virtual environment**  
-   **Note:**  
+3. **Create a virtual environment**
 
    Use ```python``` on Linux/MacOS and ```python3``` on Windows (you can figure out which command works for you by running ```python --version``` or ```python3 --version``` in cmd line)
    
