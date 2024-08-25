@@ -27,18 +27,31 @@ Here are some feature highlights:
 Make sure you have [python3](https://www.python.org/), [git](https://git-scm.com/), [aapt](https://packages.debian.org/buster/aapt) installed.
 - Linux machine / MacOS
 - Install apt requirements
--  ```sudo apt-get install -y --no-install-recommends python3 python3-pip aapt git git-lfs openjdk-8-jdk apktool```
+-  ```sudo apt-get install -y --no-install-recommends python3 python3-pip aapt git git-lfs apktool```
 
 ### Building
 - ```mkdir nikgapps``` 
 - ```cd nikgapps```
 
-**Install builder from pip** 
-- ```python3 -m pip install NikGapps```
-
 **Configure git user name and email to make Git LFS to work**
  - ```git config --global user.name "Example"```
  - ```git config --global user.email "example@example.com"```
+
+**Create a virtual environment**  
+
+On Linux/MacOS:  
+- ```python3 -m venv myvenv```
+- ```source myvenv\Scripts\activate```  
+
+On Windows:  
+- ```python -m venv myvenv```
+- ```myvenv\Scripts\activate```
+
+Note:  
+- Use ```python``` on Linux/MacOS and ```python3``` on Windows (you can figure out which command works for you by running ```python --version``` or ```python3 --version``` in cmd line)
+
+**Install builder from pip** 
+- ```python3 -m pip install NikGapps```
 
 **You can now build given  gapps variant**
 - ```nikgapps --androidVersion (Android Version) --packageList (gapps variant)```
@@ -48,8 +61,9 @@ Make sure you have [python3](https://www.python.org/), [git](https://git-scm.com
 
 ## Total Downloads  
 <!-- 7312415 from 2019-07-22 to 2024-07-18 -->
-![Static Badge](https://img.shields.io/badge/7.3M-red?label=Before%2018th%20July%202024&color=green)
-<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=After%2018th%20July%202024&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">
+![Static Badge](https://img.shields.io/badge/7.3M-red?label=Before%2018th%20July%202024&color=green)  
+<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=After%2018th%20July%202024&color=red">   
+<img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">
 
 <!--
 sudo apt install binfmt-support qemu qemu-user-static
