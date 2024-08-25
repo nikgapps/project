@@ -15,7 +15,7 @@ if release_type is not None:
 
 # Environment type differentiates the experimental and stable features
 # Possible values are [ 'production', 'development' ]
-ENVIRONMENT_TYPE = "production"
+ENVIRONMENT_TYPE = "dev"
 environment_type = os.environ.get('ENVIRONMENT_TYPE')
 if environment_type is not None:
     ENVIRONMENT_TYPE = environment_type
