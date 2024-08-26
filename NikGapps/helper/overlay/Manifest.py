@@ -5,7 +5,7 @@ from NikGapps.helper.Statics import Statics
 
 
 class Manifest:
-    def __init__(self, package, android_version, target_package="android", priority="1337",
+    def __init__(self, package, android_version, target_package="android", priority="99",
                  is_static=True):
         self.package = package
         self.compileSdkVersion = Statics.get_android_sdk(android_version)
