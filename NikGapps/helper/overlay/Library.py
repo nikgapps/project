@@ -118,7 +118,9 @@ class Library:
     @staticmethod
     def get_google_location_history_resources():
         r = Resources()
-        r.add(StringArray('config_locationExtraPackageNames', ['com.google.android.gms.location.history']))
+        r.add(StringArray('config_locationProviderPackageNames',
+                          ['com.google.android.gms', 'com.android.location.fused',
+                           'com.google.android.gms.location.history']))
         return r
 
     @staticmethod
@@ -158,7 +160,8 @@ class Library:
         r.add(String('config_recentsComponentName',
                      'com.google.android.apps.nexuslauncher/com.android.quickstep.RecentsActivity'))
         r.add(String('config_secondaryHomePackage', 'com.google.android.apps.nexuslauncher'))
-        r.add(String('exit_to_action_in_initial_setup', 'com.google.android.apps.nexuslauncher/com.android.quickstep.action.GESTURE_ONBOARDING_ALL_SET'))
+        r.add(String('exit_to_action_in_initial_setup',
+                     'com.google.android.apps.nexuslauncher/com.android.quickstep.action.GESTURE_ONBOARDING_ALL_SET'))
         r.add(Bool('config_swipe_up_gesture_setting_available', True))
         r.add(Bool('config_custom_swipe_up_gesture_setting_available', True))
         r.add(StringArray('configs_base',
@@ -425,7 +428,8 @@ class Library:
         r.add(String('config_systemSettingsIntelligence', 'com.google.android.settings.intelligence'))
         if float(android_version) >= 14:
             r.add(String('config_settingsintelligence_package_name', 'com.google.android.settings.intelligence'))
-            r.add(String('config_settingsintelligence_log_action', 'com.google.android.settings.intelligence.LOG_BRIDGE'))
+            r.add(
+                String('config_settingsintelligence_log_action', 'com.google.android.settings.intelligence.LOG_BRIDGE'))
         return r
 
     @staticmethod

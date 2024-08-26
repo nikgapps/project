@@ -367,6 +367,12 @@ fi
         if float(android_version) >= 11:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               Statics.is_system_app, "GoogleLocationHistory")
+            if float(android_version) >= 12.1:
+                google_location_history_overlay = Overlay(apk_name=google_location_history.package_title,
+                                                          package_name="com.nikgapps.overlay.googlelocationhistory",
+                                                          android_version=android_version,
+                                                          resources=Library.get_google_location_history_resources())
+                google_location_history.add_overlay(google_location_history_overlay)
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
         google_photos = Package("Photos", "com.google.android.apps.photos", Statics.is_system_app, "GooglePhotos")
         if float(android_version) >= 12.1:
