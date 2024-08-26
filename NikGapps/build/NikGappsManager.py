@@ -217,12 +217,6 @@ class NikGappsManager:
                     "resources": Library.get_google_messages_resources()
                 }
             ],
-            "com.google.android.gms.location.history": [
-                {
-                    "package_name": "com.nikgapps.overlay.googlelocationhistory",
-                    "resources": Library.get_google_location_history_resources()
-                }
-            ],
             "com.google.android.apps.photos": [
                 {
                     "package_name": "com.nikgapps.overlay.googlephotos",
