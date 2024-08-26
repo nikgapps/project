@@ -14,7 +14,6 @@ def main():
     print("Start of the Program")
     SystemStat.show_stats()
     t = T()
-    P.green("---------------------------------------")
     android_versions = [Config.TARGET_ANDROID_VERSION]
     package_list = Config.BUILD_PACKAGE_LIST
     Config.UPLOAD_FILES = args.upload

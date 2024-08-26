@@ -24,9 +24,10 @@ class CompOps:
             cpkg = CompOps.get_compression_obj(pkg_zip_path, compression_mode=compression_mode)
             file_index = 1
             for x in pkg.file_dict:
+                y = pkg.file_dict[x]
                 file_index = file_index + 1
                 pkg_size = pkg_size + Statics.get_file_bytes(x)
-                cpkg.add_file(x, str(x)[str(x).find("___"):].replace("\\", "/"))
+                cpkg.add_file(x, y)
             if pkg.clean_flash_only:
                 cpkg.add_string("", "___etc___permissions/" + pkg.package_title + ".prop")
             pkg.pkg_size = pkg_size

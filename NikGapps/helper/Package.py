@@ -107,7 +107,7 @@ class Package:
         str_data += "\n"
         str_data += f"file_list=\"\n"
         for file in self.file_dict:
-            str_data += str(file)[str(file).find("___"):].replace("\\", "/") + "\n"
+            str_data += self.file_dict[file] + "\n"
         if self.priv_app_permissions_str is not None:
             str_data += "___etc___permissions/" + self.package_name + ".xml\n"
         str_data += "\"\n"
@@ -180,7 +180,7 @@ class Package:
         str_data += "\n"
         str_data += f"file_list=\"\n"
         for file in self.file_dict:
-            str_data += str(file)[str(file).find("___"):].replace("\\", "/") + "\n"
+            str_data += self.file_dict[file] + "\n"
         if self.priv_app_permissions_str is not None:
             str_data += "___etc___permissions/" + self.package_name + ".xml\n"
         str_data += "\"\n"

@@ -45,9 +45,11 @@ class Build:
                 overlay_dir = overlay_directory + Statics.dir_sep + f"{package_title}Overlay"
                 if FileOp.dir_exists(overlay_dir):
                     for file in Path(overlay_dir).rglob("*.apk"):
-                        overlay_destination = pkg_path + Statics.dir_sep + "___overlay" + Statics.dir_sep + Path(
-                            file).name
-                        FileOp.copy_file(file, overlay_destination)
+                        pkg_files_path = "overlay" + Statics.dir_sep + Path(file).name
+                        install_list.append(pkg_files_path.replace("___", "/"))
+                        file_dict_value = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
+                        value = str(file_dict_value).split("/")
+                        file_dict[str(file)] = "___" + "___".join(value[:len(value) - 1]) + "/" + value[len(value) - 1]
                 for pkg_files in Path(pkg_path).rglob("*"):
                     if Path(pkg_files).is_dir() or str(pkg_files).__contains__(".git") \
                             or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):
@@ -86,7 +88,10 @@ class Build:
                     if str(pkg_files_path).endswith("xml") or str(pkg_files_path).endswith("prop"):
                         FileOp.convert_to_lf(str(pkg_files.absolute()))
                     install_list.append(pkg_files_path.replace("___", "/"))
-                    file_dict[pkg_files.absolute()] = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
+                    file_dict_value = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
+                    value = str(file_dict_value).split("/")
+                    file_dict[pkg_files.absolute()] = "___" + "___".join(value[:len(value) - 1]) + "/" + value[
+                        len(value) - 1]
                 if primary_app_location is not None:
                     title = os.path.basename(primary_app_location)[:-4]
                 else:
