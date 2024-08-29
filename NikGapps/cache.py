@@ -37,10 +37,14 @@ def cache():
         cached_url = url + "_cached"
         gitlab_manager = GitLabManager(private_token=os.getenv("GITLAB_TOKEN"))
         project = gitlab_manager.get_project(cached_url)
+        gitattributes = """*.zip filter=lfs diff=lfs merge=lfs -text
+        *.tar.xz filter=lfs diff=lfs merge=lfs -text"""
         if project:
-            gitattributes = """*.zip filter=lfs diff=lfs merge=lfs -text
-*.tar.xz filter=lfs diff=lfs merge=lfs -text"""
             gitlab_manager.reset_repository(cached_url, sleep_for=10, gitattributes=gitattributes)
+        else:
+            gitlab_manager.create_repository(cached_url, provide_owner_access=True)
+            gitlab_manager.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
+                                                  content=gitattributes)
         repo_cached = GitOperations.clone_apk_url(url=cached_url, use_ssh_clone=True)
         apk_repo = GitOperations.clone_apk_url(url=url)
         Config.APK_SOURCE = apk_repo.working_tree_dir
