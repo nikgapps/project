@@ -5,7 +5,6 @@ from ..Assets import Assets
 from ..Package import Package
 from ..AppSet import AppSet
 from ..Cmd import Cmd
-import os
 from .Zip import Zip
 from .CompOps import CompOps
 from .Modes import Modes
@@ -13,6 +12,12 @@ from ..Statics import Statics
 from ..T import T
 from ..web.TelegramApi import TelegramApi
 from ...config.NikGappsConfig import NikGappsConfig
+import concurrent.futures
+import os
+import concurrent.futures
+import threading
+from multiprocessing import cpu_count
+from threading import Lock
 
 
 class Export:
@@ -126,6 +131,50 @@ class Export:
                 cmd.push_package(file_name, device_path)
                 send_zip_device_time.taken("Total time taken to send the zip to device")
             return file_name, zip_execution_status
+
+    def zip2(self, config_obj: NikGappsConfig, telegram: TelegramApi = TelegramApi(None, None),
+             compression_mode=Modes.DEFAULT, send_zip_device=Config.SEND_ZIP_DEVICE):
+
+        build_zip = T()
+        app_set_list = config_obj.config_package_list
+        max_workers = cpu_count()
+        lock = Lock()
+
+        def compress_and_add_file(appset, pakg, compressionmode):
+            thread_id = threading.get_ident()
+            print(f"Thread {thread_id}: Started building for {appset.title}/{pakg.package_title}")
+
+            pkg_zip_path = (
+                    Statics.get_temp_packages_directory(config_obj.android_version, arch=config_obj.arch)
+                    + Statics.dir_sep + "Packages" + Statics.dir_sep + str(pakg.package_title) + compressionmode
+            )
+
+            CompOps.compress_package(pkg_zip_path, pakg, compressionmode)
+
+            with lock:
+                self.z.add_file(pkg_zip_path, f"AppSet/{appset.title}/{pakg.package_title}{compressionmode}")
+
+            print(f"Thread {thread_id}: Finished building for {appset.title}/{pakg.package_title}")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = []
+            total_tasks = sum(len(app_set.package_list) for app_set in app_set_list)
+            completed_tasks = 0
+
+            for app_set in app_set_list:
+                for pkg in app_set.package_list:
+                    futures.append(executor.submit(compress_and_add_file, app_set, pkg, compression_mode))
+
+            for future in concurrent.futures.as_completed(futures):
+                completed_tasks += 1
+                progress = (completed_tasks / total_tasks) * 100
+                print(f"Progress: {completed_tasks}/{total_tasks} tasks completed ({progress:.2f}%)")
+
+        self.z.close()
+        time_taken = build_zip.taken("Total time taken to build the zip")
+        print("- Completed in: " + T.format_time(round(time_taken)))
+        print("All packages have been successfully compressed and added to the zip file.")
+        return self.file_name, True
 
     @staticmethod
     def get_installer_script(total_packages, app_set_list, compression_mode=Modes.DEFAULT):
