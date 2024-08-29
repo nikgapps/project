@@ -38,7 +38,7 @@ class Build:
                 primary_app_location = None
                 delete_files_list = []
                 delete_overlay_list = []
-                if android_version >= 12.1:
+                if float(android_version) >= 12.1:
                     overlay_directory = Config.OVERLAY_SOURCE
                     overlay_dir = overlay_directory + Statics.dir_sep + f"{package_title}Overlay"
                     if FileOp.dir_exists(overlay_dir):
@@ -47,7 +47,8 @@ class Build:
                             install_list.append(pkg_files_path.replace("___", "/"))
                             file_dict_value = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
                             value = str(file_dict_value).split("/")
-                            file_dict[str(file)] = "___" + "___".join(value[:len(value) - 1]) + "/" + value[len(value) - 1]
+                            file_dict[str(file)] = "___" + "___".join(value[:len(value) - 1]) + "/" + value[
+                                len(value) - 1]
                 for pkg_files in Path(pkg_path).rglob("*"):
                     if Path(pkg_files).is_dir() or str(pkg_files).__contains__(".git") \
                             or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):
