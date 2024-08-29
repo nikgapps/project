@@ -54,6 +54,11 @@ GIT_CLONE_SOURCE = True
 GIT_CHECK = True
 GIT_PUSH = True
 
+# Overlays, Gapps Apks and Cached Apks source
+CACHED_SOURCE = None
+APK_SOURCE = None
+OVERLAY_SOURCE = None
+
 # Enabling this will enable the feature of building NikGapps using config file
 BUILD_CONFIG = True
 BUILD_EXCLUSIVE = (RELEASE_TYPE.lower().__eq__("stable"))

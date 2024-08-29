@@ -37,10 +37,14 @@ def main():
         # clone the apk repo if it doesn't exist
         if args.enable_git_clone:
             if Config.USE_CACHED_APKS:
-                GitOperations.clone_apk_source(android_version, release_type=Config.RELEASE_TYPE, cached=True)
+                cached_repo = GitOperations.clone_apk_source(android_version, release_type=Config.RELEASE_TYPE,
+                                                             cached=True)
+                Config.CACHED_SOURCE = cached_repo.working_tree_dir
             else:
-                GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
-                GitOperations.clone_overlay_repo(android_version)
+                apk_repo = GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
+                Config.APK_SOURCE = apk_repo.working_tree_dir
+                overlay_repo = GitOperations.clone_overlay_repo(android_version)
+                Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         if Config.OVERRIDE_RELEASE:
             Release.zip(package_list, android_version, args.arch, args.sign)
         if Config.RELEASE_TYPE and Config.ENVIRONMENT_TYPE == "production":

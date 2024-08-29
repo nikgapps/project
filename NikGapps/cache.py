@@ -42,11 +42,13 @@ def cache():
 *.tar.xz filter=lfs diff=lfs merge=lfs -text"""
             gitlab_manager.reset_repository(cached_url, sleep_for=5, gitattributes=gitattributes)
         repo_cached = GitOperations.clone_apk_url(url=cached_url)
-        GitOperations.clone_apk_url(url=url)
-        GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
+        apk_repo = GitOperations.clone_apk_url(url=url)
+        Config.APK_SOURCE = apk_repo.working_tree_dir
+        overlay_repo = GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
+        Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         config_obj = NikGappsConfig(android_version)
         app_set_list = config_obj.package_manager.get_packages("all")
-        config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version, arch)
+        config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version)
         for appset in config_obj.config_package_list:
             appset: AppSet
             for pkg in appset.package_list:
