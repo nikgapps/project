@@ -39,7 +39,7 @@ class GitOperations:
         arch = "" if arch == "arm64" else "_" + arch
         cache = "_cached" if cached else ""
         apk_source_directory = Statics.pwd + Statics.dir_sep + str(android_version) + arch + cache
-        apk_source_repo = GitStatics.apk_source_repo_ssh if use_ssh_clone else GitStatics.apk_source_repo + str(
+        apk_source_repo = (GitStatics.apk_source_repo_ssh if use_ssh_clone else GitStatics.apk_source_repo) + str(
             android_version) + arch + cache + ".git"
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch, fresh_clone, commit_depth=1)
 
@@ -54,7 +54,8 @@ class GitOperations:
     @staticmethod
     def clone_apk_url(url, fresh_clone=False, use_ssh_clone=False):
         apk_source_directory = Statics.pwd + Statics.dir_sep + url
-        apk_source_repo = GitStatics.apk_source_repo_ssh if use_ssh_clone else GitStatics.apk_source_repo + url + ".git"
+        apk_source_repo = ((GitStatics.apk_source_repo_ssh if use_ssh_clone else GitStatics.apk_source_repo) + url
+                           + ".git")
         return GitOperations.setup_repo(apk_source_directory, apk_source_repo, branch="main", fresh_clone=fresh_clone,
                                         commit_depth=1)
 
