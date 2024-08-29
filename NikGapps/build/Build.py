@@ -38,15 +38,16 @@ class Build:
                 primary_app_location = None
                 delete_files_list = []
                 delete_overlay_list = []
-                overlay_directory = Config.OVERLAY_SOURCE
-                overlay_dir = overlay_directory + Statics.dir_sep + f"{package_title}Overlay"
-                if FileOp.dir_exists(overlay_dir):
-                    for file in Path(overlay_dir).rglob("*.apk"):
-                        pkg_files_path = "overlay" + Statics.dir_sep + Path(file).name
-                        install_list.append(pkg_files_path.replace("___", "/"))
-                        file_dict_value = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
-                        value = str(file_dict_value).split("/")
-                        file_dict[str(file)] = "___" + "___".join(value[:len(value) - 1]) + "/" + value[len(value) - 1]
+                if android_version >= 12.1:
+                    overlay_directory = Config.OVERLAY_SOURCE
+                    overlay_dir = overlay_directory + Statics.dir_sep + f"{package_title}Overlay"
+                    if FileOp.dir_exists(overlay_dir):
+                        for file in Path(overlay_dir).rglob("*.apk"):
+                            pkg_files_path = "overlay" + Statics.dir_sep + Path(file).name
+                            install_list.append(pkg_files_path.replace("___", "/"))
+                            file_dict_value = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
+                            value = str(file_dict_value).split("/")
+                            file_dict[str(file)] = "___" + "___".join(value[:len(value) - 1]) + "/" + value[len(value) - 1]
                 for pkg_files in Path(pkg_path).rglob("*"):
                     if Path(pkg_files).is_dir() or str(pkg_files).__contains__(".git") \
                             or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):

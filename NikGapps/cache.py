@@ -44,8 +44,9 @@ def cache():
         repo_cached = GitOperations.clone_apk_url(url=cached_url, use_ssh_clone=True)
         apk_repo = GitOperations.clone_apk_url(url=url)
         Config.APK_SOURCE = apk_repo.working_tree_dir
-        overlay_repo = GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
-        Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
+        if android_version >= 12.1:
+            overlay_repo = GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
+            Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         config_obj = NikGappsConfig(android_version)
         app_set_list = config_obj.package_manager.get_packages("all")
         config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version)
