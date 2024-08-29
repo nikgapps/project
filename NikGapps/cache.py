@@ -42,7 +42,7 @@ def cache():
         if project:
             gitlab_manager.reset_repository(cached_url, sleep_for=10, gitattributes=gitattributes)
         else:
-            gitlab_manager.create_repository(cached_url, provide_owner_access=True)
+            project = gitlab_manager.create_repository(cached_url, provide_owner_access=True)
             gitlab_manager.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
                                                   content=gitattributes)
         repo_cached = GitOperations.clone_apk_url(url=cached_url, use_ssh_clone=True)
