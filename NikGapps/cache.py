@@ -41,7 +41,7 @@ def cache():
             gitattributes = """*.zip filter=lfs diff=lfs merge=lfs -text
 *.tar.xz filter=lfs diff=lfs merge=lfs -text"""
             gitlab_manager.reset_repository(cached_url, sleep_for=10, gitattributes=gitattributes)
-        repo_cached = GitOperations.clone_apk_url(url=cached_url)
+        repo_cached = GitOperations.clone_apk_url(url=cached_url, use_ssh_clone=True)
         apk_repo = GitOperations.clone_apk_url(url=url)
         Config.APK_SOURCE = apk_repo.working_tree_dir
         overlay_repo = GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
