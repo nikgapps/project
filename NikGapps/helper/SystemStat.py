@@ -5,6 +5,7 @@ from multiprocessing import cpu_count
 
 import psutil
 
+from . import Config
 from .Assets import Assets
 from .P import P
 from .T import T
@@ -47,13 +48,14 @@ class SystemStat:
         P.green(f"Running on system: {platform.system()}")
         # Versions of Java, ADB, and AAPT
         # java_version = SystemStat.run_command(["java", "-version"])
-        adb_version = SystemStat.run_command([f"{Assets.adb_path}", "version"])
-        aapt_version = SystemStat.run_command([f"{Assets.aapt_path}", "version"])
-        P.green("---------------------------------------")
         # P.green(f"Java version: {java_version}")
         # P.green("---------------------------------------")
-        P.green(f"ADB version: {adb_version}")
+        if (not Config.ENVIRONMENT_TYPE == "production") and Config.ENVIRONMENT_TYPE == "dev":
+            adb_version = SystemStat.run_command([f"{Assets.adb_path}", "version"])
+            P.green("---------------------------------------")
+            P.green(f"ADB version: {adb_version}")
         P.green("---------------------------------------")
+        aapt_version = SystemStat.run_command([f"{Assets.aapt_path}", "version"])
         P.green(f"AAPT version: {aapt_version}")
         P.green("---------------------------------------")
         t = T()
