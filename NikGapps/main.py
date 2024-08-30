@@ -3,7 +3,6 @@ from NikGapps.build.Release import Release
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
 from NikGapps.helper.SystemStat import SystemStat
-from NikGapps.helper.P import P
 from NikGapps.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.git.GitOperations import GitOperations

@@ -1,23 +1,22 @@
-from .. import Config
-from ..P import P
-from ..FileOp import FileOp
-from ..Assets import Assets
-from ..Package import Package
-from ..AppSet import AppSet
-from ..Cmd import Cmd
-from .Zip import Zip
+import concurrent.futures
+import concurrent.futures
+import os
+import threading
+from multiprocessing import cpu_count
+from threading import Lock
+
 from .CompOps import CompOps
 from .Modes import Modes
+from .Zip import Zip
+from .. import Config
+from ..Assets import Assets
+from ..Cmd import Cmd
+from ..FileOp import FileOp
+from ..P import P
 from ..Statics import Statics
 from ..T import T
 from ..web.TelegramApi import TelegramApi
 from ...config.NikGappsConfig import NikGappsConfig
-import concurrent.futures
-import os
-import concurrent.futures
-import threading
-from multiprocessing import cpu_count
-from threading import Lock
 
 
 class Export:
@@ -60,7 +59,7 @@ class Export:
                 else:
                     print(cached_pkg_zip_path + " doesn't exist!")
             else:
-                CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
+                CompOps.compress_package(pkg_zip_path, pakg, compression_mode)
 
             for size_on_file in FileOp.read_string_file(pkg_txt_path):
                 pkg_size = size_on_file
