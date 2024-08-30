@@ -15,6 +15,8 @@ class Build:
     # Just provide the package list, and it will pick them up from the directory and build them for you
     @staticmethod
     def build_from_directory(app_set_build_list, android_version, cached=False):
+        if cached:
+            return app_set_build_list
         source_directory = Config.CACHED_SOURCE if cached else Config.APK_SOURCE
         print(f"Building from {source_directory}")
         cmd = Cmd()

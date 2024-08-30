@@ -26,155 +26,102 @@ class Export:
         self.z = Zip(self.file_name, sign=sign, private_key_path=Assets.private_key_pem)
 
     def zip(self, config_obj: NikGappsConfig, telegram: TelegramApi = TelegramApi(None, None),
-            compression_mode=Modes.DEFAULT, send_zip_device=Config.SEND_ZIP_DEVICE, fresh_build=Config.FRESH_BUILD):
-        app_set_list = config_obj.config_package_list
-        config_string = config_obj.get_nikgapps_config()
-        android_version = config_obj.android_version
-        total_packages = 0
-        print_progress = ""
-        build_zip = T()
-        file_sizes = ""
-        zip_execution_status = False
-        arch = "" if config_obj.arch == "arm64" else "_" + config_obj.arch
-        cache_source_dir = Statics.pwd + Statics.dir_sep + str(android_version) + arch + f"_{Config.RELEASE_TYPE}" + (
-            f"_cached" if Config.USE_CACHED_APKS else "")
-        try:
-            app_set_count = len(app_set_list)
-            app_set_index = 1
-            telegram.message("- Gapps is building...")
-            for app_set in app_set_list:
-                app_set: AppSet
-                app_set_progress = round(float(100 * app_set_index / app_set_count))
-                telegram.message(
-                    f"- Gapps is building... {str(app_set_progress)}% done",
-                    replace_last_message=True)
-                package_count = len(app_set.package_list)
-                package_index = 0
-                for pkg in app_set.package_list:
-                    pkg_size = 0
-                    # Creating <Packages>.zip for all the packages
-                    pkg: Package
-                    package_progress = round(float(100 * package_index / package_count))
-                    pkg_zip_path = (Statics.get_temp_packages_directory(android_version, arch=config_obj.arch)
-                                    + Statics.dir_sep + "Packages" + Statics.dir_sep + str(
-                                pkg.package_title) + compression_mode)
-                    pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[1:] + ".txt"
-                    print_value = (f"AppSet ({str(app_set_progress)}%): {app_set.title} "
-                                   f"Zipping ({str(package_progress)}%): {pkg.package_title}")
-                    print(print_value)
-                    print_progress = print_progress + "\n" + print_value
-                    if Config.USE_CACHED_APKS:
-                        print(f"Using cached package: {os.path.basename(pkg_zip_path)}")
-                        cached_pkg_zip_path = os.path.join(cache_source_dir, app_set.title,
-                                                           f"{pkg.package_title}{compression_mode}")
-                        if FileOp.file_exists(cached_pkg_zip_path):
-                            pkg_zip_path = cached_pkg_zip_path
-                            pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[
-                                                                                              1:] + ".txt"
-                        else:
-                            print(cached_pkg_zip_path + " doesn't exist!")
-                    else:
-                        CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
-                    for size_on_file in FileOp.read_string_file(pkg_txt_path):
-                        pkg_size = size_on_file
-                        pkg.pkg_size = pkg_size
-                    self.z.add_file(pkg_zip_path,
-                                    "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + compression_mode)
-                    package_index = package_index + 1
-                    total_packages += 1
-                    file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
-                app_set_index = app_set_index + 1
-            # Writing additional script files to the zip
-            self.z.add_string(self.get_installer_script(total_packages, app_set_list, compression_mode),
-                              "common/install.sh")
-            self.z.add_string("#MAGISK", Statics.meta_inf_dir + "updater-script")
-            self.z.add_file(Assets.magisk_update_binary, Statics.meta_inf_dir + "update-binary")
-            self.z.add_string(config_string, "afzc/nikgapps.config")
-            debloater_config_lines = ""
-            for line in Assets.get_string_resource(Assets.debloater_config):
-                debloater_config_lines += line
-            for line in config_obj.debloater_list:
-                debloater_config_lines += line + "\n"
-            self.z.add_string(debloater_config_lines, "afzc/debloater.config")
-            self.z.add_file(Assets.changelog, "changelog.yaml")
-            self.z.add_file(Assets.addon_path, "common/addon.sh")
-            self.z.add_file(Assets.header_path, "common/header.sh")
-            self.z.add_file(Assets.functions_path, "common/functions.sh")
-            self.z.add_string(file_sizes, "common/file_size.txt")
-            self.z.add_file(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
-            self.z.add_file(Assets.mount_path, "common/mount.sh")
-            self.z.add_file(Assets.mtg_mount_path, "common/mtg_mount.sh")
-            self.z.add_file(Assets.unmount_path, "common/unmount.sh")
-            self.z.add_string(os.path.basename(os.path.splitext(self.file_name)[0]), "zip_name.txt")
-            self.z.add_string(f"Created by {config_obj.creator}".center(38, ' '), "creator.txt")
-            self.z.add_string(self.get_customize_sh(self.file_name), "customize.sh")
-            self.z.add_file(Assets.module_path, "module.prop")
-            self.z.add_file(Assets.busybox, "busybox")
-            zip_execution_status = True
-            P.green('The zip ' + self.file_name + ' is created successfully!')
-        except Exception as e:
-            print("Exception occurred while creating the zip " + str(e))
-        finally:
-            self.z.close()
-            time_taken = build_zip.taken("Total time taken to build the zip")
-            telegram.message("- Completed in: " + T.format_time(round(time_taken)))
-            file_name = self.file_name
-            if send_zip_device:
-                send_zip_device_time = T()
-                cmd = Cmd()
-                device_path = f"{Config.SEND_ZIP_LOCATION}/Afzc-" + str(
-                    android_version) + "/" + T.get_current_time() + "/" + os.path.basename(
-                    file_name)
-                message = f"Sending {os.path.basename(file_name)} to device at: " + device_path
-                print(message)
-
-                cmd.push_package(file_name, device_path)
-                send_zip_device_time.taken("Total time taken to send the zip to device")
-            return file_name, zip_execution_status
-
-    def zip2(self, config_obj: NikGappsConfig, telegram: TelegramApi = TelegramApi(None, None),
-             compression_mode=Modes.DEFAULT, send_zip_device=Config.SEND_ZIP_DEVICE):
+            compression_mode=Modes.DEFAULT, send_zip_device=Config.SEND_ZIP_DEVICE):
 
         build_zip = T()
         app_set_list = config_obj.config_package_list
         max_workers = cpu_count()
         lock = Lock()
+        total_packages = sum(len(app_set.package_list) for app_set in app_set_list)
+        completed_packages = 0
+        file_sizes = ""
+        zip_execution_status = False
+        telegram.message(f"Progress {0:.2f}% ({completed_packages}/{total_packages})")
 
         def compress_and_add_file(appset, pakg, compressionmode):
+            nonlocal completed_packages
+            nonlocal file_sizes
             thread_id = threading.get_ident()
-            print(f"Thread {thread_id}: Started building for {appset.title}/{pakg.package_title}")
 
             pkg_zip_path = (
                     Statics.get_temp_packages_directory(config_obj.android_version, arch=config_obj.arch)
                     + Statics.dir_sep + "Packages" + Statics.dir_sep + str(pakg.package_title) + compressionmode
             )
+            pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[1:] + ".txt"
 
-            CompOps.compress_package(pkg_zip_path, pakg, compressionmode)
+            if Config.USE_CACHED_APKS:
+                print(f"Using cached package: {os.path.basename(pkg_zip_path)}")
+                cached_pkg_zip_path = os.path.join(Config.CACHED_SOURCE, appset.title,
+                                                   f"{pakg.package_title}{compression_mode}")
+                if FileOp.file_exists(cached_pkg_zip_path):
+                    pkg_zip_path = cached_pkg_zip_path
+                    pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[
+                                                                                      1:] + ".txt"
+                else:
+                    print(cached_pkg_zip_path + " doesn't exist!")
+            else:
+                CompOps.compress_package(pkg_zip_path, pkg, compression_mode)
+
+            for size_on_file in FileOp.read_string_file(pkg_txt_path):
+                pkg_size = size_on_file
+                pakg.pkg_size = pkg_size
 
             with lock:
                 self.z.add_file(pkg_zip_path, f"AppSet/{appset.title}/{pakg.package_title}{compressionmode}")
-
-            print(f"Thread {thread_id}: Finished building for {appset.title}/{pakg.package_title}")
+                file_sizes = file_sizes + str(pakg.package_title) + "=" + str(pakg.pkg_size) + "\n"
+                completed_packages += 1
+                progress = (completed_packages / total_packages) * 100
+                telegram.message(f"Progress {progress:.2f}% ({completed_packages}/{total_packages})",
+                                 replace_last_message=True)
+                P.blue(f"Progress {progress:.2f}% ({completed_packages}/{total_packages}): "
+                       f"{appset.title}/{pakg.package_title} (Thread {thread_id})")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = []
-            total_tasks = sum(len(app_set.package_list) for app_set in app_set_list)
-            completed_tasks = 0
-
             for app_set in app_set_list:
                 for pkg in app_set.package_list:
                     futures.append(executor.submit(compress_and_add_file, app_set, pkg, compression_mode))
 
-            for future in concurrent.futures.as_completed(futures):
-                completed_tasks += 1
-                progress = (completed_tasks / total_tasks) * 100
-                print(f"Progress: {completed_tasks}/{total_tasks} tasks completed ({progress:.2f}%)")
-
+        self.z.add_string(self.get_installer_script(total_packages, app_set_list, compression_mode),
+                          "common/install.sh")
+        self.z.add_string("#MAGISK", Statics.meta_inf_dir + "updater-script")
+        self.z.add_file(Assets.magisk_update_binary, Statics.meta_inf_dir + "update-binary")
+        self.z.add_string(config_obj.get_nikgapps_config(), "afzc/nikgapps.config")
+        debloater_config_lines = ""
+        for line in Assets.get_string_resource(Assets.debloater_config):
+            debloater_config_lines += line
+        for line in config_obj.debloater_list:
+            debloater_config_lines += line + "\n"
+        self.z.add_string(debloater_config_lines, "afzc/debloater.config")
+        self.z.add_file(Assets.changelog, "changelog.yaml")
+        self.z.add_file(Assets.addon_path, "common/addon.sh")
+        self.z.add_file(Assets.header_path, "common/header.sh")
+        self.z.add_file(Assets.functions_path, "common/functions.sh")
+        self.z.add_string(file_sizes, "common/file_size.txt")
+        self.z.add_file(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
+        self.z.add_file(Assets.mount_path, "common/mount.sh")
+        self.z.add_file(Assets.mtg_mount_path, "common/mtg_mount.sh")
+        self.z.add_file(Assets.unmount_path, "common/unmount.sh")
+        self.z.add_string(os.path.basename(os.path.splitext(self.file_name)[0]), "zip_name.txt")
+        self.z.add_string(f"Created by {config_obj.creator}".center(38, ' '), "creator.txt")
+        self.z.add_string(self.get_customize_sh(self.file_name), "customize.sh")
+        self.z.add_file(Assets.module_path, "module.prop")
+        self.z.add_file(Assets.busybox, "busybox")
         self.z.close()
+        zip_execution_status = True
+        P.green('The zip ' + self.file_name + ' is created successfully!')
         time_taken = build_zip.taken("Total time taken to build the zip")
-        print("- Completed in: " + T.format_time(round(time_taken)))
-        print("All packages have been successfully compressed and added to the zip file.")
-        return self.file_name, True
+        telegram.message("- Completed in: " + T.format_time(round(time_taken)))
+        if send_zip_device:
+            send_zip_device_time = T()
+            cmd = Cmd()
+            device_path = f"{Config.SEND_ZIP_LOCATION}/Afzc-" + str(
+                config_obj.android_version) + "/" + T.get_current_time() + "/" + os.path.basename(self.file_name)
+            message = f"Sending {os.path.basename(self.file_name)} to device at: " + device_path
+            print(message)
+            cmd.push_package(self.file_name, device_path)
+            send_zip_device_time.taken("Total time taken to send the zip to device")
+        return self.file_name, zip_execution_status
 
     @staticmethod
     def get_installer_script(total_packages, app_set_list, compression_mode=Modes.DEFAULT):

@@ -51,7 +51,6 @@ class Release:
             config_obj.config_package_list = []
             z = Export(file_name=file_name, sign=sign_zip)
             zip_result = z.zip(config_obj=config_obj, send_zip_device=Config.SEND_ZIP_DEVICE,
-                               fresh_build=Config.FRESH_BUILD,
                                telegram=telegram, compression_mode=Modes.DEFAULT)
             if zip_result[1] and Config.UPLOAD_FILES:
                 print(f"Uploading {zip_result[0]}")
