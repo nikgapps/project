@@ -1,10 +1,9 @@
 import os
 import platform
 import subprocess
-from datetime import datetime
+from multiprocessing import cpu_count
 
 import psutil
-import pytz
 
 from .Assets import Assets
 from .P import P
@@ -43,7 +42,7 @@ class SystemStat:
         total_ram_in_gb = round(mem.total / 1073741824, 2)
         P.green("---------------------------------------")
         P.green(f"Ram: {total_ram_in_bytes} bytes, {total_ram_in_gb} Gb")
-        P.green(f"# of CPUs: {os.cpu_count()}")
+        P.green(f"# of CPUs: {os.cpu_count()}({cpu_count()})")
         P.green("---------------------------------------")
         P.green(f"Running on system: {platform.system()}")
         # Versions of Java, ADB, and AAPT
@@ -56,7 +55,6 @@ class SystemStat:
         P.green(f"ADB version: {adb_version}")
         P.green("---------------------------------------")
         P.green(f"AAPT version: {aapt_version}")
-
         P.green("---------------------------------------")
         t = T()
         local_time = t.get_local_date_time("%a, %m/%d/%Y, %I:%M:%S %p")
