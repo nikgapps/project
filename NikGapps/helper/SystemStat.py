@@ -1,5 +1,6 @@
 import os
 import platform
+import shutil
 import subprocess
 from multiprocessing import cpu_count
 
@@ -36,6 +37,38 @@ class SystemStat:
             P.green(f"{location}: {time_str}")
 
     @staticmethod
+    def get_disk_usage(path="/"):
+        total, used, free = shutil.disk_usage(path)
+        return total, used, free
+
+    @staticmethod
+    def print_disk_usage():
+        os_type = platform.system()
+
+        if os_type == "Windows":
+            # On Windows, you can specify a drive letter, e.g., "C:\\"
+            path = "C:\\"
+            total, used, free = SystemStat.get_disk_usage(path)
+        elif os_type == "Linux" or os_type == "Darwin":
+            # On Linux and macOS, use the root path
+            path = "/"
+            total, used, free = SystemStat.get_disk_usage(path)
+        else:
+            print(f"Unsupported OS: {os_type}")
+            return
+
+        # Convert bytes to gigabytes
+        total_gb = total / (2 ** 30)
+        used_gb = used / (2 ** 30)
+        free_gb = free / (2 ** 30)
+
+        print(f"Operating System: {os_type}")
+        print(f"Disk Usage for {path}")
+        print(f"Total: {total_gb:.2f} GiB")
+        print(f"Used: {used_gb:.2f} GiB")
+        print(f"Free: {free_gb:.2f} GiB")
+
+    @staticmethod
     def show_stats():
         # Memory and CPU info
         mem = psutil.virtual_memory()
@@ -45,7 +78,7 @@ class SystemStat:
         P.green(f"Ram: {total_ram_in_bytes} bytes, {total_ram_in_gb} Gb")
         P.green(f"# of CPUs: {os.cpu_count()}({cpu_count()})")
         P.green("---------------------------------------")
-        P.green(f"Running on system: {platform.system()}")
+        SystemStat.print_disk_usage()
         # Versions of Java, ADB, and AAPT
         # java_version = SystemStat.run_command(["java", "-version"])
         # P.green(f"Java version: {java_version}")
