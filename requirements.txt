@@ -1,5 +1,5 @@
 colorama~=0.4.6
-pytz~=2024.1
+pytz~=2024.2
 pysftp~=0.2.9
 requests~=2.32.3
 PyYAML~=6.0.2
