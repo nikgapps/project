@@ -2,14 +2,13 @@ import hashlib
 import os.path
 import shutil
 import stat
-
-from .Statics import Statics
+from pathlib import Path
 
 
 class FileOp:
     @staticmethod
     def create_file_dir(file_path):
-        parent_dir = str(Statics.get_parent_path(file_path))
+        parent_dir = str(Path(file_path).parent)
         if not os.path.exists(parent_dir):
             os.makedirs(parent_dir)
 

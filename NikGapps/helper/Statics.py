@@ -14,7 +14,8 @@ class Statics:
         '12': {'sdk': '31', 'code': 'S'},
         '12.1': {'sdk': '32', 'code': 'SL'},
         '13': {'sdk': '33', 'code': 'T'},
-        '14': {'sdk': '34', 'code': 'U'}
+        '14': {'sdk': '34', 'code': 'U'},
+        '15': {'sdk': '35', 'code': 'V'},
     }
     is_system_app = 1
     is_priv_app = 2
