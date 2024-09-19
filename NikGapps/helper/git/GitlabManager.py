@@ -29,6 +29,21 @@ class GitLabManager:
             self.create_and_commit_readme(project_id=project.id)
         return project
 
+    def create_lfs_repository(self, project_name, provide_owner_access=False, user_id=8064473, visibility='public',
+                              extn_list=None):
+        """Creates a new repository with the given project name and attributes."""
+        if extn_list is None:
+            extn_list = []
+        project = self.gl.projects.create({'name': project_name, 'visibility': visibility})
+        if provide_owner_access:
+            self.provide_owner_access(project_id=project.id, user_id=user_id)
+            self.create_and_commit_readme(project_id=project.id)
+            gitattributes = ""
+            for extn in extn_list:
+                gitattributes += f"*.{extn} filter=lfs diff=lfs merge=lfs -text\n"
+                self.create_and_commit_file(project_id=project.id, file_path=".gitattributes", content=gitattributes)
+        return project
+
     def provide_owner_access(self, project_id, user_id):
         """Provides owner access to a repository for a particular user."""
         project = self.gl.projects.get(project_id)
