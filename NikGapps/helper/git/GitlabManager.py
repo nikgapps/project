@@ -6,6 +6,7 @@ from pathlib import Path
 import gitlab
 
 from NikGapps.helper.FileOp import FileOp
+from NikGapps.helper.P import P
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.git.GitOperations import GitOperations
 
@@ -41,7 +42,7 @@ class GitLabManager:
             gitattributes = ""
             for extn in extn_list:
                 gitattributes += f"*.{extn} filter=lfs diff=lfs merge=lfs -text\n"
-                self.create_and_commit_file(project_id=project.id, file_path=".gitattributes", content=gitattributes)
+            self.create_and_commit_file(project_id=project.id, file_path=".gitattributes", content=gitattributes)
         return project
 
     def provide_owner_access(self, project_id, user_id):
@@ -51,7 +52,7 @@ class GitLabManager:
             'user_id': user_id,
             'access_level': 50
         })
-        print(f"Owner access provided to user with ID {user_id}.")
+        P.green(f"Owner access provided to user with ID {user_id}.")
         return member
 
     def get_project(self, project_name):
@@ -79,8 +80,8 @@ class GitLabManager:
             ]
         }
         commit = project.commits.create(commit_data)
-        print(f"README.md created and committed to the repository {project.name}.")
-        print(commit)
+        P.green(f"README.md created and committed to the repository {project.name}.")
+        # print(commit)
         return commit
 
     def create_and_commit_file(self, project_id, branch_name="main", file_path="file.txt", content=""):
@@ -98,8 +99,8 @@ class GitLabManager:
             ]
         }
         commit = project.commits.create(commit_data)
-        print(f"{file_path} created and committed to the repository {project.name}.")
-        print(commit)
+        P.green(f"{file_path} created and committed to the repository {project.name}.")
+        # print(commit)
         return commit
 
     def create_gitlab_repository(self, project_name, visibility='public'):
@@ -162,13 +163,13 @@ class GitLabManager:
             new_repo_name = f"{repo_name}_{time.strftime('%Y%m%d')}"
         new_project = self.get_project(new_repo_name)
         if new_project is not None:
-            print(f"Project {new_repo_name} already exists. Deleting...")
+            P.red(f"Project {new_repo_name} already exists. Deleting...")
             self.delete_project(new_project.id)
         project.name = new_repo_name
         project.path = new_repo_name
-        print(f"Repository {repo_name} renaming to {new_repo_name}.")
+        P.yellow(f"Repository {repo_name} renaming to {new_repo_name}.")
         project.save()
-        print(f"Repository {repo_name} renamed to {new_repo_name}.")
+        P.green(f"Repository {repo_name} renamed to {new_repo_name}.")
         return project
 
     def reset_repository(self, repo_name, gitattributes=None, user_id=8064473, sleep_for=10, delete_only=False):
@@ -177,13 +178,13 @@ class GitLabManager:
             project = self.get_project(repo_name)
             self.delete_project(project.id)
             if not delete_only:
-                print(f"Waiting for {sleep_for} seconds for the project to be completely deleted...")
+                P.red(f"Waiting for {sleep_for} seconds for the project to be completely deleted...")
                 time.sleep(sleep_for)
                 project = self.create_repository(repo_name, provide_owner_access=True, user_id=user_id)
                 if gitattributes is not None:
                     commit = self.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
                                                          content=gitattributes)
-                    print(commit)
+                    # print(commit)
             return project
         except Exception as e:
             print(f"Failed to reset repository: {e}")
@@ -241,7 +242,7 @@ class GitLabManager:
         if override_target:
             target_project = self.get_project(target_repo_name)
             if target_project is not None:
-                print(f"Project {target_repo_name} already exists. Deleting...")
+                P.red(f"Project {target_repo_name} already exists. Deleting...")
                 self.delete_project(target_project.id)
         if self.get_project(target_repo_name) is not None:
             print(f"Project {target_repo_name} already exists. Exiting...")
