@@ -171,114 +171,133 @@ class NikGappsManager:
         package_overlays = {
             "com.google.android.gms": [
                 {
+                    "package_title": "GmsCore",
                     "package_name": "com.nikgapps.overlay.gmscore",
                     "resources": Library.get_gms_core_resources()
                 }
             ],
             "com.google.android.dialer": [
                 {
+                    "package_title": "GoogleDialer",
                     "package_name": "com.nikgapps.overlay.dialer",
                     "resources": Library.get_google_dialer_resources()
                 }
             ],
             "com.google.android.contacts": [
                 {
+                    "package_title": "GoogleContacts",
                     "package_name": "com.nikgapps.overlay.contacts",
                     "resources": Library.get_google_contacts_resources()
                 }
             ],
             "com.google.android.tts": [
                 {
+                    "package_title": "GoogleTTS",
                     "package_name": "com.nikgapps.overlay.googletts",
                     "resources": Library.get_google_tts_resources()
                 }
             ],
             "com.google.android.apps.wellbeing": [
                 {
+                    "package_title": "DigitalWellbeing",
                     "package_name": "com.nikgapps.overlay.wellbeing",
                     "resources": Library.get_digital_wellbeing_resources()
                 }
             ],
             "com.google.android.marvin.talkback": [
                 {
+                    "package_title": "GoogleTalkback",
                     "package_name": "com.nikgapps.overlay.talkback",
                     "resources": Library.get_google_talkback_resources()
                 }
             ],
             "com.google.android.flipendo": [
                 {
+                    "package_title": "Flipendo",
                     "package_name": "com.nikgapps.overlay.flipendo",
                     "resources": Library.get_flipendo_resources()
                 }
             ],
             "com.google.android.apps.messaging": [
                 {
+                    "package_title": "GoogleMessages",
                     "package_name": "com.nikgapps.overlay.messages",
                     "resources": Library.get_google_messages_resources()
                 }
             ],
             "com.google.android.gms.location.history": [
                 {
+                    "package_title": "GoogleLocationHistory",
                     "package_name": "com.nikgapps.overlay.googlelocationhistory",
                     "resources": Library.get_google_location_history_resources()
                 }
             ],
             "com.google.android.apps.photos": [
                 {
+                    "package_title": "GooglePhotos",
                     "package_name": "com.nikgapps.overlay.googlephotos",
                     "resources": Library.get_google_photos_resources()
                 }
             ],
             "com.google.android.settings.intelligence": [
                 {
+                    "package_title": "SettingsServices",
                     "package_name": "com.nikgapps.overlay.settingsintelligence",
                     "resources": Library.get_settings_services_resources(self.android_version)
                 }
             ],
             "com.google.android.projection.gearhead": [
                 {
+                    "package_title": "AndroidAuto",
                     "package_name": "com.nikgapps.overlay.androidauto",
                     "resources": Library.get_android_auto_resources()
                 }
             ],
             "com.google.android.apps.nexuslauncher": [
                 {
+                    "package_title": "PixelLauncher",
                     "package_name": "com.nikgapps.overlay.pixellauncher",
                     "resources": Library.get_pixel_launcher_resources()
                 }
             ],
             "com.google.android.googlequicksearchbox": [
                 {
+                    "package_title": "Velvet",
                     "package_name": "com.nikgapps.overlay.googlequicksearchbox",
                     "resources": Library.get_velvet_resources()
                 }
             ],
             "com.google.android.deskclock": [
                 {
+                    "package_title": "GoogleClock",
                     "package_name": "com.nikgapps.overlay.googleclock",
                     "resources": Library.get_google_clock_resources()
                 }
             ],
             "com.google.android.as": [
                 {
+                    "package_title": "DevicePersonalizationServices",
                     "package_name": "com.nikgapps.overlay.ais",
                     "resources": Library.get_devices_personalization_services_resources()
                 }
             ],
             "com.google.android.wallpaper.effects": [
                 {
+                    "package_title": "CinematicEffect",
                     "package_name": "com.nikgapps.overlay.cinematiceffect",
                     "resources": Library.get_cinematic_effect_resources()
                 }
             ],
             "com.google.android.apps.youtube.music": [
                 {
+                    "package_title": "YouTubeMusic",
                     "package_name": "com.nikgapps.overlay.youtubemusic",
                     "resources": Library.get_youtube_music_resources()
                 }
             ]
         }
-        return [Overlay(package_name, overlay["package_name"], self.android_version, overlay["resources"]) for overlay
+        return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"],
+                        overlay["package_title"]) for overlay
                 in package_overlays.get(package_name, [])]
 
     def get_go_package(self):

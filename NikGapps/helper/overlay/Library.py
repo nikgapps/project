@@ -184,6 +184,10 @@ class Library:
         return r
 
     @staticmethod
+    def get_template():
+        return Resources()
+
+    @staticmethod
     def get_devices_personalization_services_resources():
         r = Resources()
         r.add(String('config_defaultAmbientContextConsentComponent',

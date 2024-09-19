@@ -16,7 +16,7 @@ def overlay_control():
     for android_version in android_versions:
         repo_name = Statics.get_overlay_source_repo(android_version)
         repo_dir = Statics.get_overlay_source_directory(android_version)
-        branch = "master"
+        branch = "main"
         overlay_source_repo = Git(repo_dir)
         overlay_source_repo.clone_repo(repo_name, branch=branch)
 
@@ -31,7 +31,7 @@ def overlay_control():
             overlays_repo_name = Statics.get_overlay_repo(android_version)
             overlays_repo_dir = Statics.get_overlay_directory(android_version)
             overlay_repo = Git(overlays_repo_dir)
-            overlay_repo.clone_repo(overlays_repo_name, branch="master")
+            overlay_repo.clone_repo(overlays_repo_name, branch="main")
             for folder in Path(repo_dir).iterdir():
                 if str(folder).endswith(".git"):
                     continue

@@ -106,19 +106,19 @@ class Statics:
 
     @staticmethod
     def get_overlay_source_directory(android_version):
-        return Statics.pwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}_source"
+        return Statics.pwd + os.path.sep + f"overlays_{android_version}_source"
 
     @staticmethod
     def get_overlay_source_repo(android_version):
-        return f"git@github.com:nikgapps/overlays_{Statics.get_android_code(android_version)}_source.git"
+        return f"git@gitlab.com:nikgapps/overlays_{android_version}_source.git"
 
     @staticmethod
     def get_overlay_directory(android_version):
-        return Statics.pwd + os.path.sep + f"overlays_{Statics.get_android_code(android_version)}"
+        return Statics.pwd + os.path.sep + f"overlays_{android_version}"
 
     @staticmethod
     def get_overlay_repo(android_version):
-        return f"git@github.com:nikgapps/overlays_{Statics.get_android_code(android_version)}.git"
+        return f"git@gitlab.com:nikgapps/overlays_{android_version}.git"
 
     @staticmethod
     def get_temp_overlay_directory(android_version):
