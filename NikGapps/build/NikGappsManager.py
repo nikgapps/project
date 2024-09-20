@@ -295,7 +295,14 @@ class NikGappsManager:
                     "package_name": "com.nikgapps.overlay.youtubemusic",
                     "resources": Library.get_youtube_music_resources()
                 }
-            ]
+            ],
+            "com.google.android.apps.turbo": [
+                {
+                    "package_title": "DeviceHealthServices",
+                    "package_name": "com.nikgapps.overlay.turbo",
+                    "resources": Library.get_device_health_services_resources()
+                }
+            ],
         }
         return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"])
                 for overlay

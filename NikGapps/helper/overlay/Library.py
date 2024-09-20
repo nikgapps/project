@@ -188,6 +188,16 @@ class Library:
         return Resources()
 
     @staticmethod
+    def get_device_health_services_resources():
+        r = Resources()
+        r.add(String('battery_suggestion_summary', 'Turn on Adaptive Battery'))
+        r.add(String('smart_battery_manager_title', 'Adaptive Battery'))
+        r.add(String('smart_battery_footer', 'When Battery Manager detects that apps are draining battery, you\u2019ll have the option to restrict these apps. Restricted apps may not work properly and notifications may be delayed.'))
+        r.add(String('smart_battery_title', 'Use Adaptive Battery'))
+        r.add(String('battery_tip_smart_battery_summary', 'Turn on Adaptive Battery'))
+        return r
+
+    @staticmethod
     def get_devices_personalization_services_resources():
         r = Resources()
         r.add(String('config_defaultAmbientContextConsentComponent',
