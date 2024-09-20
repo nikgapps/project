@@ -117,7 +117,8 @@ class NikGappsManager:
     def create_appset_list(self, package_list, keyword=None, fallback_appset=None):
         appset_dict = {}
         for package in package_list:
-            appset_title = self.find_appset_by_package(package.package_title, keyword=keyword, fallback_appset=fallback_appset)
+            appset_title = self.find_appset_by_package(package.package_title, keyword=keyword,
+                                                       fallback_appset=fallback_appset)
             if appset_title not in appset_dict:
                 appset_dict[appset_title] = AppSet(appset_title, [package])
             else:
@@ -296,8 +297,8 @@ class NikGappsManager:
                 }
             ]
         }
-        return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"],
-                        overlay["package_title"]) for overlay
+        return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"])
+                for overlay
                 in package_overlays.get(package_name, [])]
 
     def get_go_package(self):

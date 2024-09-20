@@ -4,6 +4,7 @@ from NikGapps.build.NikGappsOverlays import NikGappsOverlays
 from NikGapps.helper.Args import Args
 from NikGapps.helper.Cmd import Cmd
 from NikGapps.helper.FileOp import FileOp
+from NikGapps.helper.P import P
 from NikGapps.helper.Statics import Statics
 from NikGapps.helper.git.Git import Git
 from NikGapps.helper.overlay.Overlay import Overlay
@@ -33,9 +34,12 @@ def overlay_control():
             overlay_repo = Git(overlays_repo_dir)
             overlay_repo.clone_repo(overlays_repo_name, branch="main")
             for folder in Path(repo_dir).iterdir():
-                if str(folder).endswith(".git"):
+                if str(folder).__contains__(".git") or str(folder).__contains__("README.md"):
                     continue
                 cmd = Cmd()
+                if not FileOp.file_exists(os.path.join(str(folder), "apktool.yml")):
+                    P.red(f"apktool.yml doesn't exist in {folder}")
+                    continue
                 overlay_path = cmd.build_overlay(folder_name=str(folder))
                 if not overlay_path.__eq__(""):
                     print(f"{overlay_path} successfully built..")
