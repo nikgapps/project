@@ -48,8 +48,10 @@ def build_config():
             path = config_name
             FileOp.write_string_in_lf_file(str_data=config_string, file_path=path)
     for android_version in android_versions:
-        GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
-        GitOperations.clone_overlay_repo(android_version)
+        apk_repo = GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
+        Config.APK_SOURCE = apk_repo.working_tree_dir
+        overlay_repo = GitOperations.clone_overlay_repo(android_version)
+        Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         config_obj = NikGappsConfig(android_version=android_version, config_path=path)
         print(f"Setting up package list from {config_name}...")
         config_obj.config_package_list = Build.build_from_directory(app_set_build_list=config_obj.config_package_list,
