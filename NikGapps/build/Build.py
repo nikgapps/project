@@ -119,6 +119,8 @@ class Build:
                                                                                    android_version=android_version,
                                                                                    pkg_path=source_directory)
             pkg.delete_files_list = delete_files_list
+            for delete_app in pkg_obj.delete_files_list:
+                pkg.delete(delete_app)
             pkg.delete_overlay_list = delete_overlay_list
             pkg.validation_script = pkg_obj.validation_script
             pkg.overlay_list = pkg_obj.overlay_list
