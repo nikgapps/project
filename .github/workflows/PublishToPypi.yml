@@ -62,7 +62,7 @@ jobs:
       - name: Delete older releases
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.NIKHILMENGHANI_GITHUB_TOKEN }}
+          github-token: ${{ secrets.AUTH }}
           script: |
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
