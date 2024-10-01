@@ -8,7 +8,6 @@ setup(
     package_data={
         '': ['*.sh', '*.yml'],
         'NikGapps.helper': ['assets/*'],
-        'NikGapps.helper.assets': ['*'],
     },
     author="Nikhil Menghani",
     author_email="nikgapps@gmail.com",
