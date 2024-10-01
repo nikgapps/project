@@ -1,5 +1,8 @@
 from pathlib import Path
 from importlib import resources
+
+from nikassets.helper.Assets import Assets as A
+
 from NikGapps.helper.Statics import Statics
 from .FileOp import FileOp
 import os.path
@@ -22,19 +25,19 @@ class Assets:
                     break
     cwd = assets_folder + os.path.sep
     system_name = platform.system()
-    apksigner_path = cwd + "apksigner.jar"
-    apktool_path = cwd + "apktool_2.10.0.jar"
-    key_path = cwd + "cert.pk8"
-    cert_path = cwd + "cert.x509.pem"
-    private_key_pem = cwd + "private_key.pem"
+    apksigner_path = A.get("apksigner.jar")
+    apktool_path = A.get("apktool_2.10.0.jar")
+    key_path = A.get("cert.pk8")
+    cert_path = A.get("cert.x509.pem")
+    private_key_pem = A.get("private_key.pem")
     if system_name == "Windows":
-        aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2.exe')
-        adb_path = os.path.join(assets_folder, 'bin', system_name, 'adb.exe')
+        aapt_path = os.path.join(A.assets_folder, 'bin', system_name, 'aapt2.exe')
+        adb_path = os.path.join(A.assets_folder, 'bin', system_name, 'adb.exe')
     elif system_name == "Linux":
-        aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2')
+        aapt_path = os.path.join(A.assets_folder, 'bin', system_name, 'aapt2')
         adb_path = "adb"
     elif system_name == "Darwin":
-        aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt2')
+        aapt_path = os.path.join(A.assets_folder, 'bin', system_name, 'aapt2')
         if not FileOp.file_exists(aapt_path):
             aapt_path = Statics.find_latest_aapt()
         adb_path = "adb"
@@ -45,7 +48,7 @@ class Assets:
     header_path = cwd + "header.sh"
     functions_path = cwd + "functions.sh"
     gofile_path = cwd + "gofile.sh"
-    busybox = cwd + "busybox"
+    busybox = A.get("busybox")
     file_sizes_path = cwd + "file_size.txt"
     mount_path = cwd + "mount.sh"
     mtg_mount_path = cwd + "mtg_mount.sh"
@@ -57,7 +60,7 @@ class Assets:
     installer_path = cwd + "installer.sh"
     uninstaller_path = cwd + "uninstaller.sh"
     changelog = cwd + "changelogs.yaml"
-    sign_jar = os.path.join(assets_folder, "NikGappsZipSigner.jar")
+    sign_jar = os.path.join(A.assets_folder, "NikGappsZipSigner.jar")
     customize_path = cwd + "customize.sh"
     module_path = cwd + "module.prop"
     magisk_update_binary = cwd + "magisk-update-binary.sh"
