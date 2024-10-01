@@ -1,23 +1,110 @@
-name: Publish To Pypi
+name: Create Release and Publish to PyPI
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
+    paths:
+      - 'NikGapps/helper/assets/changelogs.yaml'
+      - 'script.sh'
+      - 'Dockerfile'
+      - 'setup.py'
+      - 'trigger release'
+      - 'NikGapps/copy_repos.py'
+      - 'NikGapps/cache.py'
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version'
-        required: true
 
-env:
- REGISTRY: ghcr.io
- IMAGE_NAME: docker
- IMAGE_TAG: main
-        
 jobs:
-  Publish-Python-Package:
-    name: upload release to PyPI
+  auto-release:
+    name: Auto Release
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.increment_version.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the latest release version
+        id: latest_version
+        run: |
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .name)
+          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+
+      - name: Increment the version
+        id: increment_version
+        run: |
+          LATEST_VERSION=$(echo $LATEST_VERSION | sed 's/v//') # Remove 'v' if present
+          IFS='.' read -r V_MAJOR V_MINOR V_PATCH <<< "$LATEST_VERSION"
+          if [[ $V_MINOR -eq 99 ]]; then
+            V_MAJOR=$((V_MAJOR + 1))
+            V_MINOR=0
+          else
+            V_MINOR=$((V_MINOR + 1))
+          fi
+          NEW_VERSION="$V_MAJOR.$V_MINOR"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AUTH }}
+          script: |
+            const newVersion = process.env.NEW_VERSION;
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${newVersion}`,
+              name: newVersion,
+              draft: false,
+              prerelease: false,
+            });
+
+      - name: Delete older releases
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.NIKHILMENGHANI_GITHUB_TOKEN }}
+          script: |
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            
+            // Sort releases by creation date descending (latest first)
+            const sortedReleases = releases.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            // Get releases beyond the latest 5
+            const releasesToDelete = sortedReleases.slice(5);
+            
+            for (const release of releasesToDelete) {
+              // Delete the release
+              await github.rest.repos.deleteRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.id,
+              });
+            
+              // Delete the tag associated with the release
+              try {
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `tags/${release.tag_name}`,
+                });
+              } catch (error) {
+                // Ignore errors if the tag does not exist
+                if (error.status !== 422) {
+                  throw error;
+                }
+              }
+            
+              console.log(`Deleted release ${release.name} and tag ${release.tag_name}`);
+            }
+
+  publish-to-pypi:
+    name: Upload Release to PyPI
+    runs-on: ubuntu-latest
+    needs: auto-release
     environment: release
     permissions:
       id-token: write
@@ -31,51 +118,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install build
-      - name: Update version number
-        run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            VERSION=${{ github.ref }}
-            VERSION=${VERSION#refs/tags/v}
-          else
-            VERSION=${{ github.event.inputs.version }}
-          fi
-          echo "VERSION=${VERSION#refs/tags/v}" >> $GITHUB_ENV
       - name: Update the version
-        run:
-          python update_version.py
+        run: |
+          VERSION=${{ needs.auto-release.outputs.new_version }}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          python update_version.py --version $VERSION
       - name: Build package
         run: python -m build
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
-  
-#  build-and-push:
-#   runs-on: ubuntu-latest
-#   needs: Publish-Python-Package
-#   steps:
-#   - name: Check Out Repo
-#     uses: actions/checkout@v4
-#
-#   - name: Set up Docker Buildx
-#     uses: docker/setup-buildx-action@v3
-#
-#   - name: Log in to GitHub Container Registry
-#     uses: docker/login-action@v3
-#     with:
-#       registry: ${{ env.REGISTRY }}
-#       username: ${{ github.actor }}
-#       password: ${{ secrets.AUTH }}
-#
-#   - name: Extract Docker Meta Data
-#     id: meta
-#     uses: docker/metadata-action@v5
-#     with:
-#       images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
-#
-#   - name: Build and Push Docker Image
-#     uses: docker/build-push-action@v6
-#     with:
-#       context: .
-#       file: ./Dockerfile
-#       push: true
-#       tags: ${{ steps.meta.outputs.tags }}
-#       labels: ${{ steps.meta.outputs.labels }}

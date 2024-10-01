@@ -1,5 +1,13 @@
+import argparse
 import os
+
+parser = argparse.ArgumentParser(description='Version Updater')
+parser.add_argument('--version', default="", help="New Version")
+
 version = os.getenv('VERSION')
+if version is None:
+    args = parser.parse_args()
+    version = args.version
 print(f"Version is {version}")
 version_line_index = 5
 
