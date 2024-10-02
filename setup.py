@@ -28,7 +28,9 @@ setup(
         'PyGithub>=2.3.0',
         'python-gitlab>=4.7.0',
         'cryptography>=43.0.0',
-        'python-dotenv~=1.0.1'
+        'python-dotenv~=1.0.1',
+        'nikassets>=0.7',
+        'niklibrary>=0.17',
     ],
     entry_points={
         'console_scripts': [
