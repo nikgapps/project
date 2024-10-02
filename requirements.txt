@@ -12,3 +12,4 @@ python-gitlab~=4.11.1
 cryptography~=43.0.1
 python-dotenv~=1.0.1
 nikassets~=0.6
+niklibrary~=0.17
