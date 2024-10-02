@@ -12,7 +12,6 @@ on:
       - 'trigger release'
       - 'NikGapps/copy_repos.py'
       - 'NikGapps/cache.py'
-      - 'requirements.txt'
   workflow_dispatch:
 
 jobs:
