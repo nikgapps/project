@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
-from NikGapps.helper.SystemStat import SystemStat
+from niklibrary.helper.SystemStat import SystemStat
 from niklibrary.git.GitlabManager import GitLabManager
 
 

@@ -6,8 +6,8 @@ from multiprocessing import cpu_count
 from threading import Lock
 
 from .CompOps import CompOps
-from .Modes import Modes
-from .Zip import Zip
+from niklibrary.compression.Modes import Modes
+from niklibrary.compression.Zip import Zip
 from .. import Config
 from ..Assets import Assets
 from niklibrary.helper.Cmd import Cmd

@@ -5,7 +5,7 @@ from NikGapps.helper import Config
 from niklibrary.helper.P import P
 from niklibrary.helper.Statics import Statics
 from niklibrary.helper.T import T
-from NikGapps.helper.compression.Modes import Modes
+from niklibrary.compression.Modes import Modes
 from NikGapps.helper.compression.Export import Export
 from niklibrary.web.Upload import Upload
 from niklibrary.web.TelegramApi import TelegramApi

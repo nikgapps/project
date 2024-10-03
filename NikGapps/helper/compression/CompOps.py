@@ -1,7 +1,7 @@
 from niklibrary.helper.F import F
 from niklibrary.helper.Statics import Statics
 from NikGapps.helper.Package import Package
-from .Modes import Modes
+from niklibrary.compression.Modes import Modes
 
 
 class CompOps:
@@ -10,10 +10,10 @@ class CompOps:
     def get_compression_obj(file_name, compression_mode=Modes.ZIP):
         match compression_mode:
             case Modes.TAR_XZ:
-                from .Tar import Tar
+                from niklibrary.compression.Tar import Tar
                 return Tar(file_name)
             case _:
-                from .Zip import Zip
+                from niklibrary.compression.Zip import Zip
                 return Zip(file_name)
 
     @staticmethod

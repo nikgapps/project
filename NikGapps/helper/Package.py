@@ -1,6 +1,6 @@
 from .Assets import Assets
 from niklibrary.helper.Statics import Statics
-from .XmlOp import XmlOp
+from niklibrary.helper.XmlOp import XmlOp
 from .overlay.Overlay import Overlay
 
 

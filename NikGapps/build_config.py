@@ -5,13 +5,13 @@ from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
-from NikGapps.helper.B64 import B64
+from niklibrary.helper.B64 import B64
 from niklibrary.helper.F import F
 from niklibrary.helper.Statics import Statics
-from NikGapps.helper.SystemStat import SystemStat
+from niklibrary.helper.SystemStat import SystemStat
 from niklibrary.helper.T import T
 from NikGapps.helper.compression.Export import Export
-from NikGapps.helper.compression.Modes import Modes
+from niklibrary.compression.Modes import Modes
 from niklibrary.git.GitOp import GitOp
 
 

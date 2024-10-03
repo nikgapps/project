@@ -2,9 +2,9 @@
 from NikGapps.build.Release import Release
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
-from NikGapps.helper.SystemStat import SystemStat
+from niklibrary.helper.SystemStat import SystemStat
 from niklibrary.helper.T import T
-from NikGapps.helper.compression.Modes import Modes
+from niklibrary.compression.Modes import Modes
 from niklibrary.git.GitOp import GitOp
 
 

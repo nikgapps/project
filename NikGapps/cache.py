@@ -4,13 +4,13 @@ from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from niklibrary.helper.F import F
 from NikGapps.helper.Package import Package
-from NikGapps.helper.compression.Modes import Modes
+from niklibrary.compression.Modes import Modes
 from NikGapps.helper.compression.CompOps import CompOps
 from NikGapps.helper.AppSet import AppSet
 from NikGapps.helper import Config
 from niklibrary.helper.P import P
 from niklibrary.helper.T import T
-from NikGapps.helper.SystemStat import SystemStat
+from niklibrary.helper.SystemStat import SystemStat
 from NikGapps.helper.Args import Args
 from niklibrary.git.GitOp import GitOp
 from niklibrary.git.GitlabManager import GitLabManager
