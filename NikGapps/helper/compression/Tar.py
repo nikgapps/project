@@ -1,6 +1,6 @@
 import tarfile
 from io import BytesIO
-from ..FileOp import FileOp
+from niklibrary.helper.F import F
 
 
 class Tar:
@@ -9,7 +9,7 @@ class Tar:
         if folder_to_compress is None:
             self.folder = folder_to_compress
         self.tarfile = str(file_name) if str(file_name).endswith("tar.xz") else str(file_name) + ".tar.xz"
-        FileOp.create_file_dir(self.tarfile)
+        F.create_file_dir(self.tarfile)
         self.tar = tarfile.open(self.tarfile, "w:xz")
 
     def add_file(self, file_to_add, zippath):

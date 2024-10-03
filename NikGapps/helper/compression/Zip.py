@@ -28,11 +28,12 @@ class Zip:
         if self.sign:
             if private_key_path is None:
                 raise ValueError("Private key path must be provided for signing.")
-            self.private_key = self.load_private_key(private_key_path)
+            self.private_key = Zip.load_private_key(private_key_path)
             self.signatures = {}
             self.manifest_digests = {}
 
-    def load_private_key(self, file_path):
+    @staticmethod
+    def load_private_key(file_path):
         with open(file_path, 'rb') as key_file:
             return load_pem_private_key(
                 key_file.read(),

@@ -1,6 +1,6 @@
 import time
 
-from NikGapps.helper.git.Git import Git
+from niklibrary.git.Git import Git
 import git.exc
 
 

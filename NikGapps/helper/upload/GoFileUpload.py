@@ -1,11 +1,11 @@
 import platform
 
 from NikGapps.helper.Assets import Assets
-from NikGapps.helper.Cmd import Cmd
-from NikGapps.helper.FileOp import FileOp
-from NikGapps.helper.P import P
-from NikGapps.helper.T import T
-from NikGapps.helper.web.TelegramApi import TelegramApi
+from niklibrary.helper.Cmd import Cmd
+from niklibrary.helper.F import F
+from niklibrary.helper.P import P
+from niklibrary.helper.T import T
+from niklibrary.web.TelegramApi import TelegramApi
 
 
 class GoFileUpload:
@@ -39,8 +39,8 @@ class GoFileUpload:
                 return execution_status
             print("uploading file finished...")
             execution_status = True
-            file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
-            file_size_mb = round(FileOp.get_file_size(file_name), 2)
+            file_size_kb = round(F.get_file_size(file_name, "KB"), 2)
+            file_size_mb = round(F.get_file_size(file_name), 2)
             time_taken = t.taken(f"Total time taken to upload file with size {file_size_mb} MB ("
                                  f"{file_size_kb} Kb)")
             if execution_status:

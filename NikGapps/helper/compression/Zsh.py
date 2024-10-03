@@ -1,7 +1,7 @@
 from pathlib import Path
 from subprocess import call
 
-from ..T import T
+from niklibrary.helper.T import T
 
 
 class Zsh:

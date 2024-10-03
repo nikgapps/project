@@ -3,9 +3,9 @@ import os
 from NikGapps.build.PackageConstants import PackageConstants
 from NikGapps.helper.AppSet import AppSet
 from NikGapps.helper.Assets import Assets
-from NikGapps.helper.Cmd import Cmd
+from niklibrary.helper.Cmd import Cmd
 from NikGapps.helper.Package import Package
-from NikGapps.helper.Statics import Statics
+from niklibrary.helper.Statics import Statics
 from NikGapps.helper.overlay.Overlay import Overlay
 from NikGapps.helper.overlay.Library import Library
 

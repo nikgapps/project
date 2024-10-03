@@ -6,11 +6,11 @@ from threading import Lock
 
 from NikGapps.helper import Config
 from NikGapps.helper.Package import Package
-from NikGapps.helper.FileOp import FileOp
-from NikGapps.helper.Cmd import Cmd
+from niklibrary.helper.F import F
+from niklibrary.helper.Cmd import Cmd
 from NikGapps.helper.AppSet import AppSet
-from NikGapps.helper.Statics import Statics
-from NikGapps.helper.T import T
+from niklibrary.helper.Statics import Statics
+from niklibrary.helper.T import T
 
 
 class Build:
@@ -48,7 +48,7 @@ class Build:
             if float(android_version) >= 12.1:
                 overlay_directory = Config.OVERLAY_SOURCE
                 overlay_dir = overlay_directory + Statics.dir_sep + f"{package_title}Overlay"
-                if FileOp.dir_exists(overlay_dir):
+                if F.dir_exists(overlay_dir):
                     for file in Path(overlay_dir).rglob("*.apk"):
                         pkg_files_path = "overlay" + Statics.dir_sep + Path(file).name
                         install_list.append(pkg_files_path.replace("___", "/"))
@@ -61,7 +61,7 @@ class Build:
                         or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):
                     continue
                 if str(pkg_files).endswith(Statics.DELETE_FILES_NAME):
-                    for str_data in FileOp.read_string_file(pkg_files):
+                    for str_data in F.read_string_file(pkg_files):
                         delete_file = str_data.strip()
                         if delete_file not in delete_files_list:
                             delete_files_list.append(delete_file)
@@ -79,7 +79,7 @@ class Build:
                         app_type = Statics.is_priv_app
                     elif str(primary_app_location).__contains__("___app___"):
                         app_type = Statics.is_system_app
-                for folder in FileOp.get_dir_list(pkg_files_path):
+                for folder in F.get_dir_list(pkg_files_path):
                     if folder.startswith("system") or folder.startswith("vendor") \
                             or folder.startswith("product") or folder.startswith("system_ext") \
                             or folder.startswith("overlay"):
@@ -87,7 +87,7 @@ class Build:
                     folder_dict[folder] = folder
                 # We don't need this but for the sake of consistency
                 if str(pkg_files_path).endswith("xml") or str(pkg_files_path).endswith("prop"):
-                    FileOp.convert_to_lf(str(pkg_files.absolute()))
+                    F.convert_to_lf(str(pkg_files.absolute()))
                 install_list.append(pkg_files_path.replace("___", "/"))
                 file_dict_value = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
                 value = str(file_dict_value).split("/")

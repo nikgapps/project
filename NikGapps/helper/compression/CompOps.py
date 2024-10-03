@@ -1,5 +1,5 @@
-from NikGapps.helper.FileOp import FileOp
-from NikGapps.helper.Statics import Statics
+from niklibrary.helper.F import F
+from niklibrary.helper.Statics import Statics
 from NikGapps.helper.Package import Package
 from .Modes import Modes
 
@@ -36,7 +36,7 @@ class CompOps:
             cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh")
             cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
             cpkg.close()
-            FileOp.write_string_file(str(pkg_size), pkg_txt_path)
+            F.write_string_file(str(pkg_size), pkg_txt_path)
         except Exception as e:
             print(e)
             return False

@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
 from NikGapps.helper.SystemStat import SystemStat
-from NikGapps.helper.git.GitlabManager import GitLabManager
+from niklibrary.git.GitlabManager import GitLabManager
 
 
 def copy_repos():

@@ -8,8 +8,8 @@ import psutil
 
 from . import Config
 from .Assets import Assets
-from .P import P
-from .T import T
+from niklibrary.helper.P import P
+from niklibrary.helper.T import T
 
 
 class SystemStat:

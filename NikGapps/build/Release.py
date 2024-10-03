@@ -2,13 +2,13 @@ import os
 from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper import Config
-from NikGapps.helper.P import P
-from NikGapps.helper.Statics import Statics
-from NikGapps.helper.T import T
+from niklibrary.helper.P import P
+from niklibrary.helper.Statics import Statics
+from niklibrary.helper.T import T
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.compression.Export import Export
-from NikGapps.helper.upload.Upload import Upload
-from NikGapps.helper.web.TelegramApi import TelegramApi
+from niklibrary.web.Upload import Upload
+from niklibrary.web.TelegramApi import TelegramApi
 
 
 class Release:

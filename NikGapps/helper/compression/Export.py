@@ -10,12 +10,12 @@ from .Modes import Modes
 from .Zip import Zip
 from .. import Config
 from ..Assets import Assets
-from ..Cmd import Cmd
-from ..FileOp import FileOp
-from ..P import P
-from ..Statics import Statics
-from ..T import T
-from ..web.TelegramApi import TelegramApi
+from niklibrary.helper.Cmd import Cmd
+from niklibrary.helper.F import F
+from niklibrary.helper.P import P
+from niklibrary.helper.Statics import Statics
+from niklibrary.helper.T import T
+from niklibrary.web.TelegramApi import TelegramApi
 from ...config.NikGappsConfig import NikGappsConfig
 
 
@@ -52,7 +52,7 @@ class Export:
                 print(f"Using cached package: {os.path.basename(pkg_zip_path)}")
                 cached_pkg_zip_path = os.path.join(Config.CACHED_SOURCE, appset.title,
                                                    f"{pakg.package_title}{compression_mode}")
-                if FileOp.file_exists(cached_pkg_zip_path):
+                if F.file_exists(cached_pkg_zip_path):
                     pkg_zip_path = cached_pkg_zip_path
                     pkg_txt_path = pkg_zip_path.replace(compression_mode, "") + "_" + compression_mode[
                                                                                       1:] + ".txt"
@@ -61,7 +61,7 @@ class Export:
             else:
                 CompOps.compress_package(pkg_zip_path, pakg, compression_mode)
 
-            for size_on_file in FileOp.read_string_file(pkg_txt_path):
+            for size_on_file in F.read_string_file(pkg_txt_path):
                 pkg_size = size_on_file
                 pakg.pkg_size = pkg_size
 

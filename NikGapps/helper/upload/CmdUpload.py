@@ -3,11 +3,11 @@ import platform
 import time
 from pathlib import Path
 import pexpect
-from NikGapps.helper.FileOp import FileOp
-from NikGapps.helper.P import P
-from NikGapps.helper.Statics import Statics
-from NikGapps.helper.T import T
-from NikGapps.helper.web.TelegramApi import TelegramApi
+from niklibrary.helper.F import F
+from niklibrary.helper.P import P
+from niklibrary.helper.Statics import Statics
+from niklibrary.helper.T import T
+from niklibrary.web.TelegramApi import TelegramApi
 
 
 class CmdUpload:
@@ -123,8 +123,8 @@ class CmdUpload:
         file_size_mb = None
         if self.successful_connection:
             system_name = platform.system()
-            file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
-            file_size_mb = round(FileOp.get_file_size(file_name), 2)
+            file_size_kb = round(F.get_file_size(file_name, "KB"), 2)
+            file_size_mb = round(F.get_file_size(file_name), 2)
             if telegram is not None:
                 telegram.message(f"- The zip {file_size_mb} MB is uploading...")
             if system_name != "Windows" and self.upload_files:

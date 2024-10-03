@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as eT
 
-from NikGapps.helper.Statics import Statics
+from niklibrary.helper.Statics import Statics
 
 
 class Manifest:

@@ -2,21 +2,21 @@ from pathlib import Path
 from importlib import resources
 
 from nikassets.helper.Assets import Assets as A
+from niklibrary.helper.F import F
 
-from NikGapps.helper.Statics import Statics
-from .FileOp import FileOp
+from niklibrary.helper.Statics import Statics
 import os.path
 import platform
 
-from .Json import Json
+from niklibrary.json.Json import Json
 
 
 class Assets:
     with resources.files('NikGapps.helper').joinpath('assets') as asset_path:
         assets_folder = str(asset_path)
-    if not FileOp.dir_exists(assets_folder):
+    if not F.dir_exists(assets_folder):
         assets_folder = os.path.join(os.getcwd(), 'assets')
-    if not FileOp.dir_exists(assets_folder):
+    if not F.dir_exists(assets_folder):
         pwd = Path(os.getcwd()).parent
         for folders in pwd.iterdir():
             if folders.is_dir():
@@ -38,7 +38,7 @@ class Assets:
         adb_path = "adb"
     elif system_name == "Darwin":
         aapt_path = os.path.join(A.assets_folder, 'bin', system_name, 'aapt2')
-        if not FileOp.file_exists(aapt_path):
+        if not F.file_exists(aapt_path):
             aapt_path = Statics.find_latest_aapt()
         adb_path = "adb"
     else:
@@ -70,8 +70,8 @@ class Assets:
 
     @staticmethod
     def get_string_resource(file_path):
-        return FileOp.read_string_file(file_path)
+        return F.read_string_file(file_path)
 
     @staticmethod
     def get_binary_resource(file_path):
-        return FileOp.read_binary_file(file_path)
+        return F.read_binary_file(file_path)

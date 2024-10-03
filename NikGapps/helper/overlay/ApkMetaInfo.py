@@ -1,7 +1,7 @@
 import os
 import yaml
 
-from NikGapps.helper.Statics import Statics
+from niklibrary.helper.Statics import Statics
 
 
 class ApkMetaInfo:

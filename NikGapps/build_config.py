@@ -6,13 +6,13 @@ from NikGapps.config.NikGappsConfig import NikGappsConfig
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
 from NikGapps.helper.B64 import B64
-from NikGapps.helper.FileOp import FileOp
-from NikGapps.helper.Statics import Statics
+from niklibrary.helper.F import F
+from niklibrary.helper.Statics import Statics
 from NikGapps.helper.SystemStat import SystemStat
-from NikGapps.helper.T import T
+from niklibrary.helper.T import T
 from NikGapps.helper.compression.Export import Export
 from NikGapps.helper.compression.Modes import Modes
-from NikGapps.helper.git.GitOperations import GitOperations
+from niklibrary.git.GitOp import GitOp
 
 
 def build_config():
@@ -35,7 +35,7 @@ def build_config():
         exit(1)
     if not str(config_name).endswith(".config"):
         config_name = config_name + ".config"
-    if FileOp.file_exists(config_name):
+    if F.file_exists(config_name):
         print("Reading from the file " + config_name)
         path = config_name
     else:
@@ -46,11 +46,11 @@ def build_config():
         else:
             config_string = B64.b64d(config_value)
             path = config_name
-            FileOp.write_string_in_lf_file(str_data=config_string, file_path=path)
+            F.write_string_in_lf_file(str_data=config_string, file_path=path)
     for android_version in android_versions:
-        apk_repo = GitOperations.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
+        apk_repo = GitOp.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
         Config.APK_SOURCE = apk_repo.working_tree_dir
-        overlay_repo = GitOperations.clone_overlay_repo(android_version)
+        overlay_repo = GitOp.clone_overlay_repo(android_version)
         Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         config_obj = NikGappsConfig(android_version=android_version, config_path=path)
         print(f"Setting up package list from {config_name}...")

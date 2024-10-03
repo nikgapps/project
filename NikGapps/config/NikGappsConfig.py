@@ -6,12 +6,12 @@ from NikGapps.helper import Config
 from NikGapps.helper.AppSet import AppSet
 from NikGapps.helper.Assets import Assets
 from NikGapps.helper.ConfigObj import ConfigObj
-from NikGapps.helper.FileOp import FileOp
+from niklibrary.helper.F import F
 from NikGapps.helper.Package import Package
-from NikGapps.helper.Statics import Statics
-from NikGapps.helper.git.GitOperations import GitOperations
-from NikGapps.helper.upload.Upload import Upload
-from NikGapps.helper.web.Requests import Requests
+from niklibrary.helper.Statics import Statics
+from niklibrary.git.GitOp import GitOp
+from niklibrary.web.Upload import Upload
+from niklibrary.web.Requests import Requests
 
 
 class NikGappsConfig:
@@ -28,7 +28,7 @@ class NikGappsConfig:
         self.use_zip_config = use_zip_config
         self.elite_folder = None
         if config_path is not None:
-            self.raw_config = "".join(FileOp.read_string_file(config_path))
+            self.raw_config = "".join(F.read_string_file(config_path))
             self.config_name = str(Path(self.config_path).name).split(".config")[0]
             if str(self.config_path).__contains__(Statics.dir_sep + "elite" + Statics.dir_sep):
                 self.is_elite = True
@@ -269,15 +269,15 @@ class NikGappsConfig:
         analytics_dict = {}
         key = "config_version_" + Statics.get_android_code(self.android_version)
         analytics_dict[key] = str(self.config_version)
-        tracker_repo = GitOperations.setup_tracker_repo()
+        tracker_repo = GitOp.setup_tracker_repo()
         repo_dir = tracker_repo.working_tree_dir
-        if FileOp.dir_exists(repo_dir):
+        if F.dir_exists(repo_dir):
             print(f"{repo_dir} exists!")
             config_version_json = repo_dir + Statics.dir_sep + "config_version.json"
-            if FileOp.file_exists(config_version_json):
+            if F.file_exists(config_version_json):
                 print("File Exists!")
                 custom_builds_json_string = ""
-                for line in FileOp.read_string_file(config_version_json):
+                for line in F.read_string_file(config_version_json):
                     custom_builds_json_string += line
                 print(custom_builds_json_string)
                 print()
@@ -329,8 +329,8 @@ class NikGappsConfig:
         # create nikgapps.config file and upload to sourceforge
         temp_nikgapps_config_location = Statics.get_temp_packages_directory(
             self.android_version) + Statics.dir_sep + "nikgapps.config"
-        FileOp.write_string_in_lf_file(self.get_nikgapps_config(for_release=True), temp_nikgapps_config_location)
-        if FileOp.file_exists(temp_nikgapps_config_location):
+        F.write_string_in_lf_file(self.get_nikgapps_config(for_release=True), temp_nikgapps_config_location)
+        if F.file_exists(temp_nikgapps_config_location):
             release_dir = "NikGappsConfigs"
             u = Upload(android_version=self.android_version, release_type=release_dir, upload_files=Config.UPLOAD_FILES)
             file_type = "nikgappsconfig"
@@ -343,7 +343,7 @@ class NikGappsConfig:
     def get_release_date(self):
         release_date = None
         if self.config_path is not None:
-            file_contents = FileOp.read_string_file(self.config_path)
+            file_contents = F.read_string_file(self.config_path)
             for line in file_contents:
                 if line.startswith("RELEASE_DATE="):
                     release_date = line.split("=")[1].strip()
@@ -354,7 +354,7 @@ class NikGappsConfig:
         if release_date is None:
             release_date = Requests.get_release_date(self.android_version, Config.RELEASE_TYPE)
         if self.config_path is not None:
-            file_contents = FileOp.read_string_file(self.config_path)
+            file_contents = F.read_string_file(self.config_path)
             for index, line in enumerate(file_contents):
                 if line.startswith("RELEASE_DATE="):
                     file_contents[index] = f"RELEASE_DATE={release_date}\n"
@@ -363,6 +363,6 @@ class NikGappsConfig:
                     file_contents.insert(index, f"RELEASE_DATE={release_date}\n")
                     break
             file_string = "".join(file_contents)
-            FileOp.write_string_in_lf_file(file_string, self.config_path)
+            F.write_string_in_lf_file(file_string, self.config_path)
         else:
             print("Invalid config path!")

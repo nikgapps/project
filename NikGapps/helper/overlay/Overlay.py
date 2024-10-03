@@ -1,5 +1,5 @@
 import os
-from NikGapps.helper.Statics import Statics
+from niklibrary.helper.Statics import Statics
 from NikGapps.helper.overlay.ApkMetaInfo import ApkMetaInfo
 from NikGapps.helper.overlay.Manifest import Manifest
 

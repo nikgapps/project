@@ -2,18 +2,18 @@ import os
 from dotenv import load_dotenv
 from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
-from NikGapps.helper.FileOp import FileOp
+from niklibrary.helper.F import F
 from NikGapps.helper.Package import Package
 from NikGapps.helper.compression.Modes import Modes
 from NikGapps.helper.compression.CompOps import CompOps
 from NikGapps.helper.AppSet import AppSet
 from NikGapps.helper import Config
-from NikGapps.helper.P import P
-from NikGapps.helper.T import T
+from niklibrary.helper.P import P
+from niklibrary.helper.T import T
 from NikGapps.helper.SystemStat import SystemStat
 from NikGapps.helper.Args import Args
-from NikGapps.helper.git.GitOperations import GitOperations
-from NikGapps.helper.git.GitlabManager import GitLabManager
+from niklibrary.git.GitOp import GitOp
+from niklibrary.git.GitlabManager import GitLabManager
 
 
 def cache():
@@ -45,11 +45,11 @@ def cache():
             project = gitlab_manager.create_repository(cached_url, provide_owner_access=True)
             gitlab_manager.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
                                                   content=gitattributes)
-        repo_cached = GitOperations.clone_apk_url(url=cached_url, use_ssh_clone=True)
-        apk_repo = GitOperations.clone_apk_url(url=url)
+        repo_cached = GitOp.clone_apk_url(url=cached_url, use_ssh_clone=True)
+        apk_repo = GitOp.clone_apk_url(url=url)
         Config.APK_SOURCE = apk_repo.working_tree_dir
         if float(android_version) >= 12.1:
-            overlay_repo = GitOperations.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
+            overlay_repo = GitOp.clone_overlay_repo(android_version=str(android_version), fresh_clone=True)
             Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         config_obj = NikGappsConfig(android_version)
         app_set_list = config_obj.package_manager.get_packages("all")
@@ -68,8 +68,8 @@ def cache():
                     t.taken(f"Total time taken to process the {pkg.package_title}, compressing into {mode}")
                 repo_cached.git_push(commit_message=f"Compressed {pkg.package_title} for {appset.title}",
                                      push_untracked_files=True, pull_first=True, post_buffer="1048576000")
-        if Config.ENVIRONMENT_TYPE.__eq__("production") and FileOp.dir_exists(repo_cached.working_tree_dir):
-            FileOp.remove_dir(repo_cached.working_tree_dir)
+        if Config.ENVIRONMENT_TYPE.__eq__("production") and F.dir_exists(repo_cached.working_tree_dir):
+            F.remove_dir(repo_cached.working_tree_dir)
 
 
 if __name__ == "__main__":
