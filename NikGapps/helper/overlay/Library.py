@@ -48,6 +48,8 @@ class Library:
         r.add(String('config_defaultDndAccessPackages', 'com.google.android.gms:com.google.android.apps.wellbeing',
                      comment='Colon separated list of package names that should be granted DND access.'))
         r.add(StringArray('config_packagesExemptFromSuspension', ['com.google.android.apps.wellbeing']))
+        r.add(StringArray('config_quickSettingsAutoAdd', ['wind_down_first_time_setup:custom(com.google.android.apps.wellbeing/.screen.ui.GrayscaleTileService)',
+                                                          'focus_mode_first_time_setup:custom(com.google.android.apps.wellbeing/.focusmode.quicksettings.FocusModeTileService)']))
         return r
 
     @staticmethod
@@ -82,6 +84,10 @@ class Library:
         r.add(String('platform_number_verification_package', 'com.google.android.gms'))
         r.add(String('config_defaultQrCodeComponent',
                      'com.google.android.gms/.mlkit.barcode.ui.PlatformBarcodeScanningActivityProxy'))
+        r.add(String('config_defaultCredentialManagerHybridService', 'com.google.android.gms/.auth.api.credentials.credman.service.RemoteService'))
+        r.add(String('config_remoteCopyPackage', 'com.google.android.gms/.nearby.sharing.RemoteCopyShareSheetActivity'))
+        r.add(String('config_systemCallStreaming', 'com.google.android.gms'))
+        r.add(String('config_oemCredentialManagerDialogComponent', 'com.google.android.gms/.identitycredentials.ui.CredentialChooserActivity'))
         r.add(Bool('config_enableAutoPowerModes', True))
         r.add(Bool('config_enableNetworkLocationOverlay', True))
         r.add(Bool('config_enableFusedLocationOverlay', True))
@@ -459,4 +465,11 @@ class Library:
         r = Resources()
         r.add(String('config_defaultWallpaperEffectsGenerationService',
                      'com.google.android.as/com.google.android.apps.miphone.aiai.app.wallpapereffects.AiAiWallpaperEffectsGenerationService'))
+        return r
+
+    @staticmethod
+    def get_google_files_resources():
+        r = Resources()
+        r.add(String('config_systemFilePicker', 'com.google.android.apps.nbu.files'))
+        r.add(String('config_sceenshotWorkProfileFilesApp', 'com.google.android.apps.nbu.files/com.google.android.apps.nbu.files.home.HomeActivity'))
         return r

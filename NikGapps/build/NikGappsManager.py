@@ -303,6 +303,13 @@ class NikGappsManager:
                     "resources": Library.get_device_health_services_resources()
                 }
             ],
+            "com.google.android.apps.nbu.files": [
+                {
+                    "package_title": "GoogleFiles",
+                    "package_name": "com.nikgapps.overlay.files",
+                    "resources": Library.get_google_files_resources()
+                }
+            ],
         }
         return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"])
                 for overlay
