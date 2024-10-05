@@ -402,6 +402,8 @@ class NikGappsManager:
                         # pixel_launcher_packages.append("CinematicEffect")
                         pixel_launcher_packages.append("EmojiWallpaper")
                         pixel_launcher_packages.append("PixelWeather")
+                        if float(self.android_version) >= 15:
+                            pixel_launcher_packages.append("AICore")
         pixel_specifics = self.create_appset_list_from_packages(pixel_launcher_packages)
         stock_packages = [
             "PlayGames",

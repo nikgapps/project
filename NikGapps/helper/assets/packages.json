@@ -614,5 +614,13 @@
             "title": "YouTubeMusicPrebuilt",
             "type": "app"
         }
+    ],
+    "AICore": [
+        {
+            "package_name": "com.google.android.aicore",
+            "partition": "product",
+            "title": "AiCorePrebuilt",
+            "type": "priv-app"
+        }
     ]
 }

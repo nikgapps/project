@@ -406,6 +406,12 @@
         "EmojiWallpaper",
         "PixelWeather"
       ]
+    },
+    {
+      "min_version": 15,
+      "packages": [
+        "AICore"
+      ]
     }
   ],
   "PlayGames": [
