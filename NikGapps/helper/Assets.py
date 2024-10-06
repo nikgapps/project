@@ -1,7 +1,7 @@
 from pathlib import Path
 from importlib import resources
 
-from nikassets.helper.Assets import Assets as A
+from niklibrary.helper.Assets import Assets as A
 from niklibrary.helper.F import F
 import os.path
 
