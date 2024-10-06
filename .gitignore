@@ -162,3 +162,5 @@ Releases/
 TempPackages/
 NikGapps/overlays_T/
 NikGapps/.env
+/NikGapps/*.config
+/NikGapps/run.py
