@@ -3,10 +3,7 @@ from importlib import resources
 
 from nikassets.helper.Assets import Assets as A
 from niklibrary.helper.F import F
-
-from niklibrary.helper.Statics import Statics
 import os.path
-import platform
 
 from niklibrary.json.Json import Json
 
@@ -24,30 +21,17 @@ class Assets:
                     assets_folder = str(folders)
                     break
     cwd = assets_folder + os.path.sep
-    system_name = platform.system()
+    system_name = A.system_name
     apksigner_path = A.get("apksigner.jar")
     apktool_path = A.get("apktool_2.10.0.jar")
     key_path = A.get("cert.pk8")
     cert_path = A.get("cert.x509.pem")
     private_key_pem = A.get("private_key.pem")
-    if system_name == "Windows":
-        aapt_path = os.path.join(A.assets_folder, 'bin', system_name, 'aapt2.exe')
-        adb_path = os.path.join(A.assets_folder, 'bin', system_name, 'adb.exe')
-    elif system_name == "Linux":
-        aapt_path = os.path.join(A.assets_folder, 'bin', system_name, 'aapt2')
-        adb_path = "adb"
-    elif system_name == "Darwin":
-        aapt_path = os.path.join(A.assets_folder, 'bin', system_name, 'aapt2')
-        if not F.file_exists(aapt_path):
-            aapt_path = Statics.find_latest_aapt()
-        adb_path = "adb"
-    else:
-        aapt_path = "adb"
-        adb_path = "aapt2"
+    aapt_path = A.aapt_path
+    adb_path = A.adb_path
     addon_path = cwd + "addon.sh"
     header_path = cwd + "header.sh"
     functions_path = cwd + "functions.sh"
-    gofile_path = cwd + "gofile.sh"
     busybox = A.get("busybox")
     file_sizes_path = cwd + "file_size.txt"
     mount_path = cwd + "mount.sh"
