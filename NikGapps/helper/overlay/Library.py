@@ -473,3 +473,18 @@ class Library:
         r.add(String('config_systemFilePicker', 'com.google.android.apps.nbu.files'))
         r.add(String('config_sceenshotWorkProfileFilesApp', 'com.google.android.apps.nbu.files/com.google.android.apps.nbu.files.home.HomeActivity'))
         return r
+
+    @staticmethod
+    def get_google_wallpaper_resources():
+        r = Resources()
+        r.add(String('config_wallpaper_picker_package', 'com.google.android.apps.wallpaper'))
+        r.add(String('config_wallpaperCropperPackage', 'com.google.android.apps.wallpaper'))
+        r.add(String('config_wallpaper_picker_class', 'com.google.android.apps.wallpaper.picker.CategoryPickerActivity'))
+        r.add(String('config_styles_and_wallpaper_picker_class', 'com.android.customization.picker.CustomizationPickerActivity'))
+        return r
+
+    @staticmethod
+    def get_google_partner_setup_resources():
+        r = Resources()
+        r.add(String('config_deviceProvisioningPackage', 'com.google.android.apps.work.oobconfig'))
+        return r

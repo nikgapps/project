@@ -310,6 +310,20 @@ class NikGappsManager:
                     "resources": Library.get_google_files_resources()
                 }
             ],
+            "com.google.android.apps.wallpaper": [
+                {
+                    "package_title": "GoogleWallpaper",
+                    "package_name": "com.nikgapps.overlay.wallpaper",
+                    "resources": Library.get_google_wallpaper_resources()
+                }
+            ],
+            "com.google.android.apps.work.oobconfig": [
+                {
+                    "package_title": "DeviceSetup",
+                    "package_name": "com.nikgapps.overlay.partnersetup",
+                    "resources": Library.get_google_partner_setup_resources()
+                }
+            ],
         }
         return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"])
                 for overlay
