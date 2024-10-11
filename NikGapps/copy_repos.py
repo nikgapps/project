@@ -16,16 +16,17 @@ def copy_repos():
     android_versions = [Config.TARGET_ANDROID_VERSION]
     if len(args.get_android_versions()) > 0:
         android_versions = args.get_android_versions()
-    Config.UPLOAD_FILES = args.upload
+    # Config.UPLOAD_FILES = args.upload
     print("---------------------------------------")
     print("Android Versions to build: " + str(android_versions))
     print("---------------------------------------")
 
     for android_version in android_versions:
         gitlab_manager = GitLabManager(private_token=os.getenv("GITLAB_TOKEN"))
-        gitlab_manager.copy_repository(f"{android_version}_stable", f"{android_version}_ondemand", override_target=True)
-        gitlab_manager.copy_repository(f"{android_version}_stable_cached", f"{android_version}_ondemand_cached",
-                                       override_target=True)
+        gitlab_manager.copy_repository(f"{android_version}_dev", f"{android_version}_beta", override_target=True)
+        # gitlab_manager.copy_repository(f"{android_version}_stable", f"{android_version}_ondemand", override_target=True)
+        # gitlab_manager.copy_repository(f"{android_version}_stable_cached", f"{android_version}_ondemand_cached",
+        #                                override_target=True)
 
 
 if __name__ == "__main__":
