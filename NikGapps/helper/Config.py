@@ -18,7 +18,7 @@ ENVIRONMENT_TYPE = os.environ.get('ENVIRONMENT_TYPE', 'dev')
 BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 
 # Send the zip to device after creation, Possible values are True and False
-SEND_ZIP_DEVICE = True if ENVIRONMENT_TYPE == "dev" else False
+SEND_ZIP_DEVICE = True if ENVIRONMENT_TYPE == "dev" and RELEASE_TYPE == "dev" else False
 SEND_ZIP_LOCATION = "/sdcard"
 
 # This will allow the program to sign the zip
