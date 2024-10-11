@@ -4,21 +4,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # The android version that we're targeting this application to run
-TARGET_ANDROID_VERSION = 14
+TARGET_ANDROID_VERSION = 15
 
 # Release type defines the release
 # Possible values are [ 'canary', 'stable' ]
-RELEASE_TYPE = "stable"
-release_type = os.environ.get('RELEASE_TYPE')
-if release_type is not None:
-    RELEASE_TYPE = release_type
+RELEASE_TYPE = os.environ.get('RELEASE_TYPE', 'stable')
 
 # Environment type differentiates the experimental and stable features
 # Possible values are [ 'production', 'development' ]
-ENVIRONMENT_TYPE = "dev"
-environment_type = os.environ.get('ENVIRONMENT_TYPE')
-if environment_type is not None:
-    ENVIRONMENT_TYPE = environment_type
+ENVIRONMENT_TYPE = os.environ.get('ENVIRONMENT_TYPE', 'dev')
 
 # Possible Values are ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
