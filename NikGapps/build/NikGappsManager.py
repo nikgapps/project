@@ -324,7 +324,7 @@ class NikGappsManager:
                     "resources": Library.get_google_partner_setup_resources()
                 }
             ],
-            "get_google_sounds_resources": [
+            "com.google.android.soundpicker": [
                 {
                     "package_title": "GoogleSounds",
                     "package_name": "com.nikgapps.overlay.sounds",
