@@ -488,3 +488,9 @@ class Library:
         r = Resources()
         r.add(String('config_deviceProvisioningPackage', 'com.google.android.apps.work.oobconfig'))
         return r
+
+    @staticmethod
+    def get_google_sounds_resources():
+        r = Resources()
+        r.add(String('config_sound_picker_package_name', 'com.google.android.soundpicker'))
+        return r

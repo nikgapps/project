@@ -324,6 +324,13 @@ class NikGappsManager:
                     "resources": Library.get_google_partner_setup_resources()
                 }
             ],
+            "get_google_sounds_resources": [
+                {
+                    "package_title": "GoogleSounds",
+                    "package_name": "com.nikgapps.overlay.sounds",
+                    "resources": Library.get_google_sounds_resources()
+                }
+            ],
         }
         return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"])
                 for overlay
