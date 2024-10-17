@@ -3,7 +3,7 @@
       - item: Initial Android 15 Release
       - item: Added overlays for Google Sounds, Device Setup, Google Wallpaper, Google Files
       - item: Updated gms overlay to adapt android 15
-      - item: Update nikgapps.config to v36
+      - item: Updated nikgapps.config to v36
 - date: 13th Aug 2024 (Android 10-14)
   changes:
       - item: Fixed Edit button crash in Google Photos
