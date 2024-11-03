@@ -328,11 +328,17 @@ class NikGappsManager:
                 {
                     "package_title": "GoogleSounds",
                     "package_name": "com.nikgapps.overlay.sounds",
-                    "resources": Library.get_google_sounds_resources()
+                    "resources": Library.get_google_sounds_resources(),
+                    "target_package": "com.android.settings"
                 }
             ],
         }
-        return [Overlay(overlay["package_title"], overlay["package_name"], self.android_version, overlay["resources"])
+        return [Overlay(apk_name=overlay["package_title"],
+                        package_name=overlay["package_name"],
+                        android_version=self.android_version,
+                        resources=overlay["resources"],
+                        target_package=overlay.get("target_package", "android"),
+                        priority=overlay.get("priority", "99"))
                 for overlay
                 in package_overlays.get(package_name, [])]
 
