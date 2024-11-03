@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="NikGapps",
-    version="0.1",
+    version="",
     packages=find_packages(),
     include_package_data=True,
     package_data={
@@ -16,21 +16,20 @@ setup(
     long_description_content_type='text/markdown',
     url="https://github.com/nikgapps/project",
     install_requires=[
-        'colorama>=0.4.6',
-        'pytz>=2024.1',
-        'pysftp>=0.2.9',
-        'PyYAML>=6.0.2',
-        'psutil>=6.0.0',
-        'setuptools>=72.1.0',
-        'requests>=2.32.3',
-        'GitPython>=3.1.43',
-        'pexpect>=4.9.0',
-        'PyGithub>=2.3.0',
-        'python-gitlab>=4.7.0',
-        'cryptography>=43.0.0',
+        'colorama~=0.4.6',
+        'pytz~=2024.2',
+        'pysftp~=0.2.9',
+        'requests~=2.32.3',
+        'PyYAML~=6.0.2',
+        'psutil~=6.1.0',
+        'setuptools~=75.3.0',
+        'pexpect~=4.9.0',
+        'GitPython~=3.1.43',
+        'PyGithub~=2.4.0',
+        'python-gitlab~=5.0.0',
+        'cryptography~=43.0.3',
         'python-dotenv~=1.0.1',
-        'nikassets>=0.7',
-        'niklibrary>=0.17',
+        'niklibrary~=0.28'
     ],
     entry_points={
         'console_scripts': [
