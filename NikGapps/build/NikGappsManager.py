@@ -492,13 +492,13 @@ class NikGappsManager:
         # if float(self.android_version) == 13:
         #     addon_packages.append("PixelWallpapers")
         pixel_setup_wizard_packages = [
-            "SetupWizard",
-            "GoogleRestore",
+            "SetupWizardPixel",
+            "GoogleRestorePixel",
             "PixelSetupWizard",
-            "GoogleOneTimeInitializer"
+            "GoogleOneTimeInitializerPixel"
         ]
         if float(self.android_version) < 12:
-            pixel_setup_wizard_packages.append("AndroidMigratePrebuilt")
+            pixel_setup_wizard_packages.append("AndroidMigratePixelPrebuilt")
         pixel_setup_wizard = self.create_appset_list_from_packages(pixel_setup_wizard_packages, keyword="Pixel")
         addon_set_list = pixel_setup_wizard + self.create_appset_list_from_packages(addon_packages)
         if addon_name:

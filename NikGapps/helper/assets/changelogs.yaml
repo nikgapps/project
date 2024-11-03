@@ -1,9 +1,10 @@
 - date: 4th Nov 2024 (Android 10-15)
   changes:
-      - item: Initial Android 15 beta Release
+      - item: Initial Android 15 stable Release
       - item: Added overlays for Google Sounds, Device Setup, Google Wallpaper, Google Files
       - item: Added AICore in PixelSpecifics (Android 15)
       - item: Updated gms overlay to adapt android 15
+      - item: Make the PixelSetupWizard independent of SetupWizard appsets for simplicity
       - item: Updated nikgapps.config to v36
 - date: 13th Aug 2024 (Android 10-14)
   changes:

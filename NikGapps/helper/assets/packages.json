@@ -23,6 +23,14 @@
             "type": "priv-app"
         }
     ],
+    "AndroidMigratePixelPrebuilt": [
+        {
+            "package_name": "com.google.android.apps.pixelmigrate",
+            "partition": "product",
+            "title": "AndroidMigratePrebuilt",
+            "type": "priv-app"
+        }
+    ],
     "Assistant": [
         {
             "package_name": "com.google.android.apps.googleassistant",
@@ -317,6 +325,14 @@
             "type": "priv-app"
         }
     ],
+    "GoogleOneTimeInitializerPixel": [
+        {
+            "package_name": "com.google.android.onetimeinitializer",
+            "partition": "product",
+            "title": "GoogleOneTimeInitializer",
+            "type": "priv-app"
+        }
+    ],
     "GooglePartnerSetup": [
         {
             "package_name": "com.google.android.partnersetup",
@@ -350,6 +366,14 @@
         }
     ],
     "GoogleRestore": [
+        {
+            "package_name": "com.google.android.apps.restore",
+            "partition": "product",
+            "title": "GoogleRestorePrebuilt",
+            "type": "priv-app"
+        }
+    ],
+    "GoogleRestorePixel": [
         {
             "package_name": "com.google.android.apps.restore",
             "partition": "product",
@@ -548,6 +572,14 @@
         }
     ],
     "SetupWizard": [
+        {
+            "package_name": "com.google.android.setupwizard",
+            "partition": "product",
+            "title": "SetupWizardPrebuilt",
+            "type": "priv-app"
+        }
+    ],
+    "SetupWizardPixel": [
         {
             "package_name": "com.google.android.setupwizard",
             "partition": "product",

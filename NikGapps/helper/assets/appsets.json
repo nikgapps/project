@@ -359,16 +359,16 @@
     {
       "min_version": 10,
       "packages": [
-        "SetupWizard",
-        "GoogleRestore",
-        "GoogleOneTimeInitializer",
+        "SetupWizardPixel",
+        "GoogleRestorePixel",
+        "GoogleOneTimeInitializerPixel",
         "PixelSetupWizard"
       ]
     },
     {
       "max_version": 12,
       "packages": [
-        "AndroidMigratePrebuilt"
+        "AndroidMigratePixelPrebuilt"
       ]
     }
   ],
