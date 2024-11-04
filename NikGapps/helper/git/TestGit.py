@@ -1,7 +1,12 @@
+import os
 import time
+from shutil import copyfile
 
 from niklibrary.git.Git import Git
 import git.exc
+from niklibrary.git.GitStatics import GitStatics
+
+from NikGapps.helper.Assets import Assets
 
 
 class TestGit(Git):
@@ -59,3 +64,13 @@ class TestGit(Git):
                 if debug:
                     print(f"Pushed {info.summary}")
         return True
+
+    def update_changelog(self):
+        source_file = Assets.changelog
+        dest_file = GitStatics.website_repo_dir + os.path.sep + "_data" + os.path.sep + "changelogs.yaml"
+        copyfile(source_file, dest_file)
+        if self.due_changes():
+            print("Updating the changelog to the website")
+            self.git_push("Update Changelog")
+        else:
+            print("There is no changelog to update!")

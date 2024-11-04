@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from niklibrary.git.GitStatics import GitStatics
+
 from NikGapps.build.Release import Release
 from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
@@ -6,6 +8,8 @@ from niklibrary.helper.SystemStat import SystemStat
 from niklibrary.helper.T import T
 from niklibrary.compression.Modes import Modes
 from niklibrary.git.GitOp import GitOp
+
+from NikGapps.helper.git.TestGit import TestGit
 
 
 def main():
@@ -51,7 +55,9 @@ def main():
             GitOp.mark_a_release(android_version, Config.RELEASE_TYPE)
     if args.release:
         if args.update_website:
-            website_repo = GitOp.get_website_repo_for_changelog()
+            website_repo = TestGit(GitStatics.website_repo_dir)
+            if GitStatics.website_repo_url is not None:
+                website_repo.clone_repo(repo_url=GitStatics.website_repo_url, fresh_clone=False, branch="main")
             if website_repo is not None:
                 website_repo.update_changelog()
 
