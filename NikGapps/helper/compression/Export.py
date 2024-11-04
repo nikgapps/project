@@ -35,7 +35,7 @@ class Export:
         completed_packages = 0
         file_sizes = ""
         zip_execution_status = False
-        telegram.message(f"Progress {0:.2f}% ({completed_packages}/{total_packages})")
+        telegram.message(f"- Gapps is building {0:.2f}% ({completed_packages}/{total_packages})")
 
         def compress_and_add_file(appset, pakg, compressionmode):
             nonlocal completed_packages
@@ -70,9 +70,9 @@ class Export:
                 file_sizes = file_sizes + str(pakg.package_title) + "=" + str(pakg.pkg_size) + "\n"
                 completed_packages += 1
                 progress = (completed_packages / total_packages) * 100
-                telegram.message(f"Progress {progress:.2f}% ({completed_packages}/{total_packages})",
+                telegram.message(f"- Gapps is building {progress:.2f}% ({completed_packages}/{total_packages})",
                                  replace_last_message=True)
-                P.blue(f"Progress {progress:.2f}% ({completed_packages}/{total_packages}): "
+                P.blue(f"- Gapps is building {progress:.2f}% ({completed_packages}/{total_packages}): "
                        f"{appset.title}/{pakg.package_title} (Thread {thread_id})")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
