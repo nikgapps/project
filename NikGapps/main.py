@@ -43,7 +43,8 @@ def main():
                 apk_repo = GitOp.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
                 Config.APK_SOURCE = apk_repo.working_tree_dir
                 overlay_repo = GitOp.clone_overlay_repo(android_version)
-                Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
+                if overlay_repo is not None:
+                    Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         if Config.OVERRIDE_RELEASE:
             Release.zip(package_list, android_version, args.arch, args.sign)
         if Config.RELEASE_TYPE and Config.ENVIRONMENT_TYPE == "production":
