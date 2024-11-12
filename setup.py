@@ -22,7 +22,7 @@ setup(
         'requests~=2.32.3',
         'PyYAML~=6.0.2',
         'psutil~=6.1.0',
-        'setuptools~=75.3.0',
+        'setuptools>=75.3,<75.5',
         'pexpect~=4.9.0',
         'GitPython~=3.1.43',
         'PyGithub~=2.4.0',
