@@ -651,7 +651,7 @@
         {
             "package_name": "com.google.android.aicore",
             "partition": "product",
-            "title": "AiCorePrebuilt",
+            "title": "AICorePrebuilt",
             "type": "priv-app"
         }
     ]
