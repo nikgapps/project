@@ -72,7 +72,8 @@ class Release:
                     print(f"AppSet/Package Does not Exist: {default_type}")
                 else:
                     print(f"Building for {app_set.title}")
-                    package_name = f"{release_directory}{Statics.dir_sep}addons{Statics.dir_sep}NikGapps-Addon-{android_version}-{app_set.title}-{current_time}.zip"
+                    title = app_set.title if len(app_set.package_list) > 1 else app_set.package_list[0].package_title
+                    package_name = f"{release_directory}{Statics.dir_sep}addons{Statics.dir_sep}NikGapps-Addon-{android_version}-{title}-{current_time}.zip"
                     zip_package(package_name, [app_set])
 
         for pkg_type_outer in build_package_list:
