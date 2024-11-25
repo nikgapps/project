@@ -32,6 +32,19 @@ class NikGappsManager:
             "extra.files.go": "CoreGo"
         }
 
+        self.package_to_appset_map = self._preprocess_appset_data()
+
+    def _preprocess_appset_data(self):
+        package_to_appset_map = {}
+        for appset, versions in self.appset_data.items():
+            for version_info in versions:
+                packages = version_info["packages"]
+                for package in packages:
+                    if package not in package_to_appset_map:
+                        package_to_appset_map[package] = []
+                    package_to_appset_map[package].append(appset)
+        return package_to_appset_map
+
     def get_packages(self, package_type):
         match package_type:
             case 'core':
@@ -84,22 +97,7 @@ class NikGappsManager:
             raise ValueError(f"No details found for package: {package_name}")
 
     def find_appset_by_package(self, package_title, keyword=None, fallback_appset=None):
-        matched_appsets = []
-
-        for appset, versions in self.appset_data.items():
-            for version_info in versions:
-                min_version = version_info.get("min_version", -1)
-                max_version = version_info.get("max_version", float('inf'))
-                exact_version = version_info.get("exact_version", None)
-                packages = version_info["packages"]
-
-                if exact_version is not None:
-                    if self.android_version == exact_version and package_title in packages:
-                        matched_appsets.append(appset)
-
-                if float(min_version) <= float(self.android_version) <= float(
-                        max_version) and package_title in packages:
-                    matched_appsets.append(appset)
+        matched_appsets = self.package_to_appset_map.get(package_title, [])
 
         if not matched_appsets:
             return None
