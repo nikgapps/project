@@ -654,5 +654,13 @@
             "title": "AICorePrebuilt",
             "type": "priv-app"
         }
+    ],
+    "GooglePersonalSafety": [
+        {
+            "package_name": "com.google.android.apps.safetyhub",
+            "partition": "product",
+            "title": "SafetyHubSuwPrebuilt",
+            "type": "priv-app"
+        }
     ]
 }

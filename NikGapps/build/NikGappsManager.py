@@ -489,6 +489,8 @@ class NikGappsManager:
             addon_packages.extend(google_fi_packages)
         # if float(self.android_version) == 13:
         #     addon_packages.append("PixelWallpapers")
+        if float(self.android_version) >= 15:
+            addon_packages.append("GooglePersonalSafety")
         pixel_setup_wizard_packages = [
             "SetupWizardPixel",
             "GoogleRestorePixel",

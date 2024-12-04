@@ -413,5 +413,12 @@
         "PixelWallpapers2022"
       ]
     }
+  ],
+  "GooglePersonalSafety": [
+    {
+      "packages": [
+        "GooglePersonalSafety"
+      ]
+    }
   ]
 }
