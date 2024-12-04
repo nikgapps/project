@@ -1,3 +1,11 @@
+- date: 5th Dec 2024 (Android 10-15)
+  changes:
+      - item: Updated AIS overlays to add more features. (Thanks to Ionuț - https://t.me/igram96)
+      - item: Fixed AICore not building in PixelSpecifics (Android 15)
+      - item: Sign the overlays (This will show overlay apks as installed unlike before) (Thanks to Daniel - https://t.me/daniml3)
+      - item: Add Google Personal Safety addon (Android 15)
+      - item: Fixed 'Unable to edit, check your connection' issue in GooglePhotos (Android 15)
+      - item: Fixed Now Playing Crash on Google Devices (only)
 - date: 4th Nov 2024 (Android 10-15)
   changes:
       - item: Initial Android 15 stable Release
