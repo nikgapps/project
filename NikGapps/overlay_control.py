@@ -27,7 +27,7 @@ def overlay_control():
             overlay.build_apk_source(repo_dir)
             if overlay_source_repo.due_changes():
                 print("Pushing due changes!")
-                overlay_source_repo.git_push(commit_message=f"Updated {overlay.folder}!", push_untracked_files=True)
+                # overlay_source_repo.git_push(commit_message=f"Updated {overlay.folder}!", push_untracked_files=True)
 
         if F.dir_exists(repo_dir):
             overlays_repo_name = Statics.get_overlay_repo(android_version)
@@ -56,7 +56,7 @@ def overlay_control():
                     print("Failed to build overlay")
             if overlay_repo.due_changes():
                 print("Pushing due changes!")
-                overlay_repo.git_push(commit_message="Updated Overlays!", push_untracked_files=True)
+                # overlay_repo.git_push(commit_message="Updated Overlays!", push_untracked_files=True)
             else:
                 print(f"{overlays_repo_dir} doesn't exist!")
         else:
