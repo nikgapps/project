@@ -588,7 +588,6 @@ find_device_block() {
     addToGeneralLog "- Device doesn't have dynamic partitions" "$mountLog"
   fi
 
-
   SLOT=$(find_slot)
   if [ -n "$SLOT" ]; then
     if [ "$SLOT" = "_a" ]; then
