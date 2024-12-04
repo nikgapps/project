@@ -44,6 +44,14 @@ def overlay_control():
                 overlay_path = cmd.build_overlay(folder_name=str(folder))
                 if not overlay_path.__eq__(""):
                     print(f"{overlay_path} successfully built..")
+                    print("Signing APK..")
+                    cmd.COMMAND_SIGN_APK[9] = overlay_path
+                    output_line = cmd.execute_cmd(cmd.COMMAND_SIGN_APK)
+                    if len(output_line) > 0:
+                        for line in output_line:
+                            print(line)
+                            if line.__contains__("Signed"):
+                                print("APK signed successfully!")
                     print(
                         f"Copying to {os.path.join(overlays_repo_dir, str(Path(folder).name), f'{Path(folder).name}.apk')}")
                     F.copy_file(overlay_path, os.path.join(overlays_repo_dir,
