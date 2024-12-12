@@ -1,4 +1,4 @@
-- date: 5th Dec 2024 (Android 10-15)
+- date: 12th Dec 2024 (Android 10-15)
   changes:
       - item: Updated AIS overlays to add more features. (Thanks to Ionuț - https://t.me/igram96)
       - item: Fixed AICore not building in PixelSpecifics (Android 15)
