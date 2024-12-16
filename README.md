@@ -67,7 +67,7 @@ Ensure you have the following tools installed:
 ## Total Downloads  
 <!-- 7312415 from 2019-07-22 to 2024-07-18 -->
 <!-- 7653966 from 2019-07-22 to 2024-10-02 -->
-![Static Badge](https://img.shields.io/badge/7.7M-red?label=Before%202nd%20OOct%202024&color=green)  
+![Static Badge](https://img.shields.io/badge/7.7M-red?label=Before%202nd%20Oct%202024&color=green)  
 <img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=After%202nd%20Oct%202024&color=red">   
 <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">
 
