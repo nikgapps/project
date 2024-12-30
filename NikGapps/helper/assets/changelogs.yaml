@@ -2,7 +2,7 @@
   changes:
       - item: Enable Circle to Search with Google Search Addon (Thanks to Pranav Vashi - https://t.me/neobuddy89)
       - item: Clean up more packages with AIS installation
-      - item: Fix Pixel Launcher for QPR1 release
+      - item: Fix Pixel Launcher for QPR1 release (Thanks to BigSweater for the Apk - https://t.me/largesweater and Jericho - https://t.me/Jericho102002 for testing)
       - item: Performance Improvements in Installer Script
 - date: 12th Dec 2024 (Android 10-15)
   changes:
