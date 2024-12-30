@@ -180,6 +180,7 @@ class Library:
     def get_velvet_resources():
         r = Resources()
         r.add(String('config_defaultAssistant', 'com.google.android.googlequicksearchbox'))
+        r.add(String('config_defaultContextualSearchPackageName', 'com.google.android.googlequicksearchbox'))
         r.add(Bool('config_allowDisablingAssistDisclosure', True))
         return r
 

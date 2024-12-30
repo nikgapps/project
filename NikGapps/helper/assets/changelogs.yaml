@@ -1,3 +1,8 @@
+- date: 31st Dec 2024 (Android 10-15)
+  changes:
+      - item: Enable Circle to Search with Google Search Addon
+      - item: Clean up more packages with AIS installation
+      - item: Performance Improvements in Installer Script
 - date: 12th Dec 2024 (Android 10-15)
   changes:
       - item: Updated AIS overlays to add more features. (Thanks to Ionuț - https://t.me/igram96)
