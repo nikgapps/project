@@ -1,3 +1,9 @@
+- date: 27th Jan 2025 (Android 14-15)
+  changes:
+      - item: Fixed Issues with some apps not showing up in Private space
+      - item: Fixed Pixel Launcher Crash
+      - item: Fixed faded texts appearing on Recents screen
+      - item: Updated apps to make them QPR1 compatible
 - date: 31st Dec 2024 (Android 10-15)
   changes:
       - item: Enable Circle to Search with Google Search Addon (Thanks to Pranav Vashi - https://t.me/neobuddy89)
