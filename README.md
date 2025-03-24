@@ -43,12 +43,12 @@ Ensure you have the following tools installed:
    - On Linux/MacOS:  
       ```bash  
       python3 -m venv myvenv
-      source myvenv\Scripts\activate
+      source myvenv/bin/activate
       
    - On Windows:
      ```bash  
      python -m venv myvenv
-     myvenv\Scripts\activate
+     myvenv\bin\activate
 
 5. **Install builder from pip** 
    ```bash
