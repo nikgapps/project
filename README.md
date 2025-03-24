@@ -43,7 +43,7 @@ Ensure you have the following tools installed:
    - On Linux/MacOS:  
       ```bash  
       python3 -m venv myvenv
-      source myvenv\bin\activate
+      source myvenv/bin/activate
       
    - On Windows:
      ```bash  
