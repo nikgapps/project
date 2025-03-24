@@ -9,8 +9,7 @@ from niklibrary.json.Json import Json
 
 
 class Assets:
-    with resources.files('NikGapps.helper').joinpath('assets') as asset_path:
-        assets_folder = str(asset_path)
+    assets_folder = str(resources.files('nikassets.helper').joinpath('assets'))
     if not F.dir_exists(assets_folder):
         assets_folder = os.path.join(os.getcwd(), 'assets')
     if not F.dir_exists(assets_folder):
