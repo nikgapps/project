@@ -312,6 +312,7 @@ rm -rf "$TMPDIR/zip_name.txt"
 [ "$sideloading" = "true" ] && mode=$(get_mode_by_name "$zip_name")
 addToLog "- Install mode is $mode"
 ui_print "--> Running the installer"
+ui_print " "
 
 case $mode in
   "$remove_ota_scripts_mode")

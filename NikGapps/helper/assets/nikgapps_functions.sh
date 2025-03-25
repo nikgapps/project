@@ -227,7 +227,6 @@ delete_prop_lines() {
   [ -f "$file_path" ] && sed -i '/^buildprop=/d' "$file_path"
 }
 
-
 get_prop_file_path() {
   propFilePath=""
   for i in $(find /system/etc/permissions -iname "$1.prop" 2>/dev/null;); do
@@ -639,7 +638,11 @@ find_install_mode() {
     fi
   fi
   addToLog "----------------------------------------------------------------------------" "$package_title"
-  ui_print "- Installing $package_title" "$package_logDir/$package_title.log"
+  p=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
+  ui_print "  > Installing $package_title" "$package_logDir/$package_title.log"
+  ui_print "    Package Size: $pkg_required_size KB" "$package_logDir/$package_title.log"
+  ui_print "    $p Size: $part_size KB" "$package_logDir/$package_title.log"
+  ui_print "    " "$package_logDir/$package_title.log"
   install_package
   delete_recursive "$pkgFile"
   delete_recursive "$TMPDIR/$pkgContent"
@@ -1010,9 +1013,7 @@ install_app_set() {
   value=1
   if [ -f "$nikgapps_config_file_name" ]; then
     value=$(ReadConfigValue "$appset_name" "$nikgapps_config_file_name")
-    if [ "$value" = "" ]; then
-      value=1
-    fi
+    [ -z "$value" ] && value=1
   fi
   addToLog "- Current Appset=$appset_name, value=$value"
   case "$value" in
@@ -1043,6 +1044,10 @@ install_app_set() {
           done
         ;;
         "install")
+          pkg_count=$(echo "$packages_in_appset" | wc -w)
+          if [ "$pkg_count" -gt 1 ]; then
+            ui_print "  > Working on $appset_name"
+          fi
           for i in $packages_in_appset; do
             current_package_title=$(echo "$i" | cut -d',' -f1)
             addToLog "----------------------------------------------------------------------------" "$current_package_title"
@@ -1057,15 +1062,13 @@ install_app_set() {
               addToLog "- package_size = $package_size" "$current_package_title"
               default_partition=$(echo "$i" | cut -d',' -f3)
               addToLog "- default_partition = $default_partition" "$current_package_title"
-              case "$default_partition" in
-                "system_ext")
-                [ $androidVersion -le 10 ] && default_partition=$product && addToLog "- default_partition is overridden" "$current_package_title"
-                ;;
-              esac
+              [ "$default_partition" = "system_ext" ] && [ $androidVersion -le 10 ] && default_partition=$product && addToLog "- default_partition is overridden" "$current_package_title"
               addToLog "----------------------------------------------------------------------------" "$current_package_title"
               addToLog "- InstallPartition is $install_partition_val" "$current_package_title"
               case "$install_partition_val" in
                 "default")
+                  # check if the package is already installed before and we are flashing it again
+                  # we want to keep the partition as it is and not move it to another partition because of space constraints while reflashing or otherwise
                   install_partition=$(get_installed_partition "$current_package_title")
                   [ -z "$install_partition" ] && addToLog "- $current_package_title is not installed before" "$current_package_title"
                 ;;
@@ -1096,7 +1099,7 @@ install_app_set() {
               addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)" "$current_package_title"
               if [ "$install_partition" != "-1" ]; then
                 size_before=$(calculate_space_before "$current_package_title" "$install_partition")
-                install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$extn"
+                install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$package_size" "$size_before" "$extn"
                 size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before" "$package_size")
               else
                 ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
@@ -1125,7 +1128,9 @@ install_the_package() {
   package_name="$3"
   config_value="$4"
   install_partition="$5"
-  [ -z "$6" ] && extn=".zip" || extn="$6"
+  package_required_size="$6"
+  partition_size="$7"
+  [ -z "$8" ] && extn=".zip" || extn="$8"
   addToLog "- Default Extn=$extn" "$package_name"
   case "$extn" in
     .*) ;;
@@ -1147,7 +1152,7 @@ install_the_package() {
   esac
   chmod 755 "$TMPDIR/$pkgContent/installer.sh"
   # shellcheck source=src/installer.sh
-  . "$TMPDIR/$pkgContent/installer.sh" "$config_value" "$nikgapps_config_file_name" "$install_partition"
+  . "$TMPDIR/$pkgContent/installer.sh" "$config_value" "$nikgapps_config_file_name" "$install_partition" "$package_required_size" "$partition_size"
 
   set_progress "$(get_package_progress "$package_name")"
 }

@@ -2,6 +2,8 @@
 configValue="$1"
 nikgapps_config_file_name="$2"
 install_partition="$3"
+pkg_required_size="$4"
+part_size="$5"
 
 make_dir() {
   addToLog "- Creating Directory: $install_partition/$1" "$package_title"
