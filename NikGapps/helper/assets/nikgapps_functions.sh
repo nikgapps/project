@@ -110,7 +110,7 @@ calculate_space() {
     if ! is_mounted "/$partition"; then
       continue
     fi
-    addToLog "--> Calculating space in /$partition"
+    addToLog "---> Calculating space in /$partition"
     # Read and save system partition size details
     df=$(df -k /"$partition" | tail -n 1)
     addToLog "$df"
@@ -252,8 +252,8 @@ get_available_partition_size(){
     addToLog "- $1 not mounted!" "$log_file_name"
     continue
   fi
-  addToLog "--> Calculating space in /$partition" "$log_file_name"
-  df=$(df -k /"$partition" | tail -n 1)
+  addToLog "--> Calculating space in $partition" "$log_file_name"
+  df=$(df -k "$partition" | tail -n 1)
   addToLog "$df"
   case $df in
   /dev/block/*) df=$(echo "$df" | $BB awk '{ print substr($0, index($0,$2)) }') ;;
