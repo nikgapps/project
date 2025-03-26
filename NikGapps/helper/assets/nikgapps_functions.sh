@@ -638,11 +638,8 @@ find_install_mode() {
     fi
   fi
   addToLog "----------------------------------------------------------------------------" "$package_title"
-  p=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
-  ui_print "  > Installing $package_title" "$package_logDir/$package_title.log"
-  ui_print "    Package Size: $pkg_required_size KB" "$package_logDir/$package_title.log"
-  ui_print "    $p Size: $part_size KB" "$package_logDir/$package_title.log"
-  ui_print "    " "$package_logDir/$package_title.log"
+  ui_print "    Installing..." "$package_logDir/$current_package_title.log"
+  ui_print "  "
   install_package
   delete_recursive "$pkgFile"
   delete_recursive "$TMPDIR/$pkgContent"
@@ -967,6 +964,23 @@ get_install_partition(){
   echo "$install_partition"
 }
 
+get_install_partition_from_config() {
+  case "$install_partition_val" in
+    "default")
+      # check if the package is already installed before and we are flashing it again
+      # we want to keep the partition as it is and not move it to another partition because of space constraints while reflashing or otherwise
+      install_partition_value=$(get_installed_partition "$1")
+      [ -z "$install_partition_value" ] && addToLog "- $1 is not installed before" "$1"
+    ;;
+    "system") install_partition_value=$system ;;
+    "product") install_partition_value=$product ;;
+    "system_ext") install_partition_value=$system_ext ;;
+    "data") install_partition_value="/data/extra" ;;
+    /*) install_partition_value=$install_partition_val ;;
+  esac
+  echo $install_partition_value
+}
+
 get_package_progress(){
   for i in $ProgressBarValues; do
       if [ $(echo $i | cut -d'=' -f1) = "$1" ]; then
@@ -1005,121 +1019,117 @@ get_total_available_size(){
   echo "$total_available_size"
 }
 
-install_app_set() {
+install_app_set(){
   appset_name="$1"
   packages_in_appset="$2"
   extn="$3"
-  addToLog "----------------------------------------------------------------------------"
-  value=1
-  if [ -f "$nikgapps_config_file_name" ]; then
-    value=$(ReadConfigValue "$appset_name" "$nikgapps_config_file_name")
-    [ -z "$value" ] && value=1
-  fi
+  value=$(read_from_nikgapps_config "$appset_name" "1")
   addToLog "- Current Appset=$appset_name, value=$value"
+
   case "$value" in
     "0")
       ui_print "x Skipping $appset_name"
+      return
     ;;
     "-1")
       addToLog "- $appset_name is disabled"
-      for i in $packages_in_appset; do
-        current_package_title=$(echo "$i" | cut -d',' -f1)
-        uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
-      done
-    ;;
-    *)
-      case "$mode" in
-        "uninstall_by_name")
-          for k in $packages_in_appset; do
-            current_package_title=$(echo "$k" | cut -d',' -f1)
-            uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
-          done
-        ;;
-        "uninstall")
-          for k in $packages_in_appset; do
-            current_package_title=$(echo "$k" | cut -d',' -f1)
-            [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
-            [ -z "$value" ] && value=1
-            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
-          done
-        ;;
-        "install")
-          pkg_count=$(echo "$packages_in_appset" | wc -w)
-          if [ "$pkg_count" -gt 1 ]; then
-            ui_print "  > Working on $appset_name"
-          fi
-          for i in $packages_in_appset; do
-            current_package_title=$(echo "$i" | cut -d',' -f1)
-            addToLog "----------------------------------------------------------------------------" "$current_package_title"
-            addToLog "----------------------------------------------------------------------------"
-            addToLog "- Working for $current_package_title" "$current_package_title"
-            addToLog "- Working for $current_package_title"
-            value=$(ReadConfigValue ">>$current_package_title" "$nikgapps_config_file_name")
-            [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
-            [ -z "$value" ] && value=1
-            if [ "$value" -ge 1 ]; then
-              package_size=$(echo "$i" | cut -d',' -f2)
-              addToLog "- package_size = $package_size" "$current_package_title"
-              default_partition=$(echo "$i" | cut -d',' -f3)
-              addToLog "- default_partition = $default_partition" "$current_package_title"
-              [ "$default_partition" = "system_ext" ] && [ $androidVersion -le 10 ] && default_partition=$product && addToLog "- default_partition is overridden" "$current_package_title"
-              addToLog "----------------------------------------------------------------------------" "$current_package_title"
-              addToLog "- InstallPartition is $install_partition_val" "$current_package_title"
-              case "$install_partition_val" in
-                "default")
-                  # check if the package is already installed before and we are flashing it again
-                  # we want to keep the partition as it is and not move it to another partition because of space constraints while reflashing or otherwise
-                  install_partition=$(get_installed_partition "$current_package_title")
-                  [ -z "$install_partition" ] && addToLog "- $current_package_title is not installed before" "$current_package_title"
-                ;;
-                "system") install_partition=$system ;;
-                "product") install_partition=$product ;;
-                "system_ext") install_partition=$system_ext ;;
-                "data") install_partition="/data/extra" ;;
-                /*) install_partition=$install_partition_val ;;
-              esac
-              if [ -z "$install_partition" ]; then
-                install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
-              else
-                size_partition=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
-                addToLog "- size_partition=$size_partition" "$current_package_title"
-                available_size=$(get_available_partition_size "$size_partition" "$pkg_name")
-                addToLog "- available_size=$available_size and package_size=$package_size" "$current_package_title"
-                if [ "$available_size" -lt "$package_size" ]; then
-                  addToLog "- there is not enough space" "$current_package_title"
-                  install_partition=-1
-                fi
-              fi
-              if [ "$install_partition" = "-1" ]; then
-                addToLog "- Storage is full, uninstalling to free up space for $current_package_title" "$current_package_title"
-                uninstall_the_package "$appset_name" "$current_package_title" "$extn" "0"
-                addToLog "----------------------------------------------------------------------------" "$current_package_title"
-                install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
-              fi
-              addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)" "$current_package_title"
-              if [ "$install_partition" != "-1" ]; then
-                size_before=$(calculate_space_before "$current_package_title" "$install_partition")
-                install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$package_size" "$size_before" "$extn"
-                size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before" "$package_size")
-              else
-                ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
-                addToLog "x Skipping $current_package_title as no space is left"
-              fi
-            elif [ "$value" -eq -1 ] ; then
-              addToLog "- uninstalling $current_package_title" "$current_package_title"
-              uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
-            elif [ "$value" -eq 0 ] ; then
-              ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
-              addToLog "x Skipping $current_package_title"
-            fi
-          done
-        ;;
-        *)
-          addToLog "- Invalid mode $mode"
-        ;;
-      esac
+      uninstall_appset $appset_name $packages_in_appset $extn
+      return
     ;;
   esac
+  case "$mode" in
+    "install")
+      addToLog "- Install Mode On"
+    ;;
+    "uninstall_by_name")
+      uninstall_appset $appset_name $packages_in_appset $extn
+      return
+    ;;
+    "uninstall")
+      for k in $packages_in_appset; do
+        current_package_title=$(echo "$k" | cut -d',' -f1)
+        value=$(read_from_nikgapps_config "$current_package_title" "1")
+        [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
+      done
+      return
+    ;;
+    *)
+      addToLog "- Invalid mode $mode"
+      return
+    ;;
+  esac
+
+  pkg_count=$(echo "$packages_in_appset" | wc -w)
+  if [ "$pkg_count" -gt 1 ]; then
+    ui_print "  > Working on $appset_name"
+  fi
+
+  for i in $packages_in_appset; do
+    current_package_title=$(echo "$i" | cut -d',' -f1)
+    value=$(read_from_nikgapps_config ">>$current_package_title" "")
+    [ -z "$value" ] && value=$(read_from_nikgapps_config "$current_package_title" "1")
+    if [ "$value" -ge 1 ]; then
+      package_size=$(echo "$i" | cut -d',' -f2)
+      default_partition=$(echo "$i" | cut -d',' -f3)
+      addToLog "- package_size = $package_size" "$current_package_title"
+      addToLog "- default_partition = $default_partition" "$current_package_title"
+      ui_print "  > $current_package_title" "$package_logDir/$current_package_title.log"
+      ui_print "    Required size: $package_size KB" "$package_logDir/$current_package_title.log"
+      [ "$default_partition" = "system_ext" ] && [ $androidVersion -le 10 ] && default_partition=$product && addToLog "- default_partition is overridden" "$current_package_title"
+      # this will read the config to identify if partition is overridden or the package is already installed
+      install_partition=$(get_install_partition_from_config "$current_package_title")
+      # if the install_partition is blank, it means, it is a fresh install on default configuration
+      if [ -z "$install_partition" ]; then
+        # for fresh install, loop through the partitions to determine the partition where we can install current package
+        install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+      else
+        # for re-flash, find the size of the partition to see if there is enough space
+        size_partition=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
+        available_size=$(get_available_partition_size "$size_partition" "$pkg_name")
+        ui_print "    Package Exists: Re-installing..." "$package_logDir/$current_package_title.log"
+        addToLog "- size_partition=$size_partition" "$current_package_title"
+        addToLog "- available_size=$available_size and package_size=$package_size" "$current_package_title"
+        # if there is not enough space, we need to try uninstalling once as we might be re-installing older version
+        # with smaller apk size, so uninstalling will make enough space to re-install
+        if [ "$available_size" -lt "$package_size" ]; then
+          addToLog "- there is not enough space" "$current_package_title"
+          ui_print "    x Not enough space ($available_size KB) to re-install" "$package_logDir/$current_package_title.log"
+          install_partition=-1
+        fi
+        # install_partition=-1 indicates, we need to uninstall the package to make space for re-install
+        # re-install can be at a new partition so we need to find the partition again
+        if [ "$install_partition" = "-1" ]; then
+          addToLog "- Storage is full, uninstalling to free up space for $current_package_title" "$current_package_title"
+          ui_print "    ! Uninstalling to make space" "$package_logDir/$current_package_title.log"
+          uninstall_the_package "$appset_name" "$current_package_title" "$extn" "0"
+          addToLog "----------------------------------------------------------------------------" "$current_package_title"
+          install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+        fi
+      fi
+      # if we have the install_partition ready, we can calculate the before and after space of the partition
+      # we can also proceed ahead with installation as everything is acceptable now.
+      if [ "$install_partition" != "-1" ]; then
+        size_before=$(calculate_space_before "$current_package_title" "$install_partition")
+        p=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
+        ui_print "    Partition: $p (Remaining: $size_before KB)" "$package_logDir/$current_package_title.log"
+        install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$package_size" "$size_before" "$extn"
+        size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before" "$package_size")
+      else
+        size_before=$(calculate_space_before "$current_package_title" "/system")
+        ui_print "    ! Remaining space now ($size_before KB)" "$package_logDir/$current_package_title.log"
+        ui_print "    x Skipping: No space left" "$package_logDir/$current_package_title.log"
+        ui_print "  "
+        addToLog "x Skipping $current_package_title as no space is left"
+      fi
+
+    elif [ "$value" -eq -1 ] ; then
+      addToLog "- uninstalling $current_package_title" "$current_package_title"
+      uninstall_the_package "$appset_name" "$current_package_title" "$extn" "1"
+    elif [ "$value" -eq 0 ] ; then
+      ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
+      addToLog "x Skipping $current_package_title"
+    fi
+  done
 }
 
 install_the_package() {
@@ -1270,6 +1280,15 @@ ReadConfigValue() {
   value=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$2" | grep -m 1 "^$1=" | cut -d'=' -f 2)
   echo "$value"
   return $?
+}
+
+read_from_nikgapps_config(){
+  key=$1
+  fallback_value=$2
+  if [ -f "$nikgapps_config_file_name" ]; then
+    value=$(ReadConfigValue "$key" "$nikgapps_config_file_name")
+  fi
+  [ -z $value ] && echo $fallback_value || echo $value
 }
 
 delete_overlays(){
@@ -1439,7 +1458,7 @@ uninstall_file() {
   addToLog "- Uninstalling $1" "$2"
   # $1 will start with ___ which needs to be skipped so replacing it with blank value
   blank=""
-  file_location=$(echo "$1" | sed "s/___/$blank/" | sed "s/___/\//g")
+  file_location=$(echo "$1" | sed -e 's/^___system___//' -e 's/^___//' -e 's/___/\//g')
   # For Devices having symlinked product and system_ext partition
   for sys in "/system"; do
     for subsys in "/system" "/product" "/system_ext"; do
@@ -1484,4 +1503,14 @@ uninstall_the_package() {
   set_progress $(get_package_progress "$package_name")
   delete_recursive "$pkgFile"
   delete_recursive "$TMPDIR/$pkgContent"
+}
+
+uninstall_appset(){
+  # appset_name = $1
+  # packages_in_appset = $2
+  # extn = $3
+  for i in $2; do
+    current_package_title=$(echo "$i" | cut -d',' -f1)
+    uninstall_the_package "$1" "$current_package_title" "$3" "1"
+  done
 }
