@@ -528,6 +528,7 @@ find_config() {
   unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
   unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
   use_zip_config=$(ReadConfigValue "UseZipConfig" "$COMMONDIR/nikgapps.config")
+  [ -z "$use_zip_config" ] && use_zip_config=$(ReadConfigValue "use_zip_config" "$COMMONDIR/nikgapps.config")
   addToLog "- UseZipConfig=$use_zip_config"
   if [ "$use_zip_config" = "1" ]; then
     ui_print "- Using config file from the zip"
