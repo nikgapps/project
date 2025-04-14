@@ -129,15 +129,20 @@ class Export:
         installer_script_path_string += "# Shell Script EDIFY Replacement\n\n"
         core_app_sets = []
         other_app_sets = []
+        setup_wizard_sets = []
         for app_set in app_set_list:
-            if app_set.title in ['Core', 'CoreGo']:
-                core_app_sets.append(app_set)
-            else:
-                other_app_sets.append(app_set)
+            match app_set.title:
+                case 'Core' | 'CoreGo':
+                    core_app_sets.append(app_set)
+                case 'SetupWizard' | 'PixelSetupWizard':
+                    setup_wizard_sets.append(app_set)
+                case _:
+                    other_app_sets.append(app_set)
+
         sorted_other_app_sets = sorted(other_app_sets,
                                        key=lambda app__set: sum(int(pakg.pkg_size) for pakg in app__set.package_list),
                                        reverse=True)
-        sorted_app_sets = core_app_sets + sorted_other_app_sets
+        sorted_app_sets = core_app_sets + setup_wizard_sets + sorted_other_app_sets
         progress_max = 0.9
         progress_per_package = 0
         if total_packages > 0:

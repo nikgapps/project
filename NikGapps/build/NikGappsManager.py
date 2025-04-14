@@ -396,6 +396,9 @@ class NikGappsManager:
         if float(self.android_version) < 12:
             setup_wizard_packages.append("AndroidMigratePrebuilt")
         setup_wizard = self.create_appset_list_from_packages(setup_wizard_packages, fallback_appset="SetupWizard")
+        for sw_appset in setup_wizard:
+            for package in sw_appset.package_list:
+                package.addon_index = "07"
         omni_packages = [
             "GoogleCalculator",
             "Drive",
@@ -500,6 +503,9 @@ class NikGappsManager:
         if float(self.android_version) < 12:
             pixel_setup_wizard_packages.append("AndroidMigratePixelPrebuilt")
         pixel_setup_wizard = self.create_appset_list_from_packages(pixel_setup_wizard_packages, keyword="Pixel")
+        for sw_appset in pixel_setup_wizard:
+            for package in sw_appset.package_list:
+                package.addon_index = "07"
         addon_set_list = pixel_setup_wizard + self.create_appset_list_from_packages(addon_packages)
         if addon_name:
             return [app_set for app_set in addon_set_list if app_set.title == addon_name]
