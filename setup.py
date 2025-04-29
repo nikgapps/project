@@ -17,7 +17,7 @@ setup(
     url="https://github.com/nikgapps/project",
     install_requires=[
         'colorama~=0.4.6',
-        'pytz~=2024.2',
+        'pytz>=2024.2,<2026.0',
         'pysftp~=0.2.9',
         'requests~=2.32.3',
         'PyYAML~=6.0.2',
