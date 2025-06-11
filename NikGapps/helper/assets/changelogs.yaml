@@ -1,3 +1,11 @@
+- date: 11th June 2025 (Android 14-15)
+  changes:
+      - item: Updated google apps to make them QPR2 compatible
+      - item: Enhanced the installer script to display space information
+      - item: Fixed the issue where the space calculation was not accurate
+      - item: Fixed the issue where uninstalling exclusive system files was not working
+      - item: Fixed the issue where use_zip_config was not recognized during sideloading
+      - item: Prioritize Installing Setup Wizard after Core (more stability when it comes to installation)
 - date: 27th Jan 2025 (Android 14-15)
   changes:
       - item: Fixed Issues with some apps not showing up in Private space
