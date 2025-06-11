@@ -181,6 +181,9 @@ class Library:
         r = Resources()
         r.add(String('config_defaultAssistant', 'com.google.android.googlequicksearchbox'))
         r.add(String('config_defaultContextualSearchPackageName', 'com.google.android.googlequicksearchbox'))
+        r.add(String('config_defaultContextualSearchEnabled', 'omni.enable_cs_helper'))
+        r.add(String('config_defaultContextualSearchKey', 'omni.entry_point'))
+        r.add(String('config_defaultContextualSearchLegacyEnabled', 'omni.enable_vis'))
         r.add(Bool('config_allowDisablingAssistDisclosure', True))
         return r
 
