@@ -173,6 +173,15 @@ class Library:
         r.add(StringArray('configs_base',
                           ['launcher/enable_one_search=true', 'launcher/ENABLE_LOCAL_RECOMMENDED_WIDGETS_FILTER=true',
                            'launcher/ENABLE_SMARTSPACE_ENHANCED=true',
+                           'launcher/long_press_home_button_to_search=true',
+                           'launcher/long_press_home_button_to_search_mpr=true',
+                           'launcher/press_hold_nav_handle_to_search=true',
+                           'launcher/press_hold_nav_handle_to_search_mpr=true',
+                           'launcher/ENABLE_SETTINGS_OSE_CUSTOMIZATIONS=true',
+                           'launcher/ENABLE_LONG_PRESS_NAV_HANDLE=true',
+                           'launcher/ENABLE_LONG_PRESS_NAV_HANDLE_MPR=true',
+                           'launcher/INVOKE_OMNI_LPH=true',
+                           'launcher/INVOKE_OMNI_LPH_MPR=true',
                            'launcher/ENABLE_WIDGETS_PICKER_AIAI_SEARCH=true']))
         return r
 
