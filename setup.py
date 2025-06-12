@@ -28,7 +28,7 @@ setup(
         'PyGithub~=2.4.0',
         'python-gitlab>=5.0,<5.2',
         'cryptography>=43.0.3,<45.1.0',
-        'python-dotenv~=1.0.1',
+        'python-dotenv>=1.0.1,<1.2.0',
         'niklibrary~=0.28'
     ],
     entry_points={
