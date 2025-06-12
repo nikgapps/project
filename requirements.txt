@@ -1,7 +1,7 @@
 colorama~=0.4.6
 pytz~=2025.2
 pysftp~=0.2.9
-requests~=2.32.3
+requests~=2.32.4
 PyYAML~=6.0.2
 psutil~=7.0.0
 setuptools~=80.9.0
