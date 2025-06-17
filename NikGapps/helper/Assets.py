@@ -22,7 +22,7 @@ class Assets:
     cwd = assets_folder + os.path.sep
     system_name = A.system_name
     apksigner_path = A.get("apksigner.jar")
-    apktool_path = A.get("apktool_2.10.0.jar")
+    apktool_path = A.get("apktool_2.11.1.jar")
     key_path = A.get("cert.pk8")
     cert_path = A.get("cert.x509.pem")
     private_key_pem = A.get("private_key.pem")
