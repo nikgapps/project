@@ -30,7 +30,6 @@ class PackageConstants:
             "com.android.chrome": ["Bolt", "Browser", "Browser2", "BrowserIntl", "BrowserProviderProxy", "Chromium",
                                    "DuckDuckGo", "Fluxion", "Gello", "Jelly", "PA_Browser", "PABrowser", "YuBrowser",
                                    "BLUOpera", "BLUOperaPreinstall", "ViaBrowser", "Duckduckgo"],
-            "com.google.android.youtube.music": ["SnapdragonMusic", "GooglePlayMusic", "Eleven", "CrDroidMusic"],
             "com.google.android.setupwizard": ["Provision", "SetupWizard", "LineageSetupWizard"],
             "com.google.android.pixel.setupwizard": ["Provision", "SetupWizard", "LineageSetupWizard"],
             "com.google.android.calculator": ["ExactCalculator", "MotoCalculator", "RevengeOSCalculator"],
@@ -64,7 +63,7 @@ class PackageConstants:
             "com.google.android.apps.nexuslauncher": ["TrebuchetQuickStep", "Launcher3QuickStep", "ArrowLauncher",
                                                       "Lawnchair"],
             "com.android.systemui.plugin.globalactions.wallet": ["QuickAccessWallet"],
-            "com.google.android.apps.youtube.music": ["SnapdragonMusic", "GooglePlayMusic", "Eleven", "CrDroidMusic"],
+            "com.google.android.apps.youtube.music": ["SnapdragonMusic", "GooglePlayMusic", "Eleven", "CrDroidMusic", "Twelve"],
             "com.mixplorer.silver": ["MixPlorer"],
             "app.lawnchair": ["Lawnchair"]
         }
