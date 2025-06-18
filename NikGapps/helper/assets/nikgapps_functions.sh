@@ -1111,7 +1111,11 @@ install_app_set(){
       # we can also proceed ahead with installation as everything is acceptable now.
       if [ "$install_partition" != "-1" ]; then
         size_before=$(calculate_space_before "$current_package_title" "$install_partition")
-        p=$(echo "$install_partition" | awk -F'/' '{print "/"$2}')
+        p=$install_partition
+        case "$install_partition" in
+          /system/p*)     [ -n "$PRODUCT_BLOCK" ] && p="/product" || p="/system" ;;
+          /system/*_ext)  [ -n "$SYSTEM_EXT_BLOCK" ] && p="/system_ext" || p="/system" ;;
+        esac
         ui_print "    Partition: $p (Remaining: $size_before KB)" "$package_logDir/$current_package_title.log"
         install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$package_size" "$size_before" "$extn"
         size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before" "$package_size")
