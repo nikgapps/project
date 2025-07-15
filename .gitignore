@@ -119,6 +119,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+NikGapps/.env
 .env
 .venv
 env/

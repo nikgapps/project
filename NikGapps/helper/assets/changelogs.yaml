@@ -1,3 +1,9 @@
+- date: 16th July 2025 (Android 10-16)
+  changes:
+      - item: Fixed incorrect display of partition while installing gapps
+      - item: Debloat Aosp counterpart (Twelve) with installing YouTube music in Los 22.2
+      - item: Add more Circle To Search changes
+      - item: Fixed the uninstaller crashing before uninstalling gapps
 - date: 11th June 2025 (Android 14-15)
   changes:
       - item: Updated google apps to make them QPR2 compatible

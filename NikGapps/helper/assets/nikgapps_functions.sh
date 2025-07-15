@@ -1034,7 +1034,10 @@ install_app_set(){
     ;;
     "-1")
       addToLog "- $appset_name is disabled"
-      uninstall_appset $appset_name $packages_in_appset $extn
+      for i in $packages_in_appset; do
+        current_package_title=$(echo "$i" | cut -d',' -f1)
+        uninstall_the_package "$1" "$current_package_title" "$extn" "1"
+      done
       return
     ;;
   esac
@@ -1043,7 +1046,10 @@ install_app_set(){
       addToLog "- Install Mode On"
     ;;
     "uninstall_by_name")
-      uninstall_appset $appset_name $packages_in_appset $extn
+      for i in $packages_in_appset; do
+        current_package_title=$(echo "$i" | cut -d',' -f1)
+        uninstall_the_package "$1" "$current_package_title" "$extn" "1"
+      done
       return
     ;;
     "uninstall")
@@ -1508,14 +1514,4 @@ uninstall_the_package() {
   set_progress $(get_package_progress "$package_name")
   delete_recursive "$pkgFile"
   delete_recursive "$TMPDIR/$pkgContent"
-}
-
-uninstall_appset(){
-  # appset_name = $1
-  # packages_in_appset = $2
-  # extn = $3
-  for i in $2; do
-    current_package_title=$(echo "$i" | cut -d',' -f1)
-    uninstall_the_package "$1" "$current_package_title" "$3" "1"
-  done
 }
