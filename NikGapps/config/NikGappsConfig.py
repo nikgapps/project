@@ -55,51 +55,53 @@ class NikGappsConfig:
 
     def build_config_objects(self, config_dict=None):
         config_list = []
+        if config_dict is None:
+            config_dict = self.config_dict
         default_mode, install_mode = "default", "install"
         enabled_mode, disabled_mode, use_zip_config = 1, 0, self.use_zip_config
         predefined_configs = {
             "AndroidVersion": self.android_version,
             "Version": self.config_version,
             "LogDirectory": {
-                "value": default_mode,
+                "value": config_dict.get("LogDirectory", default_mode),
                 "description": """# set this to the directory you want to copy the logs to.
 # for e.g. LogDirectory="/system/etc" will install the logs to /system/etc/nikgapps_logs directory
 # by default it will install it to /sdcard/NikGapps/nikgapps_logs"""
             },
             "InstallPartition": {
-                "value": default_mode,
+                "value": config_dict.get("InstallPartition", default_mode),
                 "description": "# set to /system, /product or /system_ext if you want to force the installation to aforementioned locations"
             },
             "Mode": {
-                "value": install_mode,
+                "value": config_dict.get("Mode", install_mode),
                 "description": "# set to uninstall if you want to uninstall any google app, also set the value of google app below to -1"
             },
             "WipeDalvikCache": {
-                "value": enabled_mode,
+                "value": config_dict.get("WipeDalvikCache", enabled_mode),
                 "description": "# set WipeDalvikCache=0 if you don't want the installer to wipe dalvik/cache after installing the gapps"
             },
             "WipeRuntimePermissions": {
-                "value": disabled_mode,
+                "value": config_dict.get("WipeRuntimePermissions", enabled_mode),
                 "description": "# set WipeRuntimePermissions=1 if you want to wipe runtime permissions"
             },
             "ExecuteBackupRestore": {
-                "value": enabled_mode,
+                "value": config_dict.get("ExecuteBackupRestore", enabled_mode),
                 "description": "# Addon.d config, set it to 0 to skip the automatic backup/restore while flashing the rom"
             },
             "UseZipConfig": {
-                "value": use_zip_config,
+                "value": config_dict.get("UseZipConfig", use_zip_config),
                 "description": "# if you want to force the installer to use the config from gapps zip file, set below to 1"
             },
             "OverwriteWithZipConfig": {
-                "value": disabled_mode,
+                "value": config_dict.get("OverwriteWithZipConfig", disabled_mode),
                 "description": "# if you want to overwrite the config located in /sdcard/NikGapps with gapps zip file, set below to 1. Applicable to decrypted storage only"
             },
             "GmsOptimization": {
-                "value": disabled_mode,
+                "value": config_dict.get("GmsOptimization", disabled_mode),
                 "description": "# set this to 1 if you want to enable gms optimization, careful while doing it, you may experience issues like delayed notification with some Roms"
             },
             "GenerateLogs": {
-                "value": enabled_mode,
+                "value": config_dict.get("GenerateLogs", enabled_mode),
                 "description": "# set this to 0 if you want to skip generating nikgapps logs, if you run into issues, enable it and flash the zip again to get the logs"
             }
         }
