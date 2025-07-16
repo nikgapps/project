@@ -1,4 +1,6 @@
 import os
+import time
+
 from dotenv import load_dotenv
 from NikGapps.build.Build import Build
 from NikGapps.config.NikGappsConfig import NikGappsConfig
@@ -39,9 +41,7 @@ def cache():
         project = gitlab_manager.get_project(cached_url)
         gitattributes = """*.zip filter=lfs diff=lfs merge=lfs -text
         *.tar.xz filter=lfs diff=lfs merge=lfs -text"""
-        if project:
-            gitlab_manager.reset_repository(cached_url, sleep_for=10, gitattributes=gitattributes)
-        else:
+        if not project:
             project = gitlab_manager.create_repository(cached_url, provide_owner_access=True)
             gitlab_manager.create_and_commit_file(project_id=project.id, file_path=".gitattributes",
                                                   content=gitattributes)
@@ -56,6 +56,10 @@ def cache():
         config_obj.config_package_list = Build.build_from_directory(app_set_list, android_version)
         for appset in config_obj.config_package_list:
             appset: AppSet
+            # delete the folder to reset the files
+            if F.dir_exists(os.path.join(repo_cached.working_tree_dir, appset.title)):
+                F.remove_dir(os.path.join(repo_cached.working_tree_dir, appset.title))
+                F.make_dir(os.path.join(repo_cached.working_tree_dir, appset.title))
             for pkg in appset.package_list:
                 pkg: Package
                 compression_modes = [Modes.ZIP, Modes.TAR_XZ]
@@ -66,8 +70,10 @@ def cache():
                                                 f"{pkg.package_title}{mode}")
                     print("Done!") if CompOps.compress_package(pkg_zip_path, pkg, mode) else print("Failed!")
                     t.taken(f"Total time taken to process the {pkg.package_title}, compressing into {mode}")
-                repo_cached.git_push(commit_message=f"Compressed {pkg.package_title} for {appset.title}",
-                                     push_untracked_files=True, pull_first=True, post_buffer="1048576000")
+                    time.sleep(5)
+                    repo_cached.git_push(
+                        commit_message=f"Compressed {pkg.package_title} for {appset.title} into {mode}",
+                        push_untracked_files=True, post_buffer="1048576000")
         if Config.ENVIRONMENT_TYPE.__eq__("production") and F.dir_exists(repo_cached.working_tree_dir):
             F.remove_dir(repo_cached.working_tree_dir)
 
