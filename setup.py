@@ -26,7 +26,7 @@ setup(
         'pexpect~=4.9.0',
         'GitPython~=3.1.43',
         'PyGithub~=2.4.0',
-        'python-gitlab>=5.0,<6.2',
+        'python-gitlab>=5.0,<6.4',
         'cryptography>=43.0.3,<45.1.0',
         'python-dotenv>=1.0.1,<1.2.0',
         'niklibrary~=0.28'
