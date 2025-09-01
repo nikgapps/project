@@ -8,6 +8,6 @@ pexpect~=4.9.0
 GitPython~=3.1.44
 PyGithub~=2.6.1
 python-gitlab~=6.1.0
-cryptography~=45.0.5
+cryptography~=45.0.7
 python-dotenv~=1.1.1
 niklibrary~=0.45
