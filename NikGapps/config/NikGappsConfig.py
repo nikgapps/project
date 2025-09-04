@@ -56,7 +56,7 @@ class NikGappsConfig:
     def build_config_objects(self, config_dict=None):
         config_list = []
         if config_dict is None:
-            config_dict = self.config_dict
+            config_dict = {}
         default_mode, install_mode = "default", "install"
         enabled_mode, disabled_mode, use_zip_config = 1, 0, self.use_zip_config
         predefined_configs = {
