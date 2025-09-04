@@ -25,7 +25,7 @@ setup(
         'setuptools>=75.3,<80.10',
         'pexpect~=4.9.0',
         'GitPython~=3.1.43',
-        'PyGithub~=2.4.0',
+        'PyGithub>=2.4,<2.9',
         'python-gitlab>=5.0,<6.2',
         'cryptography>=43.0.3,<45.1.0',
         'python-dotenv>=1.0.1,<1.2.0',
