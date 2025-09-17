@@ -322,6 +322,13 @@ class NikGappsManager:
                     "resources": Library.get_google_partner_setup_resources()
                 }
             ],
+            "com.google.android.apps.work.clouddpc": [
+                {
+                    "package_title": "AndroidDevicePolicy",
+                    "package_name": "com.nikgapps.overlay.androiddevicepolicy",
+                    "resources": Library.get_google_android_device_policy_resources()
+                }
+            ],
             "com.google.android.soundpicker": [
                 {
                     "package_title": "GoogleSounds",

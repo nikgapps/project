@@ -66,6 +66,15 @@ class Library:
         r.add(String('config_defaultSupervisionProfileOwnerComponent',
                      'com.google.android.gms/.kids.account.receiver.ProfileOwnerReceiver'))
         r.add(String('config_systemSupervision', 'com.google.android.gms.supervision'))
+        r.add(String('config_defaultWallet', 'com.google.android.gms'))
+        r.add(String('config_help_url_action_disabled_by_advanced_protection', 'intent:#Intent;action=com.google.android.gms.settings.ADVANCED_PROTECTION;package=com.google.android.gms;end'))
+        r.add(String('config_intrusionDetectionEventTransport', 'com.google.android.gms/.intrusiondetection.service.IntrusionDetectionEventTransportService'))
+        r.add(String('config_primaryLocationTimeZoneProviderPackageName', 'com.google.android.gms'))
+        r.add(String('config_sharedConnectivityServiceIntentAction', 'com.google.android.gms.magictether.BIND'))
+        r.add(String('config_sharedConnectivityServicePackage', 'com.google.android.gms'))
+        r.add(String('config_systemDependencyInstaller', 'com.google.android.gms'))
+        r.add(String('identity_check_settings_action', 'com.google.android.gms.personalsafety.settings.IDENTITY_CHECK_SWITCH'))
+        r.add(String('identity_check_settings_package_name', 'com.google.android.gms'))
         r.add(String('def_backup_transport', 'com.google.android.gms/.backup.BackupTransportService'))
         r.add(String('metadata_sync_pacakge', 'com.google.android.gms'))
         r.add(String('config_defaultAutofillService', 'com.google.android.gms/.autofill.service.AutofillService'))
@@ -106,6 +115,12 @@ class Library:
         r.add(StringArray('config_locationProviderPackageNames',
                           ['com.google.android.gms', 'com.android.location.fused']))
         r.add(StringArray('config_ephemeralResolverPackage', ['com.google.android.gms']))
+        r.add(StringArray('config_defaultCloudSearchServices', [
+            'com.android.vending/com.google.android.finsky.cloudsearch.PlayCloudSearchService',
+            'com.android.chrome/com.google.android.apps.chrome.cloudsearch.ChromeCloudSearchService',
+            'com.chrome.canary/com.google.android.apps.chrome.cloudsearch.ChromeCloudSearchService',
+            'com.chrome.dev/com.google.android.apps.chrome.cloudsearch.ChromeCloudSearchService',
+            'com.chrome.beta/com.google.android.apps.chrome.cloudsearch.ChromeCloudSearchService']))
         r.add(StringArray('config_globallyDisabledComponents', [
             'com.android.vending/com.google.android.finsky.systemupdate.SystemUpdateSettingsContentProvider',
             'com.android.vending/com.google.android.finsky.systemupdateactivity.SettingsSecurityEntryPoint',
@@ -140,6 +155,8 @@ class Library:
         r = Resources()
         r.add(String('config_systemGallery', 'com.google.android.apps.photos'))
         r.add(String('config_defaultGallery', 'com.google.android.apps.photos'))
+        r.add(String('config_default_cloud_media_provider_package', 'com.google.android.apps.photos'))
+        r.add(String('config_default_cloud_provider_authority', 'com.google.android.apps.photos.cloudpicker'))
         return r
 
     @staticmethod
@@ -586,4 +603,10 @@ class Library:
     def get_google_sounds_resources():
         r = Resources()
         r.add(String('config_sound_picker_package_name', 'com.google.android.soundpicker'))
+        return r
+
+    @staticmethod
+    def get_google_android_device_policy_resources():
+        r = Resources()
+        r.add(String('config_devicePolicyManagement', 'com.google.android.apps.work.clouddpc:23962F4B43B9857638EA66F4D419518EAE282491ACDA4B94707BD59003C45E58'))
         return r
