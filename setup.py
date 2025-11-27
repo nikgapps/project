@@ -27,7 +27,7 @@ setup(
         'GitPython~=3.1.43',
         'PyGithub~=2.4.0',
         'python-gitlab>=5.0,<7.1',
-        'cryptography>=43.0.3,<45.1.0',
+        'cryptography>=43.0.3,<46.1.0',
         'python-dotenv>=1.0.1,<1.2.0',
         'niklibrary~=0.28'
     ],
