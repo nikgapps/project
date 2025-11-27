@@ -1,8 +1,9 @@
-- date: 12th Oct 2025 (Android 10-16)
+- date: 28th Nov 2025 (Android 16)
   changes:
       - item: Updated gms overlays to adapt android 16 QPR1
       - item: Enable option to choose Cloud Media app in settings
       - item: More changes to enable contextual search (CTS)
+      - item: Update all the apps to QPR1 versions
 - date: 11th June 2025 (Android 14-15)
   changes:
       - item: Updated google apps to make them QPR2 compatible
