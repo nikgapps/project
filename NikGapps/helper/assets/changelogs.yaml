@@ -1,3 +1,8 @@
+- date: 2nd Feb 2026 (Android 10-16)
+  changes:
+      - item: Update all the apps to QPR2 versions (Android 16)
+      - item: Fixed the issue with setup wizard not surviving the OTA updates
+      - item: Fixed Calendar, Contacts not replacing AOSP counterparts
 - date: 28th Nov 2025 (Android 16)
   changes:
       - item: Updated gms overlays to adapt android 16 QPR1

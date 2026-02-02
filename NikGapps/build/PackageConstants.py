@@ -15,10 +15,10 @@ class PackageConstants:
         package_deletes = {
             "com.google.android.gms": ["PrebuiltGmsCoreQt", "PrebuiltGmsCoreRvc", "GmsCore"],
             "com.google.android.dialer": ["Dialer"],
-            "com.google.android.contacts": ["Contacts"],
+            "com.google.android.contacts": ["Contacts", "ContactsProvider"],
             "com.google.android.tts": ["PicoTts"],
             "com.google.android.inputmethod.latin": ["LatinIME"],
-            "com.google.android.calendar": ["Calendar", "Etar", "SimpleCalendar"],
+            "com.google.android.calendar": ["Calendar", "Etar", "SimpleCalendar", "CalendarProvider"],
             "com.google.android.apps.messaging": ["RevengeMessages", "messaging", "Messaging", "QKSMS", "Mms"],
             "com.google.android.apps.photos": ["Gallery", "SimpleGallery", "Gallery2", "MotGallery", "MediaShortcuts",
                                                "SimpleGallery", "FineOSGallery", "GalleryX", "MiuiGallery",
@@ -203,12 +203,12 @@ class PackageConstants:
        set_prop "setupwizard.feature.show_pixel_tos" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "setupwizard.feature.show_digital_warranty" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "ro.setupwizard.esim_cid_ignore" "00000001" "$product/etc/build.prop" "$propFilePath" "$package_title"
-       set_prop "ro.setupwizard.setupwizard.feature.show_support_link_in_deferred_setup" "false" "$product/etc/build.prop" "$package_title"
-       set_prop "setupwizard.feature.enable_wifi_tracker" "true" "$product/etc/build.prop" "$package_title"
-       set_prop "setupwizard.feature.day_night_mode_enabled" "true" "$product/etc/build.prop" "$package_title"
-       set_prop "setupwizard.feature.portal_notification" "true" "$product/etc/build.prop" "$package_title"
+       set_prop "ro.setupwizard.setupwizard.feature.show_support_link_in_deferred_setup" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+       set_prop "setupwizard.feature.enable_wifi_tracker" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+       set_prop "setupwizard.feature.day_night_mode_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
+       set_prop "setupwizard.feature.portal_notification" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "setupwizard.feature.lifecycle_refactoring" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
-       set_prop "setupwizard.feature.notification_refactoring" "true" "$product/etc/build.prop" "$package_title"
+       set_prop "setupwizard.feature.notification_refactoring" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
         """,
             "Velvet": """
        set_prop "ro.opa.eligible_device" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
