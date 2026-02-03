@@ -15,7 +15,7 @@ class PackageConstants:
         package_deletes = {
             "com.google.android.gms": ["PrebuiltGmsCoreQt", "PrebuiltGmsCoreRvc", "GmsCore"],
             "com.google.android.dialer": ["Dialer"],
-            "com.google.android.contacts": ["Contacts", "ContactsProvider"],
+            "com.google.android.contacts": ["Contacts"],
             "com.google.android.tts": ["PicoTts"],
             "com.google.android.inputmethod.latin": ["LatinIME"],
             "com.google.android.calendar": ["Calendar", "Etar", "SimpleCalendar", "CalendarProvider"],
