@@ -18,7 +18,7 @@ class PackageConstants:
             "com.google.android.contacts": ["Contacts"],
             "com.google.android.tts": ["PicoTts"],
             "com.google.android.inputmethod.latin": ["LatinIME"],
-            "com.google.android.calendar": ["Calendar", "Etar", "SimpleCalendar", "CalendarProvider"],
+            "com.google.android.calendar": ["Calendar", "Etar", "SimpleCalendar"],
             "com.google.android.apps.messaging": ["RevengeMessages", "messaging", "Messaging", "QKSMS", "Mms"],
             "com.google.android.apps.photos": ["Gallery", "SimpleGallery", "Gallery2", "MotGallery", "MediaShortcuts",
                                                "SimpleGallery", "FineOSGallery", "GalleryX", "MiuiGallery",

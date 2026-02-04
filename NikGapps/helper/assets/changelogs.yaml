@@ -1,6 +1,7 @@
 - date: 4nd Feb 2026 (Android 10-16)
   changes:
       - item: Fixed the issue that caused some roms a forced reboot
+      - item: Fixed the issue that made Calendar unusable
 - date: 2nd Feb 2026 (Android 10-16)
   changes:
       - item: Update all the apps to QPR2 versions (Android 16)
