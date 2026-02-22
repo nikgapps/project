@@ -1,6 +1,7 @@
 - date: 22nd Feb 2026 (16)
   changes:
       - item: Add support for Google Gemini (replacing Assistant under GoogleSearch) (Android 16)
+      - item: Update nikgapps.config version to v38 (Android 16)
 - date: 4th Feb 2026 (Android 10-16)
   changes:
       - item: Fixed the issue that caused some roms a forced reboot
