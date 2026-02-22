@@ -252,7 +252,8 @@
     {
       "packages": [
         "Velvet",
-        "Assistant"
+        "Assistant",
+        "Gemini"
       ]
     }
   ],

@@ -151,6 +151,14 @@
             "type": "app"
         }
     ],
+    "Gemini": [
+        {
+            "package_name": "com.google.android.apps.bard",
+            "partition": "product",
+            "title": "Gemini",
+            "type": "priv-app"
+        }
+    ],
     "Gmail": [
         {
             "package_name": "com.google.android.gm",

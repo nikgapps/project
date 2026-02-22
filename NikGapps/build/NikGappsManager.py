@@ -459,9 +459,12 @@ class NikGappsManager:
             "MarkupGoogle",
             "GoogleTTS",
             "Velvet",
-            "Assistant",
             "GoogleSounds"
         ])
+        if float(self.android_version) >= 16:
+            stock_packages.append("Gemini")
+        else:
+            stock_packages.append("Assistant")
         return ((self.get_omni_package() if not delta else [])
                 + pixel_specifics
                 + self.create_appset_list_from_packages(stock_packages))
