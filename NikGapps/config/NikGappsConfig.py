@@ -267,6 +267,29 @@ class NikGappsConfig:
                     list_of_apps.append(f"- {package.package_title}")
         return result.strip() if not get_list else list_of_apps
 
+    def describe_nikgapps_config_html(self, get_list=False):
+        list_of_apps = []
+
+        if len(self.config_package_list) == 0:
+            return "No packages are enabled to be installed." if not get_list else list_of_apps
+
+        result = "What's included?<br>"
+
+        for appset in self.config_package_list:
+            appset: AppSet
+
+            appset_html = f'<span class="appset">{appset.title}</span>'
+            result += f"{appset_html}<br>"
+            list_of_apps.append(appset_html)
+
+            if len(appset.package_list) >= 1:
+                for package in appset.package_list:
+                    package_html = f'<span class="package">{package.package_title}</span>'
+                    result += f"{package_html}<br>"
+                    list_of_apps.append(package_html)
+
+        return result.strip() if not get_list else list_of_apps
+
     def upload_nikgapps_config(self):
         analytics_dict = {}
         key = "config_version_" + Statics.get_android_code(self.android_version)
