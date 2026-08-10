@@ -39,6 +39,14 @@ class Args:
             '-r', '--releaseType', help="It is the release type for which we need to build the gapps",
             default="stable", type=str)
         self.parser.add_argument('-P', '--packageList', help="List of packages to build", type=str)
+        self.parser.add_argument(
+            '--packageSource', choices=['git', 'registry'],
+            help="Use the legacy Git source or the package registry catalog"
+        )
+        self.parser.add_argument(
+            '--packageChannel', choices=['stable', 'beta', 'canary'],
+            help="Default registry channel for selected packages"
+        )
 
         args = self.parser.parse_args()
 
@@ -60,6 +68,8 @@ class Args:
         self.release_type = args.releaseType
         self.ssh_clone = args.sshClone
         self.send_zip_device = args.sendToDevice
+        self.package_source = args.packageSource
+        self.package_channel = args.packageChannel
         # self.oems = args.oems
 
     def get_package_list(self):

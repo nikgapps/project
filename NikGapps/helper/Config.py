@@ -53,6 +53,24 @@ CACHED_SOURCE = None
 APK_SOURCE = None
 OVERLAY_SOURCE = None
 
+# Package source. "git" preserves the existing clone behavior; "registry"
+# resolves AppSets through the published package catalog and verified cache.
+PACKAGE_SOURCE = os.environ.get("PACKAGE_SOURCE", "git").lower()
+PACKAGE_CHANNEL = os.environ.get("PACKAGE_CHANNEL", RELEASE_TYPE).lower()
+PACKAGE_CATALOG_URL = os.environ.get(
+    "PACKAGE_CATALOG_URL",
+    "https://gitlab.com/nikgapps/nikgapps-package-catalog/-/raw/main/catalog.json"
+)
+PACKAGE_APPSETS_URL = os.environ.get(
+    "PACKAGE_APPSETS_URL",
+    "https://gitlab.com/nikgapps/nikgapps-package-catalog/-/raw/main/appsets.json"
+)
+PACKAGE_CACHE = os.environ.get(
+    "PACKAGE_CACHE",
+    os.path.abspath(os.path.join(os.getcwd(), ".nikgapps-package-cache"))
+)
+PACKAGE_CHANNEL_OVERRIDES = os.environ.get("PACKAGE_CHANNEL_OVERRIDES", "{}")
+
 # Enabling this will enable the feature of building NikGapps using config file
 BUILD_CONFIG = True
 BUILD_EXCLUSIVE = (RELEASE_TYPE.lower().__eq__("stable"))

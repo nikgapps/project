@@ -1,3 +1,4 @@
+import argparse
 import os
 from pathlib import Path
 
@@ -9,6 +10,29 @@ from niklibrary.helper.P import P
 from niklibrary.helper.Statics import Statics
 from niklibrary.git.Git import Git
 from NikGapps.helper.overlay.Overlay import Overlay
+
+
+def build_local_overlays(android_version, source_dir, output_dir):
+    """Generate and compile overlays locally without cloning or pushing repos."""
+    source_dir = os.path.abspath(source_dir)
+    output_dir = os.path.abspath(output_dir)
+    os.makedirs(source_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    for overlay in NikGappsOverlays.get_overlay(android_version=android_version):
+        overlay.build_apk_source(source_dir)
+    built = []
+    for folder in sorted(Path(source_dir).iterdir()):
+        if not folder.is_dir() or not F.file_exists(os.path.join(str(folder), "apktool.yml")):
+            continue
+        overlay_path = Cmd().build_overlay(folder_name=str(folder))
+        if not overlay_path:
+            raise RuntimeError(f"Failed to build Android {android_version} overlay: {folder.name}")
+        destination = os.path.join(output_dir, folder.name, f"{folder.name}.apk")
+        F.copy_file(overlay_path, destination)
+        F.remove_dir(os.path.join(str(folder), "dist"))
+        F.remove_dir(os.path.join(str(folder), "build"))
+        built.append(destination)
+    return built
 
 
 def overlay_control():
@@ -64,4 +88,17 @@ def overlay_control():
 
 
 if __name__ == "__main__":
-    overlay_control()
+    parser = argparse.ArgumentParser(description="Build NikGapps resource overlays")
+    parser.add_argument("--android-version")
+    parser.add_argument("--source-dir")
+    parser.add_argument("--output-dir")
+    options = parser.parse_args()
+    if options.android_version:
+        if not options.source_dir or not options.output_dir:
+            parser.error("--source-dir and --output-dir are required in local mode")
+        paths = build_local_overlays(
+            options.android_version, options.source_dir, options.output_dir
+        )
+        print(f"Built {len(paths)} overlays for Android {options.android_version}")
+    else:
+        overlay_control()

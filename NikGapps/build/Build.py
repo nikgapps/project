@@ -22,6 +22,31 @@ class Build:
         if cached:
             return app_set_build_list
         building = T()
+        if Config.PACKAGE_SOURCE == "registry":
+            print("[Registry] Package source mode is enabled; skipping the legacy APK repository")
+            from nikgapps_package_pipeline.consumer import (
+                CatalogPackageSource,
+                channel_overrides_from_env,
+            )
+            registry_source = CatalogPackageSource(
+                Config.PACKAGE_CATALOG_URL,
+                Config.PACKAGE_APPSETS_URL,
+                Path(Config.PACKAGE_CACHE),
+                channel=Config.PACKAGE_CHANNEL,
+                channel_overrides=channel_overrides_from_env(Config.PACKAGE_CHANNEL_OVERRIDES),
+                token=os.environ.get("GITLAB_TOKEN"),
+            )
+            Config.APK_SOURCE = str(registry_source.prepare(
+                app_set_build_list,
+                android_version,
+                getattr(Config, "PACKAGE_ARCH", "arm64"),
+            ))
+            print(f"[Registry] Handing prepared source to the existing builder: {Config.APK_SOURCE}")
+            print("[Registry] Final NikGapps ZIP assembly remains unchanged")
+            if Config.OVERLAY_SOURCE is None:
+                overlay_path = Path(Config.APK_SOURCE) / ".overlays"
+                overlay_path.mkdir(parents=True, exist_ok=True)
+                Config.OVERLAY_SOURCE = str(overlay_path)
         source_directory = Config.APK_SOURCE
         print(f"Building from {source_directory}")
         cmd = Cmd()

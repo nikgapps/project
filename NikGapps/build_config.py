@@ -26,6 +26,11 @@ def build_config():
     if len(args.get_android_versions()) > 0:
         android_versions = args.get_android_versions()
     Config.UPLOAD_FILES = args.upload
+    if args.package_source:
+        Config.PACKAGE_SOURCE = args.package_source
+    if args.package_channel:
+        Config.PACKAGE_CHANNEL = args.package_channel
+    Config.PACKAGE_ARCH = args.arch
     print("---------------------------------------")
     print("Android Versions to build: " + str(android_versions))
     print("---------------------------------------")
@@ -48,10 +53,12 @@ def build_config():
             path = config_name
             F.write_string_in_lf_file(str_data=config_string, file_path=path)
     for android_version in android_versions:
-        apk_repo = GitOp.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
-        Config.APK_SOURCE = apk_repo.working_tree_dir
+        if Config.PACKAGE_SOURCE != "registry":
+            apk_repo = GitOp.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
+            Config.APK_SOURCE = apk_repo.working_tree_dir
         overlay_repo = GitOp.clone_overlay_repo(android_version)
-        Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
+        if overlay_repo is not None:
+            Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         config_obj = NikGappsConfig(android_version=android_version, config_path=path)
         print(f"Setting up package list from {config_name}...")
         config_obj.config_package_list = Build.build_from_directory(app_set_build_list=config_obj.config_package_list,

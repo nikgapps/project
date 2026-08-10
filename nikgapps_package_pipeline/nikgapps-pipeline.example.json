@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "repositoryName": "nikgapps-package-catalog",
+  "androidVersion": "16",
+  "platformApi": 36,
+  "channel": "stable",
+  "architecture": "arm64-v8a",
+  "defaultPartition": "product",
+  "packages": {
+    "Core/ExtraFiles": {
+      "id": "extra_files",
+      "name": "NikGapps core support files",
+      "replaceable": false
+    },
+    "CoreGo/ExtraFilesGo": {
+      "id": "extra_files_go",
+      "name": "NikGapps Go core support files",
+      "replaceable": false
+    },
+    "GoogleFeedback": {
+      "defaultPartition": "system_ext"
+    },
+    "GoogleServicesFramework": {
+      "defaultPartition": "system_ext"
+    },
+    "GoogleFiles/StorageManager": {
+      "defaultPartition": "system_ext"
+    },
+    "PixelSpecifics/GoogleWallpaper": {
+      "defaultPartition": "system_ext"
+    },
+    "PixelSpecifics/PixelLauncher": {
+      "defaultPartition": "system_ext"
+    },
+    "PixelSpecifics/QuickAccessWallet": {
+      "defaultPartition": "system_ext"
+    }
+  }
+}

@@ -39,6 +39,7 @@ setup(
             'cache=NikGapps.cache:cache',
             'copy_repos=NikGapps.copy_repos:copy_repos',
             'build=NikGapps.build_config:build_config',
+            'nikgapps-registry=nikgapps_registry.cli:main',
         ],
     },
     classifiers=[
