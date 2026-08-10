@@ -54,6 +54,7 @@ def overlay_control():
     android_versions = args.get_android_versions()
 
     for android_version in android_versions:
+        register_android_platform(android_version)
         repo_name = Statics.get_overlay_source_repo(android_version)
         repo_dir = Statics.get_overlay_source_directory(android_version)
         branch = "main"

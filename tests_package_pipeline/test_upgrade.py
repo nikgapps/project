@@ -43,7 +43,7 @@ class StableTreeUpgradeTests(unittest.TestCase):
 
             upgraded = output / "Set" / "App" / "___priv-app___AppNew_17"
             self.assertEqual((upgraded / "AppNew_17.apk").read_bytes(), b"new")
-            self.assertEqual((upgraded / "AppNew_17.apk.prof").read_bytes(), b"profile")
+            self.assertFalse((upgraded / "AppNew_17.apk.prof").exists())
             self.assertEqual(report.upgraded_packages, ["Set/App"])
             self.assertFalse((output / "Set" / "App" / "___priv-app___AppOld").exists())
 
@@ -82,6 +82,7 @@ class StableTreeUpgradeTests(unittest.TestCase):
             (package / "___etc___permissions").mkdir(parents=True)
             (package / "___etc___permissions/updated.xml").write_bytes(b"16")
             (package / "___etc___permissions/retained.xml").write_bytes(b"retain")
+            (package / "___priv-app___AppOld/AppOld.apk.prof").write_bytes(b"old profile")
 
             report = StableTreeUpgrader().upgrade(
                 template, old, new, output, carry_forward_missing=True)
@@ -91,6 +92,7 @@ class StableTreeUpgradeTests(unittest.TestCase):
             self.assertEqual((upgraded / "___priv-app___AppNew/AppNew.apk").read_bytes(), b"new")
             self.assertEqual((upgraded / "___etc___permissions/updated.xml").read_bytes(), b"17")
             self.assertEqual((upgraded / "___etc___permissions/retained.xml").read_bytes(), b"retain")
+            self.assertFalse(any(upgraded.rglob("*.prof")))
             self.assertIn("Set/App/___etc___permissions/updated.xml", report.updated_dependencies)
             self.assertIn("Set/App/___etc___permissions/retained.xml", report.carried_forward_files)
 

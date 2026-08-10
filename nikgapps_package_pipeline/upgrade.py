@@ -9,6 +9,14 @@ from typing import Any
 from .errors import PipelineError
 
 
+def _is_profile(path: Path) -> bool:
+    return path.suffix.casefold() == ".prof"
+
+
+def _ignore_profiles(_directory: str, names: list[str]) -> set[str]:
+    return {name for name in names if Path(name).suffix.casefold() == ".prof"}
+
+
 @dataclass
 class UpgradeReport:
     upgraded_packages: list[str] = field(default_factory=list)
@@ -105,7 +113,8 @@ def _copy_firmware_directory(
     source_directory = source_apk.parent
     count = 0
     for source in sorted(source_directory.rglob("*")):
-        if not source.is_file() or any(part.endswith("_extracted") for part in source.parts):
+        if (not source.is_file() or _is_profile(source)
+                or any(part.endswith("_extracted") for part in source.parts)):
             continue
         source_location = Path(location).parent / source.relative_to(source_directory)
         destination = package_output / encode_builder_path(source_location.as_posix())
@@ -166,12 +175,13 @@ class StableTreeUpgrader:
                 # Preserve the complete AppSet/package skeleton even when a
                 # package is not shipped by the target firmware image.
                 if carry_forward_missing:
-                    shutil.copytree(package, destination)
+                    shutil.copytree(package, destination, ignore=_ignore_profiles)
                 else:
                     destination.mkdir(parents=True, exist_ok=True)
                 template_apks = sorted(package.rglob("*.apk"))
                 template_dependencies = sorted(
-                    path for path in package.rglob("*") if path.is_file() and path.suffix.casefold() != ".apk"
+                    path for path in package.rglob("*")
+                    if path.is_file() and path.suffix.casefold() not in {".apk", ".prof"}
                 )
                 copied = 0
                 seen_targets: set[str] = set()
