@@ -13,16 +13,22 @@ python -m nikgapps_package_pipeline --help
 ## Upgrade a stable Android tree
 
 The upgrade command preserves the AppSet/package layout of an existing stable
-tree while resolving renamed APKs by Android package ID. Payload files are
-copied only from the target Mustang extraction; missing Android 17 packages are
-listed in `upgrade-report.json` instead of being silently carried over.
+tree while resolving renamed APKs by Android package ID. With
+`--carry-forward-missing`, it starts from the known-good template, replaces APK
+directories and exact-path dependent files available in the target image, and
+records every retained package/file in `upgrade-report.json` for review. It can
+also generate and compile the Android-version-specific overlays in the same run.
 
 ```text
 python -m nikgapps_package_pipeline upgrade \
   --template ../16_stable \
   --baseline-firmware ../16_mustang_260205 \
   --target-firmware ../17_mustang_260805 \
-  --output ../17_stable
+  --output ../17_stable \
+  --carry-forward-missing \
+  --android-version 17 \
+  --overlay-source ../overlays_17_source \
+  --overlay-output ../overlays_17
 ```
 
 Android 17 overlays can be generated and compiled locally with:
@@ -31,3 +37,8 @@ Android 17 overlays can be generated and compiled locally with:
 python -m NikGapps.overlay_control --android-version 17 \
   --source-dir ../overlays_17_source --output-dir ../overlays_17
 ```
+
+Overlay compilation requires Java and Android SDK Build-Tools (`zipalign`) on
+`PATH`. In PyCharm, add the chosen SDK `build-tools/<version>` directory to the
+Run Configuration's `PATH`, or launch PyCharm from a terminal where `zipalign`
+is available. The upgrade command never publishes to GitLab.

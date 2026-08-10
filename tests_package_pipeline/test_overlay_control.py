@@ -10,7 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "niklibrary"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "nikassets"))
 
 try:
-    from NikGapps.overlay_control import build_local_overlays
+    from NikGapps.overlay_control import build_local_overlays, register_android_platform
+    from niklibrary.helper.Statics import Statics
 except ModuleNotFoundError:
     build_local_overlays = None
 
@@ -26,6 +27,17 @@ class FakeOverlay:
 
 @unittest.skipIf(build_local_overlays is None, "optional NikGapps build dependencies unavailable")
 class OverlayControlTests(unittest.TestCase):
+    def test_android_17_platform_compatibility(self) -> None:
+        original = Statics.android_versions.pop("17", None)
+        try:
+            register_android_platform("17")
+            self.assertEqual(Statics.get_android_sdk("17"), "37")
+            self.assertEqual(Statics.get_android_code("17"), "CinnamonBun")
+        finally:
+            Statics.android_versions.pop("17", None)
+            if original is not None:
+                Statics.android_versions["17"] = original
+
     def test_android_17_local_overlay_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

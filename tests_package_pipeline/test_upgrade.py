@@ -59,6 +59,41 @@ class StableTreeUpgradeTests(unittest.TestCase):
                     root / "template", root / "old", root / "new", root / "output"
                 )
 
+    def test_complete_upgrade_replaces_dependencies_and_audits_carry_forward(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            template = root / "16_stable"
+            old = root / "16_mustang"
+            new = root / "17_mustang"
+            output = root / "17_stable"
+            old_location = "product/priv-app/AppOld/AppOld.apk"
+            new_location = "product/priv-app/AppNew/AppNew.apk"
+            self.inventory(old, "com.example", old_location)
+            self.inventory(new, "com.example", new_location)
+            (old / old_location).parent.mkdir(parents=True)
+            (old / old_location).write_bytes(b"old")
+            (new / new_location).parent.mkdir(parents=True)
+            (new / new_location).write_bytes(b"new")
+            (new / "product/etc/permissions/updated.xml").parent.mkdir(parents=True)
+            (new / "product/etc/permissions/updated.xml").write_bytes(b"17")
+            package = template / "Set" / "App"
+            (package / "___priv-app___AppOld").mkdir(parents=True)
+            (package / "___priv-app___AppOld/AppOld.apk").write_bytes(b"template")
+            (package / "___etc___permissions").mkdir(parents=True)
+            (package / "___etc___permissions/updated.xml").write_bytes(b"16")
+            (package / "___etc___permissions/retained.xml").write_bytes(b"retain")
+
+            report = StableTreeUpgrader().upgrade(
+                template, old, new, output, carry_forward_missing=True)
+
+            upgraded = output / "Set/App"
+            self.assertFalse((upgraded / "___priv-app___AppOld").exists())
+            self.assertEqual((upgraded / "___priv-app___AppNew/AppNew.apk").read_bytes(), b"new")
+            self.assertEqual((upgraded / "___etc___permissions/updated.xml").read_bytes(), b"17")
+            self.assertEqual((upgraded / "___etc___permissions/retained.xml").read_bytes(), b"retain")
+            self.assertIn("Set/App/___etc___permissions/updated.xml", report.updated_dependencies)
+            self.assertIn("Set/App/___etc___permissions/retained.xml", report.carried_forward_files)
+
 
 if __name__ == "__main__":
     unittest.main()

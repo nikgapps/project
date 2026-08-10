@@ -14,6 +14,11 @@ class UpgradeReport:
     upgraded_packages: list[str] = field(default_factory=list)
     file_only_packages: list[str] = field(default_factory=list)
     unavailable_packages: list[str] = field(default_factory=list)
+    carried_forward_packages: list[str] = field(default_factory=list)
+    updated_dependencies: list[str] = field(default_factory=list)
+    carried_forward_files: list[str] = field(default_factory=list)
+    ambiguous_dependencies: list[str] = field(default_factory=list)
+    built_overlays: list[str] = field(default_factory=list)
     copied_files: int = 0
 
     def as_dict(self) -> dict[str, Any]:
@@ -22,6 +27,11 @@ class UpgradeReport:
             "upgradedPackages": sorted(self.upgraded_packages),
             "fileOnlyPackages": sorted(self.file_only_packages),
             "unavailablePackages": sorted(self.unavailable_packages),
+            "carriedForwardPackages": sorted(self.carried_forward_packages),
+            "updatedDependencies": sorted(self.updated_dependencies),
+            "carriedForwardFiles": sorted(self.carried_forward_files),
+            "ambiguousDependencies": sorted(self.ambiguous_dependencies),
+            "builtOverlays": sorted(self.built_overlays),
             "copiedFiles": self.copied_files,
         }
 
@@ -114,6 +124,8 @@ class StableTreeUpgrader:
         baseline_firmware: Path,
         target_firmware: Path,
         output: Path,
+        *,
+        carry_forward_missing: bool = False,
     ) -> UpgradeReport:
         template_root = template_root.resolve()
         baseline_firmware = baseline_firmware.resolve()
@@ -128,6 +140,18 @@ class StableTreeUpgrader:
 
         baseline = _load_inventory(baseline_firmware)
         target = _load_inventory(target_firmware)
+        target_files: dict[str, list[Path]] = {}
+        for candidate in sorted(target_firmware.rglob("*")):
+            if not candidate.is_file() or candidate.name in {"mustang.json", "all_files.txt"}:
+                continue
+            if any(part.endswith("_extracted") or part == ".git" for part in candidate.parts):
+                continue
+            relative = candidate.relative_to(target_firmware).as_posix()
+            try:
+                builder_path = encode_builder_path(relative).as_posix()
+            except PipelineError:
+                continue
+            target_files.setdefault(builder_path, []).append(candidate)
         report = UpgradeReport()
         output.mkdir(parents=True)
         for metadata_name in (".gitattributes", "README.md"):
@@ -141,10 +165,17 @@ class StableTreeUpgrader:
                 destination = output / appset.name / package.name
                 # Preserve the complete AppSet/package skeleton even when a
                 # package is not shipped by the target firmware image.
-                destination.mkdir(parents=True, exist_ok=True)
+                if carry_forward_missing:
+                    shutil.copytree(package, destination)
+                else:
+                    destination.mkdir(parents=True, exist_ok=True)
                 template_apks = sorted(package.rglob("*.apk"))
+                template_dependencies = sorted(
+                    path for path in package.rglob("*") if path.is_file() and path.suffix.casefold() != ".apk"
+                )
                 copied = 0
                 seen_targets: set[str] = set()
+                replaced_apk_parents: set[Path] = set()
                 for template_apk in template_apks:
                     match = _record_for_template(template_apk, package, baseline)
                     if not match:
@@ -157,36 +188,48 @@ class StableTreeUpgrader:
                     if location in seen_targets:
                         continue
                     seen_targets.add(location)
+                    if carry_forward_missing:
+                        old_parent = destination / template_apk.parent.relative_to(package)
+                        if old_parent not in replaced_apk_parents:
+                            shutil.rmtree(old_parent)
+                            replaced_apk_parents.add(old_parent)
                     copied += _copy_firmware_directory(target_firmware, target_record, destination)
+
+                dependency_copied = 0
+                for template_file in template_dependencies:
+                    relative = template_file.relative_to(package)
+                    builder_path = relative.as_posix()
+                    matches = target_files.get(builder_path, [])
+                    audit_path = f"{membership}/{builder_path}"
+                    if len(matches) == 1:
+                        destination_file = destination / relative
+                        destination_file.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(matches[0], destination_file)
+                        dependency_copied += 1
+                        report.copied_files += 1
+                        report.updated_dependencies.append(audit_path)
+                    elif len(matches) > 1:
+                        report.ambiguous_dependencies.append(audit_path)
+                        if carry_forward_missing and destination.joinpath(relative).is_file():
+                            report.carried_forward_files.append(audit_path)
+                    elif carry_forward_missing and destination.joinpath(relative).is_file():
+                        report.carried_forward_files.append(audit_path)
 
                 if copied:
                     report.upgraded_packages.append(membership)
                     report.copied_files += copied
+                    if carry_forward_missing and any(
+                        destination.joinpath(apk.relative_to(package)).is_file() for apk in template_apks
+                    ):
+                        report.carried_forward_packages.append(membership)
                     continue
 
-                # File-only packages are retained only when the same path is
-                # present in Android 17. Nothing is ever copied from Android 16.
-                file_only_copied = 0
-                for template_file in sorted(package.rglob("*")):
-                    if not template_file.is_file() or template_file.suffix == ".apk":
-                        continue
-                    suffix = decode_builder_path(template_file.relative_to(package))
-                    matches = [
-                        candidate for candidate in target_firmware.rglob(template_file.name)
-                        if candidate.is_file()
-                        and candidate.as_posix().endswith("/" + suffix)
-                        and "_extracted" not in candidate.as_posix()
-                    ]
-                    if len(matches) == 1:
-                        destination_file = destination / template_file.relative_to(package)
-                        destination_file.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(matches[0], destination_file)
-                        report.copied_files += 1
-                        file_only_copied += 1
-                if file_only_copied:
+                if dependency_copied:
                     report.file_only_packages.append(membership)
                 else:
                     report.unavailable_packages.append(membership)
+                if carry_forward_missing and any(destination.rglob("*")):
+                    report.carried_forward_packages.append(membership)
 
         (output / "upgrade-report.json").write_text(
             json.dumps(report.as_dict(), indent=2) + "\n", encoding="utf-8"

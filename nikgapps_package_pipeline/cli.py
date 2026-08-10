@@ -168,6 +168,11 @@ def build_parser() -> argparse.ArgumentParser:
     upgrade.add_argument("--baseline-firmware", type=Path, required=True)
     upgrade.add_argument("--target-firmware", type=Path, required=True)
     upgrade.add_argument("--output", type=Path, required=True)
+    upgrade.add_argument("--carry-forward-missing", action="store_true",
+                         help="copy the complete template first, replace everything available from the target image, and audit retained files")
+    upgrade.add_argument("--android-version", help="build overlays for this Android version after upgrading")
+    upgrade.add_argument("--overlay-source", type=Path, help="generated overlay source workspace")
+    upgrade.add_argument("--overlay-output", type=Path, help="compiled overlay APK output")
     return parser
 
 
@@ -336,9 +341,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "reset-registry":
             return _reset_registry(args)
         if args.command == "upgrade":
+            overlay_values = (args.android_version, args.overlay_source, args.overlay_output)
+            if any(overlay_values) and not all(overlay_values):
+                raise PipelineError("--android-version, --overlay-source, and --overlay-output must be supplied together")
+            overlays = []
+            if all(overlay_values):
+                from NikGapps.overlay_control import build_local_overlays
+                overlays = build_local_overlays(args.android_version, args.overlay_source, args.overlay_output)
             report = StableTreeUpgrader().upgrade(
-                args.template, args.baseline_firmware, args.target_firmware, args.output
+                args.template, args.baseline_firmware, args.target_firmware, args.output,
+                carry_forward_missing=args.carry_forward_missing,
             )
+            if overlays:
+                report.built_overlays = [str(Path(path).resolve().relative_to(args.overlay_output.resolve())).replace("\\", "/")
+                                         for path in overlays]
+                (args.output / "upgrade-report.json").write_text(
+                    json.dumps(report.as_dict(), indent=2) + "\n", encoding="utf-8")
             print(json.dumps(report.as_dict(), indent=2))
             return 0
         return _migrate(args)

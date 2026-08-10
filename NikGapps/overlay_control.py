@@ -12,8 +12,22 @@ from niklibrary.git.Git import Git
 from NikGapps.helper.overlay.Overlay import Overlay
 
 
+ANDROID_PLATFORM_VERSIONS = {
+    # niklibrary 0.28 predates Android 17. Keep the compatibility entry here
+    # until the same mapping is available in the shared library.
+    "17": {"sdk": "37", "code": "CinnamonBun"},
+}
+
+
+def register_android_platform(android_version):
+    version = str(android_version)
+    if version not in Statics.android_versions and version in ANDROID_PLATFORM_VERSIONS:
+        Statics.android_versions[version] = ANDROID_PLATFORM_VERSIONS[version]
+
+
 def build_local_overlays(android_version, source_dir, output_dir):
     """Generate and compile overlays locally without cloning or pushing repos."""
+    register_android_platform(android_version)
     source_dir = os.path.abspath(source_dir)
     output_dir = os.path.abspath(output_dir)
     os.makedirs(source_dir, exist_ok=True)
