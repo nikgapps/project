@@ -293,9 +293,8 @@ class MigrationTests(unittest.TestCase):
                     "example",
                     "shared",
                     "gms_core",
-                    "gms_core_support_common",
-                    "gms_core_support_standard",
-                    "gms_core_support_go",
+                    "gms_core_extra_files",
+                    "gms_core_extra_files_go",
                 },
             )
             shared = next(item for item in packages if item.package_id == "shared")
@@ -306,10 +305,16 @@ class MigrationTests(unittest.TestCase):
             )
             support = next(
                 item for item in packages
-                if item.package_id == "gms_core_support_common"
+                if item.package_id == "gms_core_extra_files"
             )
             self.assertIsNone(support.primary_apk)
             self.assertTrue(support.internal)
+            with zipfile.ZipFile(support.artifact_path) as support_archive:
+                support_installer = support_archive.read("installer.sh").decode()
+                support_uninstaller = support_archive.read("uninstaller.sh").decode()
+                self.assertIn("com.google.android.maps.xml", support_installer)
+                self.assertIn("uninstall_package() {", support_uninstaller)
+                self.assertIn("___etc___permissions/common.xml", support_uninstaller)
             self.assertRegex(
                 support.version_key,
                 r"^content-[0-9a-f]{12}-arm64-v8a$",
@@ -344,9 +349,9 @@ class MigrationTests(unittest.TestCase):
             appsets = json.loads((output / "metadata" / "appsets.json").read_text())
             core_go = next(item for item in appsets["appSets"] if item["name"] == "CoreGo")
             self.assertEqual(core_go["packages"], ["gms_core", "shared"])
-            self.assertIn("gms_core_support_common", core_go["resolvedPackages"])
-            self.assertIn("gms_core_support_go", core_go["resolvedPackages"])
-            self.assertNotIn("gms_core_support_standard", core_go["resolvedPackages"])
+            self.assertIn("gms_core_extra_files_go", core_go["resolvedPackages"])
+            self.assertNotIn("gms_core_extra_files", core_go["resolvedPackages"])
+            self.assertEqual(core_go["legacyPackageNames"]["gms_core_extra_files_go"], "ExtraFilesGo")
             compatible = Path(temporary) / "compatible"
             LegacyCompatibilityExporter().export(packages, compatible)
             self.assertTrue(

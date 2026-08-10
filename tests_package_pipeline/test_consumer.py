@@ -57,21 +57,17 @@ class ConsumerTests(unittest.TestCase):
                 "gms_core": artifact(
                     root, "gms", "priv-app/Gms/Gms.apk", b"apk"
                 ),
-                "gms_core_support_common": artifact(
-                    root, "common", "etc/permissions/common.xml", b"common"
+                "gms_core_extra_files": artifact(
+                    root, "extra", "etc/permissions/common.xml", b"common"
                 ),
-                "gms_core_support_standard": artifact(
-                    root, "standard", "etc/sysconfig/variant.xml", b"standard"
-                ),
-                "gms_core_support_go": artifact(
+                "gms_core_extra_files_go": artifact(
                     root, "go", "etc/sysconfig/go.xml", b"go"
                 ),
             }
             memberships = {
                 "gms_core": ["Core/GmsCore", "CoreGo/GmsCore"],
-                "gms_core_support_common": ["Core/ExtraFiles", "CoreGo/ExtraFilesGo"],
-                "gms_core_support_standard": ["Core/ExtraFiles"],
-                "gms_core_support_go": ["CoreGo/ExtraFilesGo"],
+                "gms_core_extra_files": ["Core/ExtraFiles"],
+                "gms_core_extra_files_go": ["CoreGo/ExtraFilesGo"],
             }
             packages = []
             for package_id, artifact_data in artifacts.items():
@@ -83,7 +79,7 @@ class ConsumerTests(unittest.TestCase):
                     "versions": {
                         key: {
                             "android": {"minApi": 29, "maxApi": None},
-                            "architectures": [] if "support" in package_id else ["arm64-v8a"],
+                            "architectures": [] if "extra_files" in package_id else ["arm64-v8a"],
                             "artifact": artifact_data,
                         }
                     },
@@ -98,10 +94,12 @@ class ConsumerTests(unittest.TestCase):
                     "packages": ["gms_core"],
                     "resolvedPackages": [
                         "gms_core",
-                        "gms_core_support_common",
-                        "gms_core_support_standard",
+                        "gms_core_extra_files",
                     ],
-                    "legacyPackageNames": {"gms_core": "GmsCore"},
+                    "legacyPackageNames": {
+                        "gms_core": "GmsCore",
+                        "gms_core_extra_files": "ExtraFiles",
+                    },
                 }]
             }), encoding="utf-8")
             requested = [SimpleNamespace(
@@ -119,9 +117,6 @@ class ConsumerTests(unittest.TestCase):
             )
             self.assertTrue(
                 (source / "Core" / "ExtraFiles" / "___etc___permissions" / "common.xml").is_file()
-            )
-            self.assertTrue(
-                (source / "Core" / "ExtraFiles" / "___etc___sysconfig" / "variant.xml").is_file()
             )
             self.assertFalse((source / "CoreGo").exists())
 

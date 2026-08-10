@@ -377,13 +377,12 @@ class MigrationPipeline:
                     "with its required support files"
                 )
             gms.dependencies = [
-                {"id": "gms_core_support_common"},
                 {
-                    "id": "gms_core_support_standard",
+                    "id": "gms_core_extra_files",
                     "when": {"appSet": "core"},
                 },
                 {
-                    "id": "gms_core_support_go",
+                    "id": "gms_core_extra_files_go",
                     "when": {"appSet": "core_go"},
                 },
             ]
@@ -433,40 +432,28 @@ class MigrationPipeline:
         normal_source = sources["Core/ExtraFiles"]
         go_source = sources["CoreGo/ExtraFilesGo"]
         scanner = LegacyRepositoryScanner()
-        normal = {item.path: item for item in scanner.payload(normal_source)}
-        go = {item.path: item for item in scanner.payload(go_source)}
-        common_paths = {
-            path for path in normal.keys() & go.keys()
-            if normal[path].sha256 == go[path].sha256
-        }
         groups = [
             (
-                "gms_core_support_common",
-                "GmsCore common support files",
-                [normal[path] for path in sorted(common_paths)],
-                ["Core/ExtraFiles", "CoreGo/ExtraFilesGo"],
-                ["Core", "CoreGo"],
-            ),
-            (
-                "gms_core_support_standard",
-                "GmsCore standard support files",
-                [normal[path] for path in sorted(normal.keys() - common_paths)],
+                "gms_core_extra_files",
+                "ExtraFiles",
+                scanner.payload(normal_source),
                 ["Core/ExtraFiles"],
                 ["Core"],
+                normal_source,
             ),
             (
-                "gms_core_support_go",
-                "GmsCore Go support files",
-                [go[path] for path in sorted(go.keys() - common_paths)],
+                "gms_core_extra_files_go",
+                "ExtraFilesGo",
+                scanner.payload(go_source),
                 ["CoreGo/ExtraFilesGo"],
                 ["CoreGo"],
+                go_source,
             ),
         ]
         result: list[BuiltPackage] = []
-        for package_id, name, files, source_names, appset_names in groups:
+        for package_id, name, files, source_names, appset_names, support_source in groups:
             if not files:
                 continue
-            support_source = normal_source if "go" not in package_id else go_source
             payload_digest = content_digest((item.path, item.sha256) for item in files)
             manifest = _manifest(package_id, support_source, files, None, None, [],
                                  payload_digest, config)
@@ -588,32 +575,29 @@ class MigrationPipeline:
                 }
             except (OSError, json.JSONDecodeError) as exc:
                 raise PipelineError(f"Cannot merge existing AppSets {appsets_path}: {exc}") from exc
-        generated_appsets = [
-            {
+        generated_appsets = []
+        for name, package_ids in sorted(appsets.items()):
+            selected = list(dict.fromkeys(package_ids))
+            resolved = MigrationPipeline._resolved_packages(name, selected, packages)
+            legacy_names = {}
+            for package_id in resolved:
+                legacy_names[package_id] = next(
+                    (
+                        membership.split("/", 1)[1]
+                        for package in packages
+                        if package.package_id == package_id
+                        for membership in package.source_names
+                        if membership.split("/", 1)[0] == name
+                    ),
+                    package_id,
+                )
+            generated_appsets.append({
                 "id": stable_id(name),
                 "name": name,
-                "packages": list(dict.fromkeys(package_ids)),
-                "resolvedPackages": MigrationPipeline._resolved_packages(
-                    name,
-                    list(dict.fromkeys(package_ids)),
-                    packages,
-                ),
-                "legacyPackageNames": {
-                    package_id: next(
-                        (
-                            membership.split("/", 1)[1]
-                            for package in packages
-                            if package.package_id == package_id
-                            for membership in package.source_names
-                            if membership.split("/", 1)[0] == name
-                        ),
-                        package_id,
-                    )
-                    for package_id in dict.fromkeys(package_ids)
-                },
-            }
-            for name, package_ids in sorted(appsets.items())
-        ]
+                "packages": selected,
+                "resolvedPackages": resolved,
+                "legacyPackageNames": legacy_names,
+            })
         existing_appsets.update({item["id"]: item for item in generated_appsets})
         appsets_path.write_bytes(json_data({
             "schemaVersion": 1,
