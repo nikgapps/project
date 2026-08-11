@@ -7,10 +7,10 @@ from niklibrary.helper.Statics import Statics
 class ApkMetaInfo:
     def __init__(self, apk_file_name, android_version):
         self.apkFileName = apk_file_name
-        self.minSdkVersion = Statics.get_android_sdk(android_version)
+        self.minSdkVersion = int(Statics.get_android_sdk(android_version))
         self.targetSdkVersion = self.minSdkVersion
         self.versionCode = self.minSdkVersion
-        self.versionName = android_version
+        self.versionName = str(android_version)
 
     def to_dict(self):
         return {
@@ -19,8 +19,8 @@ class ApkMetaInfo:
             'compressionType': False,
             'doNotCompress': ['resources.arsc'],
             'isFrameworkApk': False,
-            'packageInfo': {
-                'forcedPackageId': '127',
+            'resourcesInfo': {
+                'packageId': 127,
                 'renameManifestPackage': None,
             },
             'sdkInfo': {
@@ -34,7 +34,7 @@ class ApkMetaInfo:
                 'ids': [1],
                 'tag': None,
             },
-            'version': '1.0.0',
+            'version': '3.0.2',
             'versionInfo': {
                 'versionCode': self.versionCode,
                 'versionName': self.versionName,
