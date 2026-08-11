@@ -291,16 +291,15 @@ class MigrationPipeline:
                 if source.override.architectures is not None
                 else detect_architectures(files, primary)
             )
-            if not architectures and primary:
-                architectures = [config.architecture]
             provisional = _manifest(package_id, source, files, primary, metadata,
                                     architectures, payload_sha, config)
             content_sha = _build_contract_digest(files, provisional)
             version_code = metadata.version_code if metadata else 0
+            architecture_key = f"-{config.architecture}" if architectures else ""
             version_key = (
-                f"{version_code}-{config.architecture}-{content_sha[:12]}"
+                f"{version_code}{architecture_key}-{content_sha[:12]}"
                 if metadata
-                else f"content-{content_sha[:12]}-{config.architecture}"
+                else f"content-{content_sha[:12]}{architecture_key}"
             )
             if any(char in version_key for char in "/\\"):
                 raise PipelineError(f"Unsafe generated version key: {version_key!r}")
@@ -341,6 +340,9 @@ class MigrationPipeline:
                 max_api=source.override.max_api,
                 default_partition=source.override.default_partition,
                 architectures=architectures,
+                device_types=(source.override.device_types
+                              if source.override.device_types is not None
+                              else [config.default_device_type]),
                 primary_apk=primary.path if primary else None,
                 replaceable=source.override.replaceable,
                 files=files,
@@ -461,7 +463,7 @@ class MigrationPipeline:
             digest = _build_contract_digest(files, manifest)
             manifest["contentSha256"] = digest
             manifest["versionName"] = f"content-{digest[:12]}"
-            version_key = f"content-{digest[:12]}-{config.architecture}"
+            version_key = f"content-{digest[:12]}"
             artifact = (
                 output / "artifacts" / package_id / version_key / f"{package_id}.zip"
             )
@@ -478,6 +480,7 @@ class MigrationPipeline:
                 max_api=None,
                 default_partition=normal_source.override.default_partition,
                 architectures=[],
+                device_types=[config.default_device_type],
                 primary_apk=None,
                 replaceable=False,
                 files=files,
@@ -507,7 +510,10 @@ class MigrationPipeline:
                 f"{base_url.rstrip('/')}/nikgapps-{package.package_id}/"
                 f"{package.version_key}/{package.package_id}.zip"
             )
-            version = package.catalog_version(url)
+            version = package.catalog_version(
+                url, config.android_version, config.source,
+                config.architecture, config.default_device_type
+            )
             catalog_packages.append({
                 "id": package.package_id,
                 "name": package.name,
@@ -516,6 +522,7 @@ class MigrationPipeline:
                 "legacy": {
                     "memberships": package.source_names,
                 },
+                "appSets": sorted({stable_id(name) for name in package.appsets}),
                 "dependencies": package.dependencies,
                 "channels": {
                     config.channel: package.version_key,
@@ -539,28 +546,58 @@ class MigrationPipeline:
         for current in catalog_packages:
             previous = existing_packages.get(current["id"])
             if previous:
+                current["appSets"] = sorted(set(previous.get("appSets", [])) | set(current["appSets"]))
+                current["legacy"]["memberships"] = sorted(
+                    set(previous.get("legacy", {}).get("memberships", []))
+                    | set(current["legacy"]["memberships"])
+                )
                 versions = dict(previous.get("versions", {}))
+                for version_key, current_version in current["versions"].items():
+                    previous_version = versions.get(version_key)
+                    if previous_version:
+                        supported = set(previous_version.get("supportedAndroidVersions", []))
+                        supported.update(current_version.get("supportedAndroidVersions", []))
+                        current_version["supportedAndroidVersions"] = sorted(supported, key=float)
+                        current_version["sources"] = sorted(
+                            set(previous_version.get("sources", []))
+                            | set(current_version.get("sources", []))
+                        )
                 versions.update(current["versions"])
                 channels = dict(previous.get("channels", {}))
                 new_version = current["channels"][config.channel]
                 old_channel_version = channels.get(config.channel)
-                if (
+                same_legacy_platform = (
+                    not existing_catalog
+                    or str(existing_catalog.get("androidVersion")) == str(config.android_version)
+                )
+                if (same_legacy_platform and
                     config.channel == "stable"
                     and old_channel_version
                     and old_channel_version != new_version
                 ):
                     channels["fallback"] = old_channel_version
-                channels[config.channel] = new_version
+                if same_legacy_platform:
+                    channels[config.channel] = new_version
                 current["versions"] = versions
                 current["channels"] = channels
             existing_packages[current["id"]] = current
+        legacy_android = str(existing_catalog.get("androidVersion", config.android_version))
+        legacy_platform_api = int(existing_catalog.get("platformApi", config.platform_api))
+        legacy_architecture = existing_catalog.get("architecture", config.architecture)
+        legacy_channel = existing_catalog.get("channel", config.channel)
         catalog_path.write_bytes(json_data({
             "schemaVersion": 1,
             "updatedAt": updated,
-            "androidVersion": config.android_version,
-            "platformApi": config.platform_api,
-            "architecture": config.architecture,
-            "channel": config.channel,
+            "defaults": existing_catalog.get("defaults", {
+                "architectures": [config.architecture],
+                "deviceTypes": [config.default_device_type],
+            }),
+            # Retain the original global pointer for schema-v1 clients. New
+            # clients resolve Android/channel/release through releases/index.json.
+            "androidVersion": legacy_android,
+            "platformApi": legacy_platform_api,
+            "architecture": legacy_architecture,
+            "channel": legacy_channel,
             "packages": [
                 existing_packages[key] for key in sorted(existing_packages)
             ],
@@ -598,7 +635,8 @@ class MigrationPipeline:
                 "resolvedPackages": resolved,
                 "legacyPackageNames": legacy_names,
             })
-        existing_appsets.update({item["id"]: item for item in generated_appsets})
+        if not existing_appsets or legacy_android == str(config.android_version):
+            existing_appsets.update({item["id"]: item for item in generated_appsets})
         appsets_path.write_bytes(json_data({
             "schemaVersion": 1,
             "appSets": [
@@ -631,7 +669,72 @@ class MigrationPipeline:
             "platformApi": config.platform_api,
             "architecture": config.architecture,
             "channel": config.channel,
+            "source": config.source,
             "packages": existing_release_packages,
+        }, pretty))
+
+        release_fingerprint_input = [
+            str(config.android_version), config.channel, config.architecture, config.source,
+            *(f"{package.package_id}:{package.version_key}"
+              for package in sorted(packages, key=lambda item: item.package_id)),
+        ]
+        release_fingerprint = hashlib.sha256(
+            "\n".join(release_fingerprint_input).encode("utf-8")
+        ).hexdigest()[:8]
+        release_id = f'{datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}-{release_fingerprint}'
+        release_manifest = (
+            Path("releases") / f"android-{config.android_version}"
+            / config.architecture / config.channel / f"{release_id}.json"
+        )
+        release_document = {
+            "schemaVersion": 1,
+            "id": release_id,
+            "createdAt": updated,
+            "androidVersion": config.android_version,
+            "platformApi": config.platform_api,
+            "architecture": config.architecture,
+            "channel": config.channel,
+            "source": config.source,
+            "packages": {
+                package.package_id: {"version": package.version_key}
+                for package in packages
+            },
+            "appSets": generated_appsets,
+        }
+        (metadata / release_manifest).parent.mkdir(parents=True, exist_ok=True)
+        (metadata / release_manifest).write_bytes(json_data(release_document, pretty))
+
+        index_path = metadata / "releases" / "index.json"
+        release_index: dict[str, Any] = {}
+        if index_path.exists():
+            try:
+                release_index = json.loads(index_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                raise PipelineError(f"Cannot merge release history {index_path}: {exc}") from exc
+        history = list(release_index.get("releases", []))
+        release_summary = {
+            "id": release_id,
+            "androidVersion": config.android_version,
+            "platformApi": config.platform_api,
+            "architecture": config.architecture,
+            "channel": config.channel,
+            "source": config.source,
+            "createdAt": updated,
+            "manifest": release_manifest.as_posix(),
+        }
+        if not any(item.get("id") == release_id for item in history):
+            history.append(release_summary)
+        latest = dict(release_index.get("latest", {}))
+        android_latest = dict(latest.get(str(config.android_version), {}))
+        channel_latest = dict(android_latest.get(config.channel, {}))
+        channel_latest[config.architecture] = release_id
+        android_latest[config.channel] = channel_latest
+        latest[str(config.android_version)] = android_latest
+        index_path.write_bytes(json_data({
+            "schemaVersion": 1,
+            "updatedAt": updated,
+            "latest": latest,
+            "releases": history,
         }, pretty))
 
     @staticmethod

@@ -317,7 +317,7 @@ class MigrationTests(unittest.TestCase):
                 self.assertIn("___etc___permissions/common.xml", support_uninstaller)
             self.assertRegex(
                 support.version_key,
-                r"^content-[0-9a-f]{12}-arm64-v8a$",
+                r"^content-[0-9a-f]{12}$",
             )
             with zipfile.ZipFile(next(item for item in packages if item.package_id == "example").artifact_path) as archive:
                 self.assertIn("___priv-app___Example/App.apk", archive.namelist())
@@ -478,6 +478,39 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(shared["channels"]["stable"], current)
             self.assertEqual(shared["channels"]["fallback"], "older-version")
             self.assertIn("older-version", shared["versions"])
+
+    def test_release_index_is_scoped_and_catalog_versions_are_reusable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "source"
+            output = Path(temporary) / "output"
+            self.make_tree(root)
+            pipeline = MigrationPipeline(LegacyRepositoryScanner(), FakeInspector())
+            first = pipeline.migrate(
+                root, output, PipelineConfig(android_version="16", platform_api=36),
+                artifact_base_url="https://example.test", package_filter={"Shared"},
+            )[0]
+            second = pipeline.migrate(
+                root, output, PipelineConfig(android_version="17", platform_api=37),
+                artifact_base_url="https://example.test", package_filter={"Shared"},
+            )[0]
+            self.assertEqual(first.version_key, second.version_key)
+            self.assertIn("arm64-v8a", second.version_key)
+            catalog = json.loads((output / "metadata/catalog.json").read_text())
+            shared = catalog["packages"][0]
+            self.assertEqual(catalog["androidVersion"], "16")
+            self.assertEqual(shared["channels"]["stable"], first.version_key)
+            self.assertEqual(
+                shared["versions"][first.version_key]["supportedAndroidVersions"],
+                ["16", "17"],
+            )
+            self.assertEqual(shared["appSets"], ["core", "core_go"])
+            index = json.loads((output / "metadata/releases/index.json").read_text())
+            self.assertEqual(len(index["releases"]), 2)
+            release_id = index["latest"]["17"]["stable"]["arm64-v8a"]
+            summary = next(item for item in index["releases"] if item["id"] == release_id)
+            release = json.loads((output / "metadata" / summary["manifest"]).read_text())
+            self.assertEqual(release["packages"]["shared"]["version"], second.version_key)
+            self.assertTrue(release["appSets"])
 
     def test_different_duplicate_package_requires_override(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

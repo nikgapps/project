@@ -16,6 +16,8 @@ from .service import RegistryService, SyncRequest
 DEFAULT_CONFIG = Path(__file__).resolve().parent.parent / "nikgapps_package_pipeline" / "nikgapps-pipeline.example.json"
 DEFAULT_BUSYBOX = Path(__file__).resolve().parent.parent / ".venv" / "Lib" / "site-packages" / "nikassets" / "helper" / "assets" / "busybox"
 DEFAULT_BUILDER_ASSETS = Path(__file__).resolve().parent.parent / "NikGapps" / "helper" / "assets"
+DEFAULT_RELEASE_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_MULTI_RELEASE_WORK = DEFAULT_RELEASE_ROOT / "MULTI_RELEASE_PREVIEW"
 
 
 def parser() -> argparse.ArgumentParser:
@@ -30,8 +32,9 @@ def parser() -> argparse.ArgumentParser:
     commands = root.add_subparsers(dest="command", required=True)
 
     sync = commands.add_parser("sync", help="ZIP, upload, and catalog legacy packages")
-    sync.add_argument("--source", type=Path, required=True)
-    sync.add_argument("--work", type=Path, required=True)
+    sync.add_argument("--source", type=Path,
+                      help="defaults to VERSION_stable beside the project directory")
+    sync.add_argument("--work", type=Path, default=DEFAULT_MULTI_RELEASE_WORK)
     sync.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     sync.add_argument("--project", required=True, help="GitLab project ID or encoded path")
     sync.add_argument("--android-version", required=True)
@@ -49,10 +52,32 @@ def parser() -> argparse.ArgumentParser:
     sync.add_argument("--package", action="append", default=[])
     sync.add_argument("--fresh", action="store_true", help="ignore existing catalog history")
     sync.add_argument("--compact", action="store_true")
+    sync.add_argument("--verbose", action="store_true")
 
     reset = commands.add_parser("reset", help="delete Generic Registry packages")
     reset.add_argument("--project", required=True)
     reset.add_argument("--confirm-project", help="exact project value required for deletion")
+
+    reset_sync = commands.add_parser(
+        "reset-and-sync", help="reset once, then publish one or more Android releases"
+    )
+    reset_sync.add_argument("--confirm-project", required=True,
+                            help="GitLab project ID; exact confirmation required for deletion")
+    reset_sync.add_argument("--project", help="target project; defaults to --confirm-project")
+    reset_sync.add_argument("--android-version", required=True,
+                            help="one version or comma-separated versions, for example 17 or 16,17")
+    reset_sync.add_argument("--work", type=Path, default=DEFAULT_MULTI_RELEASE_WORK)
+    reset_sync.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    reset_sync.add_argument("--platform-api", type=int)
+    reset_sync.add_argument("--arch", default="arm64-v8a")
+    reset_sync.add_argument("--channel", default="stable")
+    reset_sync.add_argument("--metadata-branch", default="main")
+    reset_sync.add_argument("--aapt2", default=find_aapt2())
+    reset_sync.add_argument("--busybox", type=Path, default=DEFAULT_BUSYBOX)
+    reset_sync.add_argument("--builder-assets", type=Path, default=DEFAULT_BUILDER_ASSETS)
+    reset_sync.add_argument("--package", action="append", default=[])
+    reset_sync.add_argument("--compact", action="store_true")
+    reset_sync.add_argument("--verbose", action="store_true")
     return root
 
 
@@ -80,14 +105,53 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"Deleted {len(deleted)} Generic Registry package(s).")
             print("Run sync --fresh next to replace catalog and AppSet metadata.")
             return 0
+        if args.command == "reset-and-sync":
+            project = args.project or args.confirm_project
+            if args.confirm_project != project:
+                raise PipelineError("--confirm-project must exactly match --project")
+            versions = [value.strip() for value in args.android_version.split(",") if value.strip()]
+            if not versions:
+                raise PipelineError("--android-version must contain at least one version")
+            releases = [
+                (version, DEFAULT_RELEASE_ROOT / f"{version}_stable",
+                 DEFAULT_RELEASE_ROOT / f"overlays_{version}")
+                for version in versions
+            ]
+            for version, source, overlays in releases:
+                if not source.is_dir():
+                    raise PipelineError(f"Android {version} source directory does not exist: {source}")
+                if not overlays.is_dir():
+                    raise PipelineError(f"Android {version} overlay directory does not exist: {overlays}")
+            deleted = service.reset(project)
+            print(f"Deleted {len(deleted)} Generic Registry package(s).")
+            total_urls = 0
+            for index, (version, source, overlays) in enumerate(releases):
+                print(f"[{index + 1}/{len(releases)}] Syncing Android {version}")
+                urls = service.sync(SyncRequest(
+                    source=source, work=args.work, config=args.config,
+                    project=project, android_version=version,
+                    architecture=args.arch, channel=args.channel,
+                    platform_api=args.platform_api, metadata_branch=args.metadata_branch,
+                    package_filter=frozenset(args.package), fresh=index == 0,
+                    pretty=not args.compact, overlays=overlays,
+                    busybox=args.busybox, builder_assets=args.builder_assets,
+                ))
+                total_urls += len(urls)
+            print(f"Published {total_urls} ZIP package(s) across Android {', '.join(versions)}.")
+            return 0
+        source = args.source or DEFAULT_RELEASE_ROOT / f"{args.android_version}_stable"
+        overlays = args.overlays
+        if overlays is None:
+            discovered_overlays = DEFAULT_RELEASE_ROOT / f"overlays_{args.android_version}"
+            overlays = discovered_overlays if discovered_overlays.is_dir() else None
         urls = service.sync(SyncRequest(
-            source=args.source, work=args.work, config=args.config,
+            source=source, work=args.work, config=args.config,
             project=args.project, android_version=args.android_version,
             architecture=args.arch, channel=args.channel,
             platform_api=args.platform_api, metadata_branch=args.metadata_branch,
             package_filter=frozenset(args.package), fresh=args.fresh,
             pretty=not args.compact,
-            overlays=args.overlays,
+            overlays=overlays,
             busybox=args.busybox,
             builder_assets=args.builder_assets,
         ))

@@ -216,9 +216,25 @@ class GitLabClient:
 
     def delete_package(self, project: str, package_id: int) -> None:
         encoded_project = urllib.parse.quote(str(project), safe="")
-        self._request(
-            "DELETE", f"projects/{encoded_project}/packages/{int(package_id)}"
-        )
+        endpoint = f"projects/{encoded_project}/packages/{int(package_id)}"
+        last_error: PipelineError | None = None
+        for attempt in range(6):
+            try:
+                self._request("DELETE", endpoint)
+                return
+            except PipelineError as exc:
+                last_error = exc
+                retryable = any(f"HTTP {status}" in str(exc) for status in (429, 500, 502, 503, 504))
+                if not retryable or attempt == 5:
+                    raise
+                delay = min(30, 2 ** attempt)
+                print(
+                    f"[Registry] Delete rate-limited or temporarily unavailable "
+                    f"(attempt {attempt + 1}/6); retrying in {delay}s"
+                )
+                time.sleep(delay)
+        assert last_error is not None
+        raise last_error
 
     def commit_directory(
         self,

@@ -31,6 +31,7 @@ class PackageOverride:
     min_api: int | None = None
     max_api: int | None = None
     architectures: list[str] | None = None
+    device_types: list[str] | None = None
     replaceable: bool = True
     include: list[str] | None = None
     exclude: list[str] = field(default_factory=list)
@@ -64,6 +65,7 @@ class BuiltPackage:
     max_api: int | None
     default_partition: str
     architectures: list[str]
+    device_types: list[str]
     primary_apk: str | None
     replaceable: bool
     files: list[PayloadFile]
@@ -75,8 +77,9 @@ class BuiltPackage:
     dependencies: list[dict[str, Any]] = field(default_factory=list)
     descriptor: dict[str, Any] = field(default_factory=dict)
 
-    def catalog_version(self, artifact_url: str) -> dict[str, Any]:
-        return {
+    def catalog_version(self, artifact_url: str, android_version: str, source: str,
+                        default_architecture: str, default_device_type: str) -> dict[str, Any]:
+        result = {
             "versionName": self.metadata.version_name if self.metadata else self.version_key,
             "versionCode": self.metadata.version_code if self.metadata else 0,
             "packageName": self.metadata.package_name if self.metadata else None,
@@ -85,7 +88,8 @@ class BuiltPackage:
                 "targetApi": self.target_api,
                 "maxApi": self.max_api,
             },
-            "architectures": self.architectures,
+            "supportedAndroidVersions": [str(android_version)],
+            "sources": [source],
             "defaultPartition": self.default_partition,
             "apk": {
                 "path": self.primary_apk,
@@ -100,3 +104,8 @@ class BuiltPackage:
             "files": self.descriptor.get("files", []),
             "install": self.descriptor.get("install"),
         }
+        if self.architectures != [default_architecture]:
+            result["architectures"] = self.architectures
+        if self.device_types != [default_device_type]:
+            result["deviceTypes"] = self.device_types
+        return result

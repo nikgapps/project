@@ -65,6 +65,11 @@ PACKAGE_APPSETS_URL = os.environ.get(
     "PACKAGE_APPSETS_URL",
     "https://gitlab.com/nikgapps/nikgapps-package-catalog/-/raw/main/appsets.json"
 )
+PACKAGE_RELEASE_INDEX_URL = os.environ.get(
+    "PACKAGE_RELEASE_INDEX_URL",
+    "https://gitlab.com/nikgapps/nikgapps-package-catalog/-/raw/main/releases/index.json"
+)
+PACKAGE_RELEASE_ID = os.environ.get("PACKAGE_RELEASE_ID")
 PACKAGE_CACHE = os.environ.get(
     "PACKAGE_CACHE",
     os.path.abspath(os.path.join(os.getcwd(), ".nikgapps-package-cache"))

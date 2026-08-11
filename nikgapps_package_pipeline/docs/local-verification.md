@@ -183,6 +183,24 @@ Immediately rebuild every stable package and replace historical metadata:
 python -m nikgapps_package_pipeline migrate --publish --fresh-metadata --verbose
 ```
 
+Or reset once and sync Android 16 and 17 with one command:
+
+```powershell
+python -m nikgapps_package_pipeline reset-and-sync `
+  --confirm-project 85036487 `
+  --android-version 16,17 `
+  --verbose
+```
+
+The project confirmation is mandatory. The command deletes Generic Registry
+packages once, generates fresh metadata for the first release, then merges each
+additional release into the same catalog and release index. It discovers
+`<version>_stable` and `overlays_<version>` beside the `project` directory and
+uses `MULTI_RELEASE_PREVIEW` there as its output. Use `--android-version 17` to
+reset and publish only Android 17. Because reset applies to the whole registry,
+use `16,17` whenever both releases must remain available. `--release` remains
+available as an advanced override for nonstandard directory layouts.
+
 Do not use `--fresh-metadata` for ordinary incremental package or channel
 updates. It exists specifically for a complete registry reset followed by a
 complete source migration.

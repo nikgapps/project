@@ -53,6 +53,17 @@ Registry coordinates follow:
 ```text
 package name:    nikgapps-<stable-id>
 package version: <versionCode>-<architecture>-<content hash>
+
+## Architecture and device inheritance
+
+`catalog.json.defaults` defines the normal compatibility values. The generated
+catalog currently defaults to `architectures: ["arm64-v8a"]` and
+`deviceTypes: ["phone"]`. Package versions omit values equal to those defaults.
+An explicitly empty `architectures` override means the package is ABI-neutral;
+alternate ABIs and tablet-only packages store only their overrides. Configure
+these with top-level `architecture` / `defaultDeviceType`, or per-package
+`architectures` / `deviceTypes`. Consumers must expand defaults before checking
+compatibility.
 file name:       <stable-id>.zip
 ```
 

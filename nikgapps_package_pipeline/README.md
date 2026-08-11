@@ -42,3 +42,17 @@ Overlay compilation requires Java and Android SDK Build-Tools (`zipalign`) on
 `PATH`. In PyCharm, add the chosen SDK `build-tools/<version>` directory to the
 Run Configuration's `PATH`, or launch PyCharm from a terminal where `zipalign`
 is available. The upgrade command never publishes to GitLab.
+
+## Release-scoped metadata
+
+`catalog.json` stores immutable package versions, their AppSet associations,
+detected ABI restrictions, and `supportedAndroidVersions`. Android/channel
+selection is stored separately in `releases/index.json`. Each publication adds
+an immutable manifest under
+`releases/android-<version>/<architecture>/<channel>/<release-id>.json`; that
+manifest pins package versions and the complete AppSet snapshot for the release.
+
+The index keeps a `latest` pointer for each Android version, channel, and build
+architecture plus append-only release history. Set `PACKAGE_RELEASE_ID` to a
+historical ID to reproduce an older build. Packages without native ABI content
+have no architecture restriction or ABI component in their version key.

@@ -27,6 +27,22 @@ reset --project 85036487 --confirm-project 85036487
 Reset intentionally leaves repository files untouched. Use `sync --fresh`
 immediately afterwards so old catalog history is not reused.
 
+## Reset and sync in one command
+
+The command discovers `<version>_stable` and `overlays_<version>` beside the
+`project` directory and loads `GITLAB_TOKEN` from the normal environment or
+the project/NikGapps `.env` locations:
+
+```powershell
+python -m nikgapps_registry reset-and-sync `
+  --confirm-project 85036487 `
+  --android-version 16,17 `
+  --verbose
+```
+
+Use `--android-version 17` for Android 17 only. Reset deletes the entire Generic
+Registry, so specify `16,17` whenever both releases must remain published.
+
 ## Fresh ZIP-only publication
 
 ```powershell
@@ -53,6 +69,19 @@ channel advances while prior versions remain available as fallback. Package
 versions already present in GitLab are skipped, so this is the normal command
 for republishing after source, permission, or overlay changes; a reset is not
 required.
+
+For the normal version-specific workflow, source, overlays, and work paths are
+discovered automatically:
+
+```powershell
+python -m nikgapps_registry sync `
+  --project 85036487 `
+  --android-version 17 `
+  --verbose
+```
+
+This updates only Android 17 pointers and adds its new immutable package
+versions. Android 16 packages, pointers, and release history remain intact.
 
 Use `--package PackageName` or `--package AppSet/PackageName` repeatedly for a
 partial update. Use `--config` for package IDs, partitions, API constraints,

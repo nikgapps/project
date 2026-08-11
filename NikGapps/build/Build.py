@@ -34,6 +34,8 @@ class Build:
                 Path(Config.PACKAGE_CACHE),
                 channel=Config.PACKAGE_CHANNEL,
                 channel_overrides=channel_overrides_from_env(Config.PACKAGE_CHANNEL_OVERRIDES),
+                release_index_url=Config.PACKAGE_RELEASE_INDEX_URL,
+                release_id=Config.PACKAGE_RELEASE_ID,
                 token=os.environ.get("GITLAB_TOKEN"),
             )
             Config.APK_SOURCE = str(registry_source.prepare(

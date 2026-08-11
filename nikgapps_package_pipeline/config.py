@@ -34,7 +34,9 @@ class PipelineConfig:
     android_version: str = "16"
     platform_api: int = 36
     channel: str = "stable"
+    source: str = "legacy"
     architecture: str = "arm64-v8a"
+    default_device_type: str = "phone"
     default_partition: str = "product"
     packages: dict[str, PackageOverride] = field(default_factory=dict)
 
@@ -48,7 +50,7 @@ class PipelineConfig:
 def _override(value: dict[str, Any], default_partition: str) -> PackageOverride:
     accepted = {
         "id", "name", "primaryApk", "defaultPartition", "minApi", "maxApi",
-        "architectures", "replaceable", "include", "exclude",
+        "architectures", "deviceTypes", "replaceable", "include", "exclude",
         "removeFiles", "removeOverlays", "privilegedPermissions",
         "cleanFlashOnly", "additionalInstallerScript", "validationScript",
         "addonIndex",
@@ -67,6 +69,7 @@ def _override(value: dict[str, Any], default_partition: str) -> PackageOverride:
         min_api=value.get("minApi"),
         max_api=value.get("maxApi"),
         architectures=value.get("architectures"),
+        device_types=value.get("deviceTypes"),
         replaceable=value.get("replaceable", True),
         include=value.get("include"),
         exclude=value.get("exclude", []),
@@ -81,13 +84,15 @@ def _override(value: dict[str, Any], default_partition: str) -> PackageOverride:
 
 
 def load_config(
-    path: Path | None, *, android_version: str, platform_api: int, channel: str
+    path: Path | None, *, android_version: str, platform_api: int, channel: str,
+    source: str = "legacy",
 ) -> PipelineConfig:
     if path is None:
         return PipelineConfig(
             android_version=android_version,
             platform_api=platform_api,
             channel=channel,
+            source=source,
         )
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
@@ -105,7 +110,9 @@ def load_config(
         # The channel is an operation-time promotion target. A single config
         # must be reusable for stable, beta, and canary publication.
         channel=channel,
+        source=source,
         architecture=raw.get("architecture", "arm64-v8a"),
+        default_device_type=raw.get("defaultDeviceType", "phone"),
         default_partition=default_partition,
     )
     packages = raw.get("packages", {})

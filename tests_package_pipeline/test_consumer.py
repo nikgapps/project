@@ -129,6 +129,43 @@ class ConsumerTests(unittest.TestCase):
             with self.assertRaisesRegex(PipelineError, "checksum mismatch"):
                 source._artifact({"url": path.as_uri(), "sha256": "0" * 64})
 
+    def test_release_snapshot_selects_android_and_channel_version(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            artifact_data = artifact(root, "example", "app/Example/Example.apk", b"17")
+            key = "17-version"
+            (root / "catalog.json").write_text(json.dumps({"packages": [{
+                "id": "example", "legacy": {"memberships": ["Bundle/Example"]},
+                "channels": {"stable": "old"}, "versions": {
+                    key: {"supportedAndroidVersions": ["17"],
+                          "android": {"minApi": 37, "maxApi": None},
+                          "architectures": [], "artifact": artifact_data},
+                    "old": {"android": {"minApi": 29, "maxApi": 36},
+                            "architectures": [], "artifact": artifact_data},
+                },
+            }]}), encoding="utf-8")
+            (root / "appsets.json").write_text(json.dumps({"appSets": []}), encoding="utf-8")
+            release_path = root / "releases/android-17/arm64-v8a/stable/release.json"
+            release_path.parent.mkdir(parents=True)
+            release_path.write_text(json.dumps({
+                "schemaVersion": 1, "packages": {"example": {"version": key}},
+                "appSets": [{"id": "bundle", "name": "Bundle", "packages": ["example"],
+                    "resolvedPackages": ["example"], "legacyPackageNames": {"example": "Example"}}],
+            }), encoding="utf-8")
+            index = root / "releases/index.json"
+            index.write_text(json.dumps({
+                "latest": {"17": {"stable": {"arm64-v8a": "release"}}},
+                "releases": [{"id": "release", "manifest": release_path.relative_to(root).as_posix()}],
+            }), encoding="utf-8")
+            requested = [SimpleNamespace(title="Bundle", package_list=[SimpleNamespace(package_title="Example")])]
+            prepared = CatalogPackageSource(
+                (root / "catalog.json").as_uri(), (root / "appsets.json").as_uri(), root / "cache",
+                release_index_url=index.as_uri(),
+            ).prepare(requested, "17", "arm64")
+            self.assertEqual(
+                (prepared / "Bundle/Example/___app___Example/Example.apk").read_bytes(), b"17"
+            )
+
     def test_materializes_prebuilt_package_zip(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

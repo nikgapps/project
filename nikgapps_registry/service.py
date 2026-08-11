@@ -50,6 +50,8 @@ class RegistryService:
         if request.fresh and metadata.exists():
             self._safe_clear_metadata(metadata, output)
         if not request.fresh:
+            if metadata.exists():
+                self._safe_clear_metadata(metadata, output)
             self._seed_metadata(request.project, request.metadata_branch, metadata)
 
         api = request.platform_api or platform_api_for_android(request.android_version)
@@ -96,7 +98,12 @@ class RegistryService:
             generated_assets = output / "builder-assets"
             generated_assets.mkdir(parents=True, exist_ok=True)
             try:
+                # The bundled niklibrary may predate the target platform. Use
+                # the same local compatibility registration as overlay builds
+                # before NikGappsConfig creates Overlay/Manifest objects.
+                from NikGapps.overlay_control import register_android_platform
                 from NikGapps.config.NikGappsConfig import NikGappsConfig
+                register_android_platform(request.android_version)
                 full_config = NikGappsConfig(request.android_version).get_nikgapps_config()
             except Exception as exc:
                 raise PipelineError(f"Cannot generate full NikGapps configuration: {exc}") from exc
@@ -181,7 +188,30 @@ class RegistryService:
         return packages
 
     def _seed_metadata(self, project: str, branch: str, directory: Path) -> None:
-        for relative in ("catalog.json", "appsets.json", "builder-assets.json"):
+        core = ("catalog.json", "appsets.json", "builder-assets.json", "releases/index.json")
+        seeded: dict[str, bytes] = {}
+        for relative in core:
+            target = directory / relative
+            if target.exists():
+                seeded[relative] = target.read_bytes()
+                continue
+            remote = self.client.read_repository_file(project, relative, branch=branch)
+            if remote is not None:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(remote)
+                seeded[relative] = remote
+        index_bytes = seeded.get("releases/index.json")
+        if index_bytes is None:
+            return
+        try:
+            index = json.loads(index_bytes)
+            manifests = {
+                item["manifest"] for item in index.get("releases", [])
+                if isinstance(item, dict) and isinstance(item.get("manifest"), str)
+            }
+        except (json.JSONDecodeError, TypeError) as exc:
+            raise PipelineError(f"Cannot parse existing release index: {exc}") from exc
+        for relative in sorted(manifests):
             target = directory / relative
             if target.exists():
                 continue

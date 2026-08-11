@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+import json
 
 from nikgapps_package_pipeline.gitlab import GitLabPackage
 from nikgapps_registry.service import RegistryService
@@ -45,6 +46,19 @@ class RegistryServiceTests(unittest.TestCase):
             self.assertEqual(
                 (metadata / "appsets.json").read_bytes(), client.files["appsets.json"]
             )
+
+    def test_seed_metadata_downloads_release_history(self) -> None:
+        client = FakeClient()
+        manifest = "releases/android-16/arm64-v8a/stable/release-16.json"
+        client.files["releases/index.json"] = json.dumps({
+            "schemaVersion": 1,
+            "releases": [{"manifest": manifest}],
+        }).encode()
+        client.files[manifest] = b'{"id":"release-16"}'
+        with tempfile.TemporaryDirectory() as temporary:
+            metadata = Path(temporary)
+            RegistryService(client)._seed_metadata("85036487", "main", metadata)
+            self.assertEqual((metadata / manifest).read_bytes(), client.files[manifest])
 
     def test_clear_is_restricted_to_work_metadata_child(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

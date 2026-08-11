@@ -24,6 +24,8 @@ DEFAULT_INPUT = Path(r"D:\workspace\python\16_stable")
 DEFAULT_OUTPUT = Path(r"D:\workspace\python\16_STABLE_PREBUILT_RELEASE")
 DEFAULT_CONFIG = Path(__file__).with_name("nikgapps-pipeline.example.json")
 DEFAULT_GITLAB_PROJECT = "85036487"
+DEFAULT_RELEASE_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_MULTI_RELEASE_OUTPUT = DEFAULT_RELEASE_ROOT / "MULTI_RELEASE_PREVIEW"
 
 
 def _load_env_file(path: Path) -> bool:
@@ -93,7 +95,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="override platform API; otherwise derived from --android-version",
     )
     migrate.add_argument("--channel", default="stable")
+    migrate.add_argument("--source", default="legacy", help="payload source label recorded in release metadata")
     migrate.add_argument("--aapt2", default=find_aapt2())
+    migrate.add_argument(
+        "--overlay-root",
+        type=Path,
+        help="compiled overlay repository to embed into matching packages",
+    )
     migrate.add_argument(
         "--package",
         action="append",
@@ -161,6 +169,38 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _common_gitlab(reset)
 
+    reset_sync = commands.add_parser(
+        "reset-and-sync",
+        help="permanently reset Generic packages, rebuild, publish, and replace metadata",
+    )
+    reset_sync.add_argument("--verbose", action="store_true")
+    reset_sync.add_argument("--confirm-project", required=True,
+                            help="must exactly match --gitlab-project")
+    reset_sync.add_argument("--gitlab-project", default=DEFAULT_GITLAB_PROJECT)
+    reset_sync.add_argument("--input", type=Path, default=DEFAULT_INPUT,
+                            help="advanced single-release input override")
+    reset_sync.add_argument("--output", type=Path, default=DEFAULT_MULTI_RELEASE_OUTPUT)
+    reset_sync.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    reset_sync.add_argument(
+        "--android-version", default="16",
+        help="one version or comma-separated versions; discovers VERSION_stable and overlays_VERSION",
+    )
+    reset_sync.add_argument("--platform-api", type=int)
+    reset_sync.add_argument("--channel", default="stable")
+    reset_sync.add_argument("--source", default="legacy")
+    reset_sync.add_argument("--aapt2", default=find_aapt2())
+    reset_sync.add_argument("--overlay-root", type=Path)
+    reset_sync.add_argument(
+        "--release", action="append", metavar="VERSION=INPUT[=OVERLAYS]",
+        help="release to sync after one reset; repeat for Android 16 and 17",
+    )
+    reset_sync.add_argument("--package", action="append")
+    reset_sync.add_argument("--artifact-base-url")
+    reset_sync.add_argument("--metadata-branch", default="main")
+    reset_sync.add_argument("--compact", action="store_true")
+    reset_sync.add_argument("--compat-output", type=Path)
+    _common_gitlab(reset_sync)
+
     upgrade = commands.add_parser(
         "upgrade", help="create a stable legacy tree from a newer Mustang image"
     )
@@ -197,6 +237,7 @@ def _migrate(args: argparse.Namespace) -> int:
         android_version=args.android_version,
         platform_api=derived_platform_api,
         channel=args.channel,
+        source=args.source,
     )
     client: GitLabClient | None = None
     project = args.gitlab_project
@@ -237,7 +278,7 @@ def _migrate(args: argparse.Namespace) -> int:
         release_path = (
             f"releases/android-{config.android_version}-{config.architecture}.json"
         )
-        for relative in ("catalog.json", "appsets.json", release_path):
+        for relative in ("catalog.json", "appsets.json", "releases/index.json", release_path):
             local = metadata / Path(relative)
             if local.exists():
                 continue
@@ -267,6 +308,7 @@ def _migrate(args: argparse.Namespace) -> int:
         artifact_base_url=base_url,
         pretty=not args.compact,
         package_filter=set(args.package) if args.package else None,
+        overlay_root=args.overlay_root,
     )
     if args.compat_output:
         LegacyCompatibilityExporter().export(packages, args.compat_output)
@@ -314,6 +356,60 @@ def _reset_registry(args: argparse.Namespace) -> int:
     return 0
 
 
+def _reset_and_sync(args: argparse.Namespace) -> int:
+    if args.confirm_project != str(args.gitlab_project):
+        raise PipelineError(
+            "--confirm-project must exactly match --gitlab-project; reset-and-sync is destructive"
+        )
+    releases: list[tuple[str, Path, Path | None]] = []
+    for value in args.release or []:
+        parts = value.split("=", 2)
+        if len(parts) not in (2, 3) or not parts[0] or not parts[1]:
+            raise PipelineError(
+                f"Invalid --release {value!r}; expected VERSION=INPUT[=OVERLAYS]"
+            )
+        releases.append((parts[0], Path(parts[1]), Path(parts[2]) if len(parts) == 3 else None))
+    if not releases:
+        versions = [value.strip() for value in str(args.android_version).split(",") if value.strip()]
+        if not versions:
+            raise PipelineError("--android-version must contain at least one Android version")
+        for android_version in versions:
+            releases.append((
+                android_version,
+                DEFAULT_RELEASE_ROOT / f"{android_version}_stable",
+                DEFAULT_RELEASE_ROOT / f"overlays_{android_version}",
+            ))
+    for android_version, input_path, overlay_root in releases:
+        if not input_path.is_dir():
+            raise PipelineError(f"Android {android_version} input directory does not exist: {input_path}")
+        if overlay_root is not None and not overlay_root.is_dir():
+            raise PipelineError(f"Android {android_version} overlay directory does not exist: {overlay_root}")
+
+    reset_result = _reset_registry(args)
+    if reset_result != 0:
+        return reset_result
+    # Force the only safe post-reset migration mode. These are intentionally
+    # not user-selectable flags on this command.
+
+    print(f"Starting fresh build and registry sync for {len(releases)} release(s)...")
+    for index, (android_version, input_path, overlay_root) in enumerate(releases):
+        operation = argparse.Namespace(**vars(args))
+        operation.android_version = android_version
+        operation.input = input_path
+        operation.overlay_root = overlay_root
+        operation.publish = True
+        operation.fresh_metadata = index == 0
+        operation.create_project = False
+        operation.namespace_id = None
+        operation.namespace = "nikgapps"
+        operation.visibility = "public"
+        print(f"[{index + 1}/{len(releases)}] Syncing Android {android_version} from {input_path}")
+        result = _migrate(operation)
+        if result != 0:
+            return result
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -340,6 +436,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if args.command == "reset-registry":
             return _reset_registry(args)
+        if args.command == "reset-and-sync":
+            return _reset_and_sync(args)
         if args.command == "upgrade":
             overlay_values = (args.android_version, args.overlay_source, args.overlay_output)
             if any(overlay_values) and not all(overlay_values):

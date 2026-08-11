@@ -56,6 +56,8 @@ class CatalogPackageSource:
         *,
         channel: str = "stable",
         channel_overrides: dict[str, str] | None = None,
+        release_index_url: str | None = None,
+        release_id: str | None = None,
         token: str | None = None,
     ) -> None:
         self.catalog_url = catalog_url
@@ -63,6 +65,8 @@ class CatalogPackageSource:
         self.cache_directory = cache_directory.resolve()
         self.channel = channel
         self.channel_overrides = channel_overrides or {}
+        self.release_index_url = release_index_url
+        self.release_id = release_id
         self.token = token
 
     def prepare(
@@ -70,6 +74,7 @@ class CatalogPackageSource:
         appsets: Iterable[Any],
         android_version: str | int | float,
         architecture: str,
+        device_type: str = "phone",
     ) -> Path:
         appsets = list(appsets)
         selected_names = ", ".join(appset.title for appset in appsets)
@@ -80,6 +85,32 @@ class CatalogPackageSource:
         _message("Reading catalog and AppSet metadata")
         catalog = self._read_json(self.catalog_url)
         appset_document = self._read_json(self.appsets_url)
+        release_versions: dict[str, str] = {}
+        if self.release_index_url:
+            release_index = self._read_json(self.release_index_url)
+            arch = catalog_architecture(architecture)
+            selected_id = self.release_id
+            if not selected_id:
+                selected_id = (
+                    release_index.get("latest", {}).get(str(android_version), {})
+                    .get(self.channel, {}).get(arch)
+                )
+            summary = next((item for item in release_index.get("releases", [])
+                            if item.get("id") == selected_id), None)
+            if not summary:
+                raise PipelineError(
+                    f"No {self.channel} release for Android {android_version} ({arch})"
+                )
+            metadata_root = self.release_index_url.rsplit("/releases/index.json", 1)[0]
+            release = self._read_json(f"{metadata_root}/{summary['manifest']}")
+            release_versions = {
+                package_id: value["version"]
+                for package_id, value in release.get("packages", {}).items()
+            }
+            appset_document = {
+                "schemaVersion": release.get("schemaVersion", 1),
+                "appSets": release.get("appSets", []),
+            }
         catalog_packages = {
             item["id"]: item for item in catalog.get("packages", [])
         }
@@ -137,7 +168,10 @@ class CatalogPackageSource:
             package = catalog_packages.get(package_id)
             if not package:
                 raise PipelineError(f"Resolved package {package_id!r} is absent from catalog.json")
-            version = self._resolve_version(package, api, arch)
+            version = self._resolve_version(
+                package, api, arch, release_versions.get(package_id),
+                catalog.get("defaults", {}), device_type
+            )
             resolutions.append((package_id, package, version))
         fingerprint = hashlib.sha256(
             "\n".join(
@@ -157,9 +191,15 @@ class CatalogPackageSource:
         source_root.mkdir(parents=True, exist_ok=True)
         selected_appset_names = {appset.title for appset in appsets}
         for package_id, package, version in resolutions:
+            resolved_version_key = (
+                release_versions.get(package_id)
+                or package.get("channels", {}).get(
+                    self.channel_overrides.get(package_id, self.channel)
+                )
+                or "unknown"
+            )
             _message(
-                f"Resolving {package_id} -> "
-                f"{package.get('channels', {}).get(self.channel, 'channel override')}"
+                f"Resolving {package_id} -> {resolved_version_key}"
             )
             archive = self._artifact(version["artifact"])
             self._materialize(
@@ -181,26 +221,44 @@ class CatalogPackageSource:
         package: dict[str, Any],
         api: int,
         architecture: str,
+        release_version: str | None = None,
+        defaults: dict[str, Any] | None = None,
+        device_type: str = "phone",
     ) -> dict[str, Any]:
         package_id = package["id"]
         channel = self.channel_overrides.get(package_id, self.channel)
-        version_key = package.get("channels", {}).get(channel)
+        version_key = release_version or package.get("channels", {}).get(channel)
         if not version_key:
             raise PipelineError(f"Package {package_id} has no {channel!r} channel")
         version = package.get("versions", {}).get(version_key)
         if not version:
             raise PipelineError(f"Package {package_id} channel points to missing {version_key}")
         android = version.get("android", {})
+        supported_android = version.get("supportedAndroidVersions", [])
+        requested_android = {
+            29: "10", 30: "11", 31: "12", 32: "12.1", 33: "13",
+            34: "14", 35: "15", 36: "16", 37: "17",
+        }.get(api)
+        if supported_android and requested_android not in supported_android:
+            raise PipelineError(
+                f"Package {package_id} is not published for Android {requested_android or api}"
+            )
         minimum = android.get("minApi")
         maximum = android.get("maxApi")
         if minimum is not None and api < int(minimum):
             raise PipelineError(f"Package {package_id} requires API {minimum}; build targets API {api}")
         if maximum is not None and api > int(maximum):
             raise PipelineError(f"Package {package_id} supports at most API {maximum}; build targets API {api}")
-        architectures = version.get("architectures", [])
+        defaults = defaults or {}
+        architectures = version.get("architectures", defaults.get("architectures", []))
         if architectures and architecture not in architectures:
             raise PipelineError(
                 f"Package {package_id} does not support {architecture}: {architectures}"
+            )
+        device_types = version.get("deviceTypes", defaults.get("deviceTypes", ["phone"]))
+        if device_types and device_type not in device_types:
+            raise PipelineError(
+                f"Package {package_id} does not support {device_type} devices: {device_types}"
             )
         return version
 
