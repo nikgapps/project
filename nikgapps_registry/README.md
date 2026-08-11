@@ -41,7 +41,9 @@ python -m nikgapps_registry reset-and-sync `
 ```
 
 Use `--android-version 17` for Android 17 only. Reset deletes the entire Generic
-Registry, so specify `16,17` whenever both releases must remain published.
+Registry only when multiple versions are explicitly supplied. With a single
+version, the command performs a version-scoped incremental rebuild and preserves
+every other Android version and its metadata.
 
 ## Fresh ZIP-only publication
 

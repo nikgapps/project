@@ -122,8 +122,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                     raise PipelineError(f"Android {version} source directory does not exist: {source}")
                 if not overlays.is_dir():
                     raise PipelineError(f"Android {version} overlay directory does not exist: {overlays}")
-            deleted = service.reset(project)
-            print(f"Deleted {len(deleted)} Generic Registry package(s).")
+            full_reset = len(releases) > 1
+            if full_reset:
+                deleted = service.reset(project)
+                print(f"Deleted {len(deleted)} Generic Registry package(s).")
+            else:
+                print(
+                    f"Android {versions[0]} selected: preserving all other registry packages "
+                    "and metadata; performing a version-scoped incremental rebuild."
+                )
             total_urls = 0
             for index, (version, source, overlays) in enumerate(releases):
                 print(f"[{index + 1}/{len(releases)}] Syncing Android {version}")
@@ -132,7 +139,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     project=project, android_version=version,
                     architecture=args.arch, channel=args.channel,
                     platform_api=args.platform_api, metadata_branch=args.metadata_branch,
-                    package_filter=frozenset(args.package), fresh=index == 0,
+                    package_filter=frozenset(args.package), fresh=full_reset and index == 0,
                     pretty=not args.compact, overlays=overlays,
                     busybox=args.busybox, builder_assets=args.builder_assets,
                 ))
