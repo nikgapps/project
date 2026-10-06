@@ -10,4 +10,4 @@ PyGithub~=2.10.0
 python-gitlab~=8.6.0
 cryptography~=50.0.2
 python-dotenv~=1.2.4
-niklibrary~=0.58
+niklibrary~=0.59
