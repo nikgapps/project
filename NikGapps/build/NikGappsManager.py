@@ -362,6 +362,9 @@ class NikGappsManager:
             "GalleryGo",
             "GmailGo"
         ]
+        if float(self.android_version) >= 17:
+            go_packages = [name for name in go_packages if name not in {
+                "GoogleContactsSyncAdapter", "GoogleCalendarSyncAdapter"}]
         appset_list = self.create_appset_list_from_packages(go_packages, keyword="Go")
         return appset_list
 
@@ -374,6 +377,9 @@ class NikGappsManager:
             "GoogleCalendarSyncAdapter",
             "GmsCore"
         ]
+        if float(self.android_version) >= 17:
+            core_packages = [name for name in core_packages if name not in {
+                "GoogleContactsSyncAdapter", "GoogleCalendarSyncAdapter"}]
         package_list = []
         for package_title in core_packages:
             package = self.create_package(package_title)
@@ -400,6 +406,8 @@ class NikGappsManager:
             "GoogleRestore",
             "GoogleOneTimeInitializer"
         ]
+        if float(self.android_version) >= 17:
+            setup_wizard_packages.remove("GoogleOneTimeInitializer")
         if float(self.android_version) < 12:
             setup_wizard_packages.append("AndroidMigratePrebuilt")
         setup_wizard = self.create_appset_list_from_packages(setup_wizard_packages, fallback_appset="SetupWizard")
@@ -494,6 +502,8 @@ class NikGappsManager:
             "Books",
             "GoogleTalkback",
         ]
+        if float(self.android_version) >= 17:
+            addon_packages.remove("Books")
         if float(self.android_version) == 11:
             google_fi_packages = [
                 "Tycho",

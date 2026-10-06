@@ -85,6 +85,16 @@ python -m nikgapps_registry sync `
 This updates only Android 17 pointers and adds its new immutable package
 versions. Android 16 packages, pointers, and release history remain intact.
 
+The deploy repository's `PublishStableRegistry.yml` runs this incremental sync
+after a successful `PromoteBetaToStable.yml` push, or on manual dispatch with an
+Android version input (default `17`). It checks out the stable source and
+compiled overlays for that version, then publishes package ZIPs, generated
+`nikgapps.config`, and release metadata. Set `GITLAB_TOKEN` and
+`SSH_PRIVATE_KEY` in the deploy repository secrets. The catalog project defaults
+to `85036487` and can be overridden with the `GITLAB_CATALOG_PROJECT_ID`
+repository variable. Do not use `--fresh` for monthly updates: it would discard
+previous catalog metadata rather than incrementally adding a release.
+
 Use `--package PackageName` or `--package AppSet/PackageName` repeatedly for a
 partial update. Use `--config` for package IDs, partitions, API constraints,
 and exceptional source rules. Only ZIP artifacts are produced and uploaded;

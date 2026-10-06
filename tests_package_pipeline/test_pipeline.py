@@ -512,6 +512,23 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(release["packages"]["shared"]["version"], second.version_key)
             self.assertTrue(release["appSets"])
 
+    def test_full_sync_drops_removed_packages_from_current_release_lock(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            original = base / "original"
+            current = base / "current"
+            apk(original / "Bundle" / "App" / "___app___App" / "App.apk")
+            apk(original / "Bundle" / "Shared" / "___app___Shared" / "Shared.apk")
+            apk(current / "Bundle" / "App" / "___app___App" / "App.apk")
+            output = base / "output"
+            pipeline = MigrationPipeline(LegacyRepositoryScanner(), FakeInspector())
+            config = PipelineConfig(android_version="17", platform_api=37)
+            pipeline.migrate(original, output, config, artifact_base_url="https://example.test")
+            lock = output / "metadata/releases/android-17-arm64-v8a.json"
+            self.assertIn("shared", json.loads(lock.read_text())["packages"])
+            pipeline.migrate(current, output, config, artifact_base_url="https://example.test")
+            self.assertEqual(set(json.loads(lock.read_text())["packages"]), {"app"})
+
     def test_different_duplicate_package_requires_override(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "source"

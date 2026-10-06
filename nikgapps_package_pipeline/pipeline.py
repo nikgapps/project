@@ -389,7 +389,8 @@ class MigrationPipeline:
                 },
             ]
         built_packages = sorted(built_by_id.values(), key=lambda value: value.package_id)
-        self._write_metadata(output, built_packages, appsets, config, artifact_base_url, pretty)
+        self._write_metadata(output, built_packages, appsets, config, artifact_base_url, pretty,
+                             partial=bool(package_filter))
         return built_packages
 
     @staticmethod
@@ -502,6 +503,7 @@ class MigrationPipeline:
         config: PipelineConfig,
         base_url: str,
         pretty: bool,
+        partial: bool = False,
     ) -> None:
         updated = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         catalog_packages: list[dict[str, Any]] = []
@@ -655,13 +657,20 @@ class MigrationPipeline:
                 existing_release_packages = dict(previous_release.get("packages", {}))
             except (OSError, json.JSONDecodeError) as exc:
                 raise PipelineError(f"Cannot merge existing release lock {release}: {exc}") from exc
-        existing_release_packages.update({
+        current_release_packages = {
             package.package_id: {
                 "version": package.version_key,
                 "sha256": package.artifact_sha256,
             }
             for package in packages
-        })
+        }
+        if partial:
+            # A partial sync must leave unselected package locks untouched.
+            existing_release_packages.update(current_release_packages)
+        else:
+            # A full stable sync is authoritative. Packages removed from the
+            # source tree must not linger in this Android release lock.
+            existing_release_packages = current_release_packages
         release.write_bytes(json_data({
             "schemaVersion": 1,
             "createdAt": updated,
