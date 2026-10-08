@@ -6,6 +6,7 @@ from NikGapps.helper.Args import Args
 from NikGapps.helper import Config
 from niklibrary.helper.SystemStat import SystemStat
 from niklibrary.helper.T import T
+from niklibrary.helper.Statics import Statics
 from niklibrary.compression.Modes import Modes
 from niklibrary.git.GitOp import GitOp
 
@@ -18,7 +19,8 @@ def main():
     SystemStat.show_stats()
     t = T()
     android_versions = [Config.TARGET_ANDROID_VERSION]
-    package_list = Config.BUILD_PACKAGE_LIST
+    package_list = Config.DEFAULT_PACKAGE_LIST
+    Config.RELEASE_TYPE = args.release_type
     Config.UPLOAD_FILES = args.upload
     Config.USE_CACHED_APKS = args.use_cached_apks
     if args.package_source:
@@ -42,8 +44,13 @@ def main():
 
     for android_version in android_versions:
         Config.TARGET_ANDROID_VERSION = android_version
+        if Config.PACKAGE_SOURCE == "local":
+            source, overlays = Config.local_source_paths(android_version, Statics.pwd)
+            # Preserve configured overrides across multi-version builds.
+            original_source, original_overlays = Config.APK_SOURCE, Config.OVERLAY_SOURCE
+            Config.APK_SOURCE, Config.OVERLAY_SOURCE = str(source), str(overlays)
         # clone the apk repo if it doesn't exist
-        if args.enable_git_clone:
+        if args.enable_git_clone and Config.PACKAGE_SOURCE != "local":
             if Config.PACKAGE_SOURCE != "registry":
                 if Config.USE_CACHED_APKS:
                     cached_repo = GitOp.clone_apk_source(android_version, release_type=Config.RELEASE_TYPE,
@@ -58,9 +65,13 @@ def main():
                 overlay_repo = GitOp.clone_overlay_repo(android_version)
                 if overlay_repo is not None:
                     Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
-        if Config.OVERRIDE_RELEASE:
-            Release.zip(package_list, android_version, args.arch, args.sign)
-        if Config.RELEASE_TYPE and Config.ENVIRONMENT_TYPE == "production":
+        try:
+            if Config.OVERRIDE_RELEASE:
+                Release.zip(package_list, android_version, args.arch, args.sign)
+        finally:
+            if Config.PACKAGE_SOURCE == "local":
+                Config.APK_SOURCE, Config.OVERLAY_SOURCE = original_source, original_overlays
+        if Config.PACKAGE_SOURCE != "local" and Config.RELEASE_TYPE and Config.ENVIRONMENT_TYPE == "production":
             GitOp.mark_a_release(android_version, Config.RELEASE_TYPE)
 
 

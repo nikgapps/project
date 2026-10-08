@@ -1,4 +1,5 @@
 import argparse
+from NikGapps.helper import Config
 
 
 # from helper.B64 import B64
@@ -6,9 +7,9 @@ import argparse
 
 class Args:
     def __init__(self, parser=None) -> None:
-        if parser is None:
-            self.parser = argparse.ArgumentParser(
-                description="NikGapps build command help!")
+        self.parser = parser or argparse.ArgumentParser(
+            description="NikGapps build command help!",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         # parser.add_argument(
         #     '-U', '--userID', help="Telegram User Id", default='-1', type=str)
         self.parser.add_argument('-C', '--configValue', help="byte64 value of nikgapps.config", type=str)
@@ -18,10 +19,11 @@ class Args:
         #     '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
         self.parser.add_argument('-c', '--cache', help="Use this to operate on cached apks", action="store_true")
         self.parser.add_argument('-a', '--arch', help="It is the architecture for which we need to build the gapps",
-                                 default="arm64", type=str)
+                                 default=Config.PACKAGE_ARCH, type=str)
         self.parser.add_argument('-T', '--tar', help="Use this to make highly compressed builds", action="store_true")
         self.parser.add_argument(
-            '-G', '--disableGitClone', help="Include this to disable git clone operation", action="store_true")
+            '-G', '--disableGitClone', help="Include this to disable git clone operation",
+            default=not Config.GIT_CLONE_SOURCE, action="store_true")
         self.parser.add_argument(
             '-W', '--updateWebsite', help="Include this to update nikgapps website with changelog", action="store_true")
         self.parser.add_argument('-U', '--upload', help="Use this to enable Upload Functionality", action="store_true")
@@ -34,18 +36,19 @@ class Args:
         #     action="store_true")
         self.parser.add_argument(
             '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
-            default="-1", type=str)
+            default=str(Config.TARGET_ANDROID_VERSION), type=str)
         self.parser.add_argument(
             '-r', '--releaseType', help="It is the release type for which we need to build the gapps",
-            default="stable", type=str)
-        self.parser.add_argument('-P', '--packageList', help="List of packages to build", type=str)
+            default=Config.RELEASE_TYPE, type=str)
+        self.parser.add_argument('-P', '--packageList', help="List of packages to build",
+                                 default=','.join(Config.DEFAULT_PACKAGE_LIST), type=str)
         self.parser.add_argument(
-            '--packageSource', choices=['git', 'registry'],
-            help="Use the legacy Git source or the package registry catalog"
+            '--packageSource', choices=['git', 'registry', 'local'], default=Config.PACKAGE_SOURCE,
+            help="Use cloned Git sources, the package registry, or existing local source directories"
         )
         self.parser.add_argument(
             '--packageChannel', choices=['stable', 'beta', 'canary'],
-            help="Default registry channel for selected packages"
+            help="Channel override; otherwise follows RELEASE_TYPE"
         )
 
         args = self.parser.parse_args()
@@ -69,7 +72,9 @@ class Args:
         self.ssh_clone = args.sshClone
         self.send_zip_device = args.sendToDevice
         self.package_source = args.packageSource
-        self.package_channel = args.packageChannel
+        self.package_channel = args.packageChannel or Config.default_package_channel(args.releaseType)
+        if self.package_source != 'registry' and self.package_channel != self.release_type:
+            self.parser.error("Git/local sources follow releaseType; use --releaseType to select stable/beta/canary")
         # self.oems = args.oems
 
     def get_package_list(self):

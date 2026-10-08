@@ -20,8 +20,7 @@ def build_config():
     print("Start of the Program")
     SystemStat.show_stats()
     load_dotenv()
-    Config.ENVIRONMENT_TYPE = os.getenv("ENVIRONMENT_TYPE") if os.getenv("ENVIRONMENT_TYPE") else "dev"
-    Config.RELEASE_TYPE = os.getenv("RELEASE_TYPE") if os.getenv("RELEASE_TYPE") else "stable"
+    Config.RELEASE_TYPE = args.release_type
     android_versions = [Config.TARGET_ANDROID_VERSION]
     if len(args.get_android_versions()) > 0:
         android_versions = args.get_android_versions()
@@ -53,12 +52,16 @@ def build_config():
             path = config_name
             F.write_string_in_lf_file(str_data=config_string, file_path=path)
     for android_version in android_versions:
-        if Config.PACKAGE_SOURCE != "registry":
+        original_source, original_overlays = Config.APK_SOURCE, Config.OVERLAY_SOURCE
+        if Config.PACKAGE_SOURCE == "local":
+            Config.APK_SOURCE, Config.OVERLAY_SOURCE = Config.local_source_paths(android_version, Statics.pwd)
+        elif Config.PACKAGE_SOURCE != "registry":
             apk_repo = GitOp.clone_apk_source(android_version, args.arch, release_type=Config.RELEASE_TYPE)
             Config.APK_SOURCE = apk_repo.working_tree_dir
-        overlay_repo = GitOp.clone_overlay_repo(android_version)
-        if overlay_repo is not None:
-            Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
+        if Config.PACKAGE_SOURCE != "local":
+            overlay_repo = GitOp.clone_overlay_repo(android_version)
+            if overlay_repo is not None:
+                Config.OVERLAY_SOURCE = overlay_repo.working_tree_dir
         config_obj = NikGappsConfig(android_version=android_version, config_path=path)
         print(f"Setting up package list from {config_name}...")
         config_obj.config_package_list = Build.build_from_directory(app_set_build_list=config_obj.config_package_list,
@@ -72,6 +75,8 @@ def build_config():
             print("The zip file is created successfully")
         else:
             print("Failed to create the zip file")
+        if Config.PACKAGE_SOURCE == "local":
+            Config.APK_SOURCE, Config.OVERLAY_SOURCE = original_source, original_overlays
 
 
 if __name__ == "__main__":

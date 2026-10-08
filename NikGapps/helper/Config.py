@@ -4,15 +4,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # The android version that we're targeting this application to run
-TARGET_ANDROID_VERSION = 15
+TARGET_ANDROID_VERSION = 17
+PACKAGE_ARCH = os.environ.get('PACKAGE_ARCH', 'arm64')
+DEFAULT_PACKAGE_LIST = ['core']
 
 # Release type defines the release
-# Possible values are [ 'canary', 'stable' ]
-RELEASE_TYPE = os.environ.get('RELEASE_TYPE', 'stable')
+# Selects the package channel and source repository suffix: stable/beta/canary.
+RELEASE_TYPE = os.environ.get('RELEASE_TYPE', 'stable').strip().lower()
 
 # Environment type differentiates the experimental and stable features
-# Possible values are [ 'production', 'development' ]
-ENVIRONMENT_TYPE = os.environ.get('ENVIRONMENT_TYPE', 'dev')
+# production/release uses the registry; dev/development/local uses local sources.
+ENVIRONMENT_TYPE = os.environ.get('ENVIRONMENT_TYPE', 'dev').strip().lower()
+ENVIRONMENT_TYPE = {'release': 'production', 'development': 'dev'}.get(ENVIRONMENT_TYPE, ENVIRONMENT_TYPE)
 
 # Possible Values are ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
@@ -50,13 +53,31 @@ GIT_PUSH = True
 
 # Overlays, Gapps Apks and Cached Apks source
 CACHED_SOURCE = None
-APK_SOURCE = None
-OVERLAY_SOURCE = None
+APK_SOURCE = os.environ.get('APK_SOURCE')
+OVERLAY_SOURCE = os.environ.get('OVERLAY_SOURCE')
 
-# Package source. "git" preserves the existing clone behavior; "registry"
-# resolves AppSets through the published package catalog and verified cache.
-PACKAGE_SOURCE = os.environ.get("PACKAGE_SOURCE", "git").lower()
-PACKAGE_CHANNEL = os.environ.get("PACKAGE_CHANNEL", RELEASE_TYPE).lower()
+# "registry": published catalog; "git": clone source repositories;
+# "local": existing VERSION_stable and overlays_VERSION directories beside project.
+PACKAGE_SOURCE = os.environ.get("PACKAGE_SOURCE", "registry" if ENVIRONMENT_TYPE == "production" else "local").strip().lower()
+PACKAGE_CHANNEL = os.environ.get("PACKAGE_CHANNEL", RELEASE_TYPE).strip().lower()
+
+
+def default_package_channel(release_type):
+    # Explicit environment/config overrides win; otherwise follow the effective
+    # release type, including a --releaseType argument.
+    if 'PACKAGE_CHANNEL' in os.environ or PACKAGE_CHANNEL != RELEASE_TYPE:
+        return PACKAGE_CHANNEL
+    return release_type
+
+
+def local_source_paths(android_version, source_root):
+    source = APK_SOURCE or os.path.join(source_root, f"{android_version}_{RELEASE_TYPE}")
+    overlays = OVERLAY_SOURCE or os.path.join(source_root, f"overlays_{android_version}")
+    if not os.path.isdir(source):
+        raise ValueError(f"Local APK source does not exist: {source}")
+    if float(android_version) >= 12.1 and not os.path.isdir(overlays):
+        raise ValueError(f"Local overlay source does not exist: {overlays}")
+    return str(source), str(overlays)
 PACKAGE_CATALOG_URL = os.environ.get(
     "PACKAGE_CATALOG_URL",
     "https://gitlab.com/nikgapps/nikgapps-package-catalog/-/raw/main/catalog.json"

@@ -17,6 +17,85 @@ NikGapps provides custom GApps packages tailored to individual needs, offering f
 
 ## Build NikGapps Yourself
 
+### Local development defaults
+
+Configure defaults in `NikGapps/helper/Config.py`. The current target is Android
+17, Core, ARM64. `BUILD_PACKAGE_LIST` lists supported variants;
+`DEFAULT_PACKAGE_LIST` selects the default variants.
+
+`RELEASE_TYPE` selects the release/channel: `stable`, `beta`, or `canary`.
+`ENVIRONMENT_TYPE` selects where packages come from by default:
+
+| Environment | Release type | Default source | Package selection |
+|---|---|---|---|
+| `local`, `dev`, `development` | `stable` | `local` | `17_stable` |
+| `local`, `dev`, `development` | `beta` | `local` | `17_beta` |
+| `production`, `release` | `stable` | `registry` | Android 17 stable catalog |
+| `production`, `release` | `beta` | `registry` | Android 17 beta catalog, if published |
+
+`development` is an alias for `dev`; `release` is an alias for `production`.
+`PACKAGE_SOURCE` may explicitly override the default with `local`, `git`, or
+`registry`. `PACKAGE_CHANNEL` normally follows `RELEASE_TYPE`; an explicit
+registry channel override is allowed. Git/local builds reject a channel that
+conflicts with release type. Command-line arguments override their configured
+defaults. Environment variables also override defaults and are loaded from `.env`.
+
+Run from `D:\workspace\python\project`. Clear optional overrides first if switching
+back to automatic selection:
+
+```powershell
+Set-Location D:\workspace\python\project
+Remove-Item Env:PACKAGE_SOURCE,Env:PACKAGE_CHANNEL -ErrorAction SilentlyContinue
+# Also remove these overrides from .env if present.
+```
+
+Local stable build, using `17_stable` and `overlays_17` without cloning:
+
+```powershell
+$env:ENVIRONMENT_TYPE = 'local'
+$env:RELEASE_TYPE = 'stable'
+.\.venv\Scripts\python.exe -m NikGapps.main
+```
+
+Local beta build, using `17_beta` and the same `overlays_17`:
+
+```powershell
+$env:ENVIRONMENT_TYPE = 'local'
+$env:RELEASE_TYPE = 'beta'
+.\.venv\Scripts\python.exe -m NikGapps.main
+# Or use --releaseType beta instead of setting RELEASE_TYPE.
+```
+
+Registry build from the published stable packages:
+
+```powershell
+$env:ENVIRONMENT_TYPE = 'production'
+$env:RELEASE_TYPE = 'stable'
+.\.venv\Scripts\python.exe -m NikGapps.main
+```
+
+Production retains the established release-tracker behavior; uploading is still
+opt-in via `--upload`. To test registry packages locally without production
+release marking:
+
+```powershell
+$env:ENVIRONMENT_TYPE = 'local'
+$env:RELEASE_TYPE = 'stable'
+.\.venv\Scripts\python.exe -m NikGapps.main --packageSource registry
+```
+
+To clone/update the source repositories instead of using existing directories:
+
+```powershell
+.\.venv\Scripts\python.exe -m NikGapps.main --packageSource git --releaseType beta
+```
+
+Local mode discovers `<Android version>_<release type>` and `overlays_<version>`
+beside the project directory. `APK_SOURCE` and `OVERLAY_SOURCE`, in Config.py or
+the environment, override those paths. Local mode does not clone or mark a Git
+release. Changing to `--androidVersion 16` selects the equivalent Android 16
+sources/catalog. Outputs go to `D:\workspace\python\Releases\<version>`.
+
 ### Prerequisites
 
 Ensure you have the following tools installed:
