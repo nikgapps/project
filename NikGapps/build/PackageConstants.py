@@ -217,7 +217,7 @@ class PackageConstants:
        set_prop "setupwizard.feature.show_pixel_tos" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "setupwizard.feature.show_digital_warranty" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "ro.setupwizard.esim_cid_ignore" "00000001" "$product/etc/build.prop" "$propFilePath" "$package_title"
-       set_prop "ro.setupwizard.setupwizard.feature.show_support_link_in_deferred_setup" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
+       set_prop "setupwizard.feature.show_support_link_in_deferred_setup" "false" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "setupwizard.feature.enable_wifi_tracker" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "setupwizard.feature.day_night_mode_enabled" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
        set_prop "setupwizard.feature.portal_notification" "true" "$product/etc/build.prop" "$propFilePath" "$package_title"
