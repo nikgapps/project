@@ -85,6 +85,9 @@ class PackageConstants:
 
     @staticmethod
     def get_package_script(package_name):
+        if package_name == "SetupWizardPixel":
+            return PackageConstants.get_pixel_setup_script()
+
         package_scripts = {
             "ExtraFiles": """   script_text="<permissions>
                 <!-- Shared library required on the device to get Google Dialer updates from
@@ -235,3 +238,37 @@ class PackageConstants:
         """
         }
         return package_scripts.get(package_name, None)
+
+    @staticmethod
+    def get_pixel_setup_script():
+        # The base wizard owns flow properties even when PixelSetupWizard installs
+        # its partner APK to system_ext. Keep unsupported optional screens off.
+        properties = {
+            "ro.setupwizard.mode": "OPTIONAL",
+            "ro.setupwizard.enterprise_mode": "1",
+            "setupwizard.theme": "glif_expressive",
+            "setupwizard.feature.baseline_setupwizard_enabled": "true",
+            "setupwizard.feature.enable_wifi_tracker": "true",
+            "setupwizard.feature.day_night_mode_enabled": "true",
+            "setupwizard.feature.portal_notification": "true",
+            "setupwizard.feature.lifecycle_refactoring": "true",
+            "setupwizard.feature.notification_refactoring": "true",
+            "setupwizard.feature.enable_delightful_setup": "true",
+            "setupwizard.feature.default_locale_enhancement_enabled": "true",
+            "setupwizard.feature.locale_agnostic_enabled": "true",
+            "setupwizard.feature.show_pixel_tos": "false",
+            "setupwizard.feature.show_digital_warranty": "false",
+            "setupwizard.feature.enable_setup_companion": "false",
+        }
+        pixel_script = "\n".join(
+            f'       set_prop "{name}" "{value}" "$product/etc/build.prop" '
+            '"$propFilePath" "$package_title"'
+            for name, value in properties.items()
+        ) + "\n"
+        return (
+            '       if [ "$androidVersion" -ge 17 ]; then\n'
+            + pixel_script
+            + '       else\n'
+            + PackageConstants.get_package_script("SetupWizard")
+            + '       fi\n'
+        )
