@@ -512,6 +512,23 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(release["packages"]["shared"]["version"], second.version_key)
             self.assertTrue(release["appSets"])
 
+    def test_partial_sync_keeps_complete_release_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            source, output = base / "source", base / "output"
+            apk(source / "Bundle" / "App" / "___app___App" / "App.apk")
+            apk(source / "Bundle" / "Shared" / "___app___Shared" / "Shared.apk")
+            pipeline = MigrationPipeline(LegacyRepositoryScanner(), FakeInspector())
+            config = PipelineConfig(android_version="17", platform_api=37)
+            pipeline.migrate(source, output, config, artifact_base_url="https://example.test")
+            pipeline.migrate(source, output, config, artifact_base_url="https://example.test", package_filter={"App"})
+            index = json.loads((output / "metadata/releases/index.json").read_text())
+            latest = index['latest']['17']['stable']['arm64-v8a']
+            summary = next(row for row in index['releases'] if row['id'] == latest)
+            snapshot = json.loads((output / "metadata" / summary['manifest']).read_text())
+            self.assertEqual(set(snapshot['packages']), {'app', 'shared'})
+            self.assertEqual(set(snapshot['appSets'][0]['packages']), {'app', 'shared'})
+
     def test_full_sync_drops_removed_packages_from_current_release_lock(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary)

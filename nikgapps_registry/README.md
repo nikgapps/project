@@ -11,6 +11,38 @@ Set `GITLAB_TOKEN` in the environment or in `NikGapps/.env`. The token needs
 API access, permission to upload/delete packages, and permission to commit to
 the metadata branch.
 
+## Publish config templates only
+
+Python is the source of config versions, global defaults, and template layout.
+Publish all supported Android config templates without rebuilding APK packages:
+
+```powershell
+.\.venv\Scripts\python.exe -m nikgapps_registry publish-config-templates --project 85036487
+```
+
+`config-templates.json` contains one entry per Android version, with its config
+version and immutable template URL/checksum/size. The app selects the entry for
+its project, preserves the published version and defaults, then applies its
+package selections. Templates use UTF-8/LF and `UseZipConfig=1`. Normal `sync`
+also refreshes the template for the target Android version, uploading only
+changed template contents. The base version comes from Python; subsequent
+published revisions advance automatically when the effective template,
+AppSet membership, or package compatibility/partition definitions change.
+APK content or target-SDK changes alone do not advance the config revision.
+The generated template's `Version` matches the published revision.
+
+Release manifests pin their immutable config template, config version and
+package-definition fingerprints. This lets the app compare projects with the
+correct Android/channel/architecture snapshot. A full sync retires removed
+packages; a partial sync preserves unselected packages and AppSets. Other
+Android versions keep their templates and release history.
+
+The Android app announces stable releases and highlights compatible projects
+with a latest-build action. Structurally incompatible projects offer config
+export and recreation through validated import. Dashboard and per-project
+dismissals apply to a particular release. Only a successfully saved ZIP updates
+the project's build receipt; cancelled/failed builds leave the indicator intact.
+
 ## Preview a reset
 
 ```powershell

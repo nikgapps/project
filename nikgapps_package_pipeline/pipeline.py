@@ -682,15 +682,37 @@ class MigrationPipeline:
             "packages": existing_release_packages,
         }, pretty))
 
+        snapshot_packages = {id: {"version": row["version"]} for id, row in existing_release_packages.items()}
+        snapshot_appsets = generated_appsets
+        if partial:
+            index_file = metadata / "releases/index.json"
+            if index_file.exists():
+                old_index = json.loads(index_file.read_text(encoding="utf-8"))
+                old_id = old_index.get("latest", {}).get(str(config.android_version), {}).get(config.channel, {}).get(config.architecture)
+                old_summary = next((r for r in old_index.get("releases", []) if r["id"] == old_id), None)
+                if old_summary:
+                    previous_snapshot = json.loads((metadata / old_summary["manifest"]).read_text(encoding="utf-8"))
+                    snapshot_packages = dict(previous_snapshot["packages"])
+                    snapshot_packages.update({p.package_id: {"version": p.version_key} for p in packages})
+                    sets = {row["id"]: row for row in previous_snapshot["appSets"]}
+                    for row in generated_appsets:
+                        old = sets.get(row["id"], {})
+                        sets[row["id"]] = {**row,
+                            "packages": list(dict.fromkeys(old.get("packages", []) + row["packages"])),
+                            "resolvedPackages": list(dict.fromkeys(old.get("resolvedPackages", []) + row["resolvedPackages"])),
+                            "legacyPackageNames": {**old.get("legacyPackageNames", {}), **row["legacyPackageNames"]}}
+                    snapshot_appsets = [sets[key] for key in sorted(sets)]
+
         release_fingerprint_input = [
             str(config.android_version), config.channel, config.architecture, config.source,
+            json.dumps(snapshot_appsets, sort_keys=True, separators=(",", ":")),
             *(f"{package.package_id}:{package.version_key}"
               for package in sorted(packages, key=lambda item: item.package_id)),
         ]
         release_fingerprint = hashlib.sha256(
             "\n".join(release_fingerprint_input).encode("utf-8")
         ).hexdigest()[:8]
-        release_id = f'{datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}-{release_fingerprint}'
+        release_id = f'{datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")}-{release_fingerprint}'
         release_manifest = (
             Path("releases") / f"android-{config.android_version}"
             / config.architecture / config.channel / f"{release_id}.json"
@@ -704,11 +726,8 @@ class MigrationPipeline:
             "architecture": config.architecture,
             "channel": config.channel,
             "source": config.source,
-            "packages": {
-                package.package_id: {"version": package.version_key}
-                for package in packages
-            },
-            "appSets": generated_appsets,
+            "packages": snapshot_packages,
+            "appSets": snapshot_appsets,
         }
         (metadata / release_manifest).parent.mkdir(parents=True, exist_ok=True)
         (metadata / release_manifest).write_bytes(json_data(release_document, pretty))

@@ -4,6 +4,7 @@ import json
 import hashlib
 import shutil
 import urllib.parse
+from .config_revisions import definition_fingerprint, next_config_version, template_with_version, release_definitions, attach_config_to_release
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -41,6 +42,67 @@ class RegistryService:
         self.client = client
         self.aapt2 = aapt2
 
+    def publish_config_templates(self, project: str, work: Path, *, branch: str = "main",
+                                 android_versions: list[str] | None = None) -> dict:
+        metadata = work.resolve() / "config-metadata"
+        metadata.mkdir(parents=True, exist_ok=True)
+        document = self._update_config_templates(project, metadata, branch, android_versions)
+        self.client.commit_directory(project, metadata, branch=branch,
+                                     message="Publish versioned Android config templates")
+        return document
+
+    def _update_config_templates(self, project: str, metadata: Path, branch: str,
+                                 android_versions: list[str] | None = None, definitions=None, previous_definitions=None) -> dict:
+        from NikGapps.helper.Assets import Assets
+        from NikGapps.config.NikGappsConfig import NikGappsConfig
+        from NikGapps.overlay_control import register_android_platform
+        versions = android_versions or list(Assets.config_versions)
+        unknown = set(versions) - set(Assets.config_versions)
+        if unknown:
+            raise PipelineError(f"Unknown Android config versions: {sorted(unknown)}")
+        path = metadata / "config-templates.json"
+        remote = self.client.read_repository_file(project, path.name, branch=branch)
+        document = json.loads(remote) if remote is not None else {"schemaVersion": 1, "templates": {}}
+        if document.get("schemaVersion") != 1 or not isinstance(document.get("templates"), dict):
+            raise PipelineError("Unsupported config template metadata")
+        existing = {(item.name, item.version) for item in self.registry_packages(project)}
+        encoded = urllib.parse.quote(str(project), safe="")
+        for android in sorted(set(versions), key=float):
+            register_android_platform(android)
+            config = NikGappsConfig(android, use_zip_config=1)
+            content = config.get_nikgapps_config().replace("\r\n", "\n").replace("\r", "\n")
+            previous = document['templates'].get(android, {})
+            structural = definitions.get(android) if definitions else previous.get('definitions')
+            fingerprint = definition_fingerprint(content, structural)
+            revision = next_config_version(content, int(config.config_version), previous, fingerprint)
+            if not previous.get('definitionFingerprint') and previous_definitions and android in previous_definitions:
+                old_structure = previous_definitions[android]
+                if old_structure is not None and old_structure != structural:
+                    revision = max(revision, int(previous.get('version', config.config_version)) + 1)
+            version = str(revision)
+            content = template_with_version(content, int(version))
+            digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+            package_name = f"nikgapps-config-android-{android}"
+            artifact_version = f"v{version}-{digest[:16]}"
+            artifact = metadata.parent / "config-templates" / android / "nikgapps.config"
+            artifact.parent.mkdir(parents=True, exist_ok=True)
+            artifact.write_text(content, encoding="utf-8", newline="\n")
+            url = f"{self.client.api_url}/projects/{encoded}/packages/generic/{package_name}/{artifact_version}/nikgapps.config"
+            if (package_name, artifact_version) not in existing:
+                url = self.client.upload_generic(project, package_name, artifact_version, artifact,
+                                                 content_type="application/octet-stream")
+            document["templates"][android] = {
+                "androidVersion": android, "version": version,
+                "definitionFingerprint": fingerprint,
+                "definitions": structural,
+                "configSettings": sorted({line.split("=", 1)[0] for line in content.split("# Following are the packages", 1)[0].splitlines() if "=" in line and not line.startswith("#")}),
+                "packageDefinitions": {p["id"]: definition_fingerprint("", p) for p in (structural or {}).get("packages", [])},
+                "template": {"url": url, "sha256": digest, "size": artifact.stat().st_size},
+            }
+            print(f"Android {android}: config v{version} ({artifact_version})")
+        path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+        return document
+
     def sync(self, request: SyncRequest) -> list[str]:
         source = request.source.resolve()
         if not source.is_dir():
@@ -69,6 +131,7 @@ class RegistryService:
         pipeline = MigrationPipeline(
             LegacyRepositoryScanner(), Aapt2Inspector(self.aapt2)
         )
+        prior_definitions = release_definitions(metadata, request.android_version, request.channel, request.architecture)
         packages = pipeline.migrate(
             source,
             output,
@@ -94,6 +157,12 @@ class RegistryService:
                 f"{base_url}/nikgapps-{package.package_id}/"
                 f"{package.version_key}/{package.package_id}.zip",
             )
+        definitions = release_definitions(metadata, request.android_version, request.channel, request.architecture)
+        templates = self._update_config_templates(request.project, metadata, request.metadata_branch,
+            [str(request.android_version)], definitions={str(request.android_version): definitions},
+            previous_definitions={str(request.android_version): prior_definitions})
+        config_entry = templates['templates'][str(request.android_version)]
+        attach_config_to_release(metadata, request.android_version, request.channel, request.architecture, config_entry)
         if request.builder_assets is not None and request.busybox is not None:
             generated_assets = output / "builder-assets"
             generated_assets.mkdir(parents=True, exist_ok=True)
@@ -104,7 +173,7 @@ class RegistryService:
                 from NikGapps.overlay_control import register_android_platform
                 from NikGapps.config.NikGappsConfig import NikGappsConfig
                 register_android_platform(request.android_version)
-                full_config = NikGappsConfig(request.android_version).get_nikgapps_config()
+                full_config = template_with_version(NikGappsConfig(request.android_version).get_nikgapps_config(), int(config_entry['version']))
             except Exception as exc:
                 raise PipelineError(f"Cannot generate full NikGapps configuration: {exc}") from exc
             config_template = generated_assets / "nikgapps.config"

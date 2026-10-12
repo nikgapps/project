@@ -31,6 +31,12 @@ def parser() -> argparse.ArgumentParser:
     root.add_argument("--verbose", action="store_true")
     commands = root.add_subparsers(dest="command", required=True)
 
+    templates = commands.add_parser("publish-config-templates", help="Publish per-Android templates without rebuilding APK packages")
+    templates.add_argument("--project", required=True)
+    templates.add_argument("--work", type=Path, default=DEFAULT_RELEASE_ROOT / "CONFIG_TEMPLATES_PUBLISH")
+    templates.add_argument("--metadata-branch", default="main")
+    templates.add_argument("--android-versions", help="Comma-separated versions; default: all supported versions")
+
     sync = commands.add_parser("sync", help="ZIP, upload, and catalog legacy packages")
     sync.add_argument("--source", type=Path,
                       help="defaults to VERSION_stable beside the project directory")
@@ -94,6 +100,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
     try:
         service = _service(args)
+        if args.command == "publish-config-templates":
+            versions = [item.strip() for item in args.android_versions.split(",")] if args.android_versions else None
+            document = service.publish_config_templates(args.project, args.work, branch=args.metadata_branch,
+                                                        android_versions=versions)
+            print(f"Published config metadata for {len(document['templates'])} Android versions.")
+            return 0
         if args.command == "reset":
             packages = service.registry_packages(args.project)
             for package in packages:
