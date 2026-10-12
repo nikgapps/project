@@ -112,9 +112,6 @@ class Build:
                             or folder.startswith("overlay"):
                         continue
                     folder_dict[folder] = folder
-                # We don't need this but for the sake of consistency
-                if str(pkg_files_path).endswith("xml") or str(pkg_files_path).endswith("prop"):
-                    F.convert_to_lf(str(pkg_files.absolute()))
                 install_list.append(pkg_files_path.replace("___", "/"))
                 file_dict_value = str(pkg_files_path.replace("___", "/")).replace("\\", "/")
                 value = str(file_dict_value).split("/")

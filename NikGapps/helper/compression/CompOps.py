@@ -2,6 +2,7 @@ from niklibrary.helper.F import F
 from niklibrary.helper.Statics import Statics
 from NikGapps.helper.Package import Package
 from niklibrary.compression.Modes import Modes
+from pathlib import Path
 
 
 class CompOps:
@@ -26,8 +27,12 @@ class CompOps:
             for x in pkg.file_dict:
                 y = pkg.file_dict[x]
                 file_index = file_index + 1
-                pkg_size = pkg_size + Statics.get_file_bytes(x)
-                cpkg.add_file(x, y)
+                pkg_size += Statics.get_file_bytes(x)
+                if Path(x).suffix.lower() in {".xml", ".prop"}:
+                    content = Path(x).read_bytes().replace(b"\r\n", b"\n")
+                    cpkg.add_string(content.decode("utf-8"), y)
+                else:
+                    cpkg.add_file(x, y)
             if pkg.clean_flash_only:
                 cpkg.add_string("", "___etc___permissions/" + pkg.package_title + ".prop")
             pkg.pkg_size = pkg_size
