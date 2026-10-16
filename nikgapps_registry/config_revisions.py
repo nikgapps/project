@@ -8,17 +8,35 @@ def template_with_version(content: str, version: int) -> str:
     return re.sub(r"^Version=.*$", f"Version={version}", content, flags=re.MULTILINE)
 
 
-def definition_fingerprint(content: str, definitions=None) -> str:
+def structural_definitions(definitions):
+    """Ignore APK-derived compatibility data, not user-facing definitions."""
+    if not isinstance(definitions, dict):
+        return definitions
+    if "packages" in definitions:
+        return {**definitions, "packages": [structural_definitions(p) for p in definitions["packages"]]}
+    if "id" in definitions:
+        return {key: value for key, value in definitions.items()
+                if key not in {"packageName", "android", "architectures", "defaultPartition"}}
+    return definitions
+
+
+def definition_fingerprint(content: str, definitions=None, *, legacy=False) -> str:
     assignments = [line.strip() for line in content.splitlines()
                    if line.strip() and not line.lstrip().startswith("#")
                    and not line.startswith("Version=")]
-    payload = {"config": assignments, "definitions": definitions or {}}
+    payload = {"config": assignments, "definitions": (definitions if legacy else structural_definitions(definitions)) or {}}
     return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def next_config_version(content: str, base_version: int, previous: dict, fingerprint: str) -> int:
+def next_config_version(content: str, base_version: int, previous: dict, fingerprint: str, definitions=None) -> int:
     current = max(base_version, int(previous.get("version", base_version)))
     old_fingerprint = previous.get("definitionFingerprint")
+    if old_fingerprint and previous.get("fingerprintSchemaVersion", 1) == 1 and "definitions" in previous:
+        # Reconstruct the old hash using today's config text. This detects real
+        # config edits while migrating stored APK-derived definitions in place.
+        same_config = definition_fingerprint(content, previous["definitions"], legacy=True) == old_fingerprint
+        same_structure = structural_definitions(previous["definitions"]) == structural_definitions(definitions)
+        return current if same_config and same_structure else max(base_version, int(previous["version"]) + 1)
     if old_fingerprint:
         return max(base_version, int(previous.get("version", base_version)) + 1) if old_fingerprint != fingerprint else current
     # Migrate legacy metadata without incrementing unchanged templates.

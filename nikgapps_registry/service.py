@@ -4,7 +4,10 @@ import json
 import hashlib
 import shutil
 import urllib.parse
-from .config_revisions import definition_fingerprint, next_config_version, template_with_version, release_definitions, attach_config_to_release
+from .config_revisions import (
+    definition_fingerprint, next_config_version, template_with_version,
+    release_definitions, attach_config_to_release, structural_definitions,
+)
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -74,10 +77,10 @@ class RegistryService:
             previous = document['templates'].get(android, {})
             structural = definitions.get(android) if definitions else previous.get('definitions')
             fingerprint = definition_fingerprint(content, structural)
-            revision = next_config_version(content, int(config.config_version), previous, fingerprint)
+            revision = next_config_version(content, int(config.config_version), previous, fingerprint, structural)
             if not previous.get('definitionFingerprint') and previous_definitions and android in previous_definitions:
                 old_structure = previous_definitions[android]
-                if old_structure is not None and old_structure != structural:
+                if old_structure is not None and structural_definitions(old_structure) != structural_definitions(structural):
                     revision = max(revision, int(previous.get('version', config.config_version)) + 1)
             version = str(revision)
             content = template_with_version(content, int(version))
@@ -91,12 +94,21 @@ class RegistryService:
             if (package_name, artifact_version) not in existing:
                 url = self.client.upload_generic(project, package_name, artifact_version, artifact,
                                                  content_type="application/octet-stream")
+            old_packages = {p["id"]: p for p in (previous.get("definitions") or {}).get("packages", [])}
+            package_hashes = {}
+            for package in (structural or {}).get("packages", []):
+                package_id = package["id"]
+                old_hash = previous.get("packageDefinitions", {}).get(package_id)
+                # Preserve existing project compatibility hashes during migration.
+                unchanged = structural_definitions(old_packages.get(package_id)) == structural_definitions(package)
+                package_hashes[package_id] = old_hash if old_hash and unchanged else definition_fingerprint("", package)
             document["templates"][android] = {
                 "androidVersion": android, "version": version,
                 "definitionFingerprint": fingerprint,
+                "fingerprintSchemaVersion": 2,
                 "definitions": structural,
                 "configSettings": sorted({line.split("=", 1)[0] for line in content.split("# Following are the packages", 1)[0].splitlines() if "=" in line and not line.startswith("#")}),
-                "packageDefinitions": {p["id"]: definition_fingerprint("", p) for p in (structural or {}).get("packages", [])},
+                "packageDefinitions": package_hashes,
                 "template": {"url": url, "sha256": digest, "size": artifact.stat().st_size},
             }
             print(f"Android {android}: config v{version} ({artifact_version})")

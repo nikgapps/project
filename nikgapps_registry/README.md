@@ -7,6 +7,12 @@ project. The Android app can resolve packages entirely from that metadata.
 
 ## Authentication
 
+Config revisions track config entries and logical package/AppSet definitions
+(names, membership, dependencies and selection flags). APK versions, bytes,
+minimum/maximum API, ABI and APK-derived partition/manifest metadata do not
+advance the config revision. Existing definition hashes migrate without making
+unchanged projects outdated. New package releases can therefore retain config 41.
+
 Set `GITLAB_TOKEN` in the environment or in `NikGapps/.env`. The token needs
 API access, permission to upload/delete packages, and permission to commit to
 the metadata branch.

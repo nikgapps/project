@@ -9,6 +9,27 @@ from nikgapps_registry.config_revisions import definition_fingerprint, next_conf
 
 
 class ConfigRevisionTests(unittest.TestCase):
+    def test_legacy_apk_metadata_change_keeps_41_but_definition_changes_increment(self):
+        text = 'Version=41\nGoogleChrome=1\n>>GoogleChrome=1\n'
+        old = {'appSets': [{'id': 'chrome', 'packages': ['chrome']}], 'packages': [
+            {'id': 'chrome', 'name': 'Chrome', 'android': {'minApi': 26}, 'architectures': ['arm64-v8a']}]}
+        newer = json.loads(json.dumps(old))
+        newer['packages'][0]['android']['minApi'] = 29
+        newer['packages'][0]['architectures'] = ['arm64-v8a', 'x86_64']
+        previous = {'version': '41', 'definitions': old,
+                    'definitionFingerprint': definition_fingerprint(text, old, legacy=True)}
+        self.assertEqual(next_config_version(text, 40, previous, definition_fingerprint(text, newer), newer), 41)
+        for changed in [
+            {**newer, 'appSets': [{'id': 'chrome', 'packages': []}]},
+            {**newer, 'appSets': [{'id': 'renamed', 'packages': ['chrome']}]},
+            {**newer, 'packages': [{**newer['packages'][0], 'name': 'Renamed'}]},
+            {**newer, 'packages': []},
+        ]:
+            with self.subTest(changed=changed):
+                self.assertEqual(next_config_version(text, 40, previous, definition_fingerprint(text, changed), changed), 42)
+        changed_text = text + '>>NewPackage=1\n'
+        self.assertEqual(next_config_version(changed_text, 40, previous, definition_fingerprint(changed_text, newer), newer), 42)
+
     def test_removed_package_advances_revision_once(self):
         old = 'AndroidVersion=17\nVersion=40\nCore=1\n>>Initializer=1\n'
         new = 'AndroidVersion=17\nVersion=40\nCore=1\n'
@@ -45,10 +66,24 @@ class ConfigRevisionTests(unittest.TestCase):
         service = RegistryService(client)
         with tempfile.TemporaryDirectory() as directory:
             metadata = Path(directory)
-            original = {'packages':[{'id':'old'}], 'appSets':[]}
+            original = {'packages':[{'id':'old', 'android': {'minApi': 26}}], 'appSets':[]}
             client.document = service._update_config_templates('test', metadata, 'main', ['16', '17'],
                 definitions={'16': original, '17': original})
             android16 = client.document['templates']['16'].copy()
+            old_entry = client.document['templates']['17']
+            old_entry.pop('fingerprintSchemaVersion')
+            old_entry['definitionFingerprint'] = definition_fingerprint(
+                next(data.decode() for data in client.uploads if hashlib.sha256(data).hexdigest() == old_entry['template']['sha256']),
+                original, legacy=True)
+            old_entry['packageDefinitions']['old'] = 'existing-project-compatible-hash'
+            apk_update = {'packages':[{'id':'old', 'android': {'minApi': 29}}], 'appSets':[]}
+            migrated = service._update_config_templates('test', metadata, 'main', ['17'], definitions={'17':apk_update})
+            self.assertEqual(migrated['templates']['17']['version'], old_entry['version'])
+            self.assertEqual(migrated['templates']['17']['packageDefinitions']['old'], 'existing-project-compatible-hash')
+            client.document = migrated
+            repeated = service._update_config_templates('test', metadata, 'main', ['17'], definitions={'17':original})
+            self.assertEqual(repeated['templates']['17']['version'], old_entry['version'])
+            self.assertEqual(repeated['templates']['17']['packageDefinitions']['old'], 'existing-project-compatible-hash')
             changed = {'packages':[], 'appSets':[]}
             client.document = service._update_config_templates('test', metadata, 'main', ['17'], definitions={'17':changed})
             entry = client.document['templates']['17']
@@ -69,12 +104,12 @@ class ConfigRevisionTests(unittest.TestCase):
             (metadata/'releases/current.json').write_text(json.dumps(release))
             version = {'packageName':'com.example', 'android':{'minApi':29,'targetApi':35},
                 'architectures':['arm64-v8a'], 'defaultPartition':'product'}
-            newer = {**version, 'versionName':'2', 'android':{'minApi':29,'targetApi':36},'artifact':{'sha256':'new'}}
+            newer = {**version, 'versionName':'2', 'android':{'minApi':30,'targetApi':36},'artifact':{'sha256':'new'}}
             (metadata/'catalog.json').write_text(json.dumps({'packages':[{'id':'app','name':'App','versions':{'one':version,'two':newer}}]}))
             before = release_definitions(metadata,'17')
             release['packages']['app']['version'] = 'two'
             (metadata/'releases/current.json').write_text(json.dumps(release))
-            self.assertEqual(before, release_definitions(metadata,'17'))
+            self.assertEqual(definition_fingerprint('', before), definition_fingerprint('', release_definitions(metadata,'17')))
             entry = {'version':'41','definitionFingerprint':'structure','template':{'url':'https://example.test/config'},
                 'packageDefinitions':{'app':'hash'}, 'configSettings':['Version']}
             attach_config_to_release(metadata,'17','stable','arm64-v8a',entry)
