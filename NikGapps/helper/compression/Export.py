@@ -92,12 +92,18 @@ class Export:
         for line in config_obj.debloater_list:
             debloater_config_lines += line + "\n"
         self.z.add_string(debloater_config_lines, "afzc/debloater.config")
+        self.z.add_file(Assets.cwd + "debloater_guard.sh", "common/debloater_guard.sh")
+        self.z.add_string("", "common/debloater_protected.txt")
         self.z.add_file(Assets.changelog, "changelog.yaml")
         self.z.add_file(Assets.addon_path, "common/addon.sh")
         self.z.add_file(Assets.header_path, "common/header.sh")
         self.z.add_file(Assets.functions_path, "common/functions.sh")
         self.z.add_string(file_sizes, "common/file_size.txt")
-        self.z.add_file(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
+        # Inline the guard into an existing asset so older Android consumers
+        # also receive the safety policy without requiring a new asset name.
+        installer_functions = "".join(Assets.get_string_resource(Assets.nikgapps_functions))
+        debloater_guard = "".join(Assets.get_string_resource(Assets.cwd + "debloater_guard.sh"))
+        self.z.add_string(installer_functions + "\n" + debloater_guard, "common/nikgapps_functions.sh")
         self.z.add_file(Assets.mount_path, "common/mount.sh")
         self.z.add_file(Assets.mtg_mount_path, "common/mtg_mount.sh")
         self.z.add_file(Assets.unmount_path, "common/unmount.sh")

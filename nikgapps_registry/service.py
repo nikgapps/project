@@ -192,6 +192,12 @@ class RegistryService:
             config_template.write_text(full_config, encoding="utf-8", newline="\n")
             assets = self._builder_assets(
                 request.builder_assets.resolve(), request.busybox.resolve(), config_template)
+            # Preserve older clients' fixed asset lists: the existing functions
+            # asset must carry the guard, rather than requiring a new download.
+            guarded_functions = generated_assets / "nikgapps_functions.sh"
+            guarded_functions.write_text(assets["common/nikgapps_functions.sh"].read_text(encoding="utf-8") +
+                "\n" + assets["common/debloater_guard.sh"].read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+            assets["common/nikgapps_functions.sh"] = guarded_functions
             published_assets: dict[str, dict[str, str | int]] = {}
             for key, source in assets.items():
                 digest = self._sha256(source)
@@ -247,6 +253,7 @@ class RegistryService:
             "common/mtg_mount.sh": "mtg_mount.sh",
             "common/mount.sh": "mount.sh",
             "common/nikgapps_functions.sh": "nikgapps_functions.sh",
+            "common/debloater_guard.sh": "debloater_guard.sh",
             "common/unmount.sh": "unmount.sh",
             "@template/customize.sh": "customize.sh",
             "module.prop": "module.prop",
