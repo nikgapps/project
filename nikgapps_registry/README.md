@@ -152,3 +152,24 @@ For Android 12.1 and newer, `--overlays` embeds APKs found under the legacy
 `<PackageName>Overlay` folder into that package's ZIP. Privileged applications
 are detected from their `priv-app` install path; their requested permissions
 are read with `aapt2` and emitted as `etc/permissions/<packageName>.xml`.
+
+## Optional app icons
+
+Publish icons independently of package versions and config revisions:
+
+```powershell
+.\.venv\Scripts\python.exe -m nikgapps_registry.icons --work D:/workspace/artifacts/nikgapps-icons
+.\.venv\Scripts\python.exe -m nikgapps_registry.icons --work D:/workspace/artifacts/nikgapps-icons --publish
+```
+
+The first command prepares assets, `metadata/icons.json`, and a missing-icon report.
+The publisher uses official Google Play icon metadata, then APK-declared raster
+icons from local `17_stable` and `16_stable` trees (`--apk-root` overrides them).
+Adaptive/vector-only APK resources are left to the standard client fallback.
+Icons use immutable SHA-256 versions under Generic Registry `app-icons`; only
+`icons.json` is committed to the metadata repository. Existing icon entries survive
+source failures. No catalog, config-template or release manifest is changed.
+
+Android prefers installed app icons, then verified cached registry images, then
+the standard Android icon. Missing metadata, failed downloads, checksum mismatches,
+and unsupported images do not block package selection or ZIP builds.
