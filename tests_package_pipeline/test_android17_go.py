@@ -46,6 +46,38 @@ class Android17GoTests(unittest.TestCase):
             self.assertEqual(before, {p.relative_to(gms).as_posix(): p.read_bytes() for p in gms.rglob('*') if p.is_file()})
             self.assertFalse((root / 'source/CoreGo').exists())
 
+    def test_overlay_install_order_matches_for_raw_and_prepared_registry_sources(self):
+        from NikGapps.build.Build import Build
+        from NikGapps.helper import Config
+        import shutil
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.source(root / 'source')
+            overlay = root / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk'
+            overlay.parent.mkdir(parents=True)
+            overlay.write_bytes(b'overlay')
+            shutil.copytree(root / 'source/Core', root / 'prepared/Core')
+            prepared_overlay = root / 'prepared/Core/GmsCore/___overlay/GmsCoreOverlay.apk'
+            prepared_overlay.parent.mkdir()
+            prepared_overlay.write_bytes(b'overlay')
+            appset = NikGappsConfig('17').package_manager.get_packages('core')[0]
+            appset.package_list = [p for p in appset.package_list if p.package_title == 'GmsCore']
+            with patch.object(Config, 'APK_SOURCE', str(root / 'source')), \
+                 patch.object(Config, 'OVERLAY_SOURCE', str(root / 'overlays')), \
+                 patch('NikGapps.build.Build.Cmd') as cmd, \
+                 patch('nikgapps_package_pipeline.consumer.CatalogPackageSource') as consumer:
+                cmd.return_value.get_package_details.return_value = 'com.google.android.gms'
+                cmd.return_value.get_white_list_permissions.return_value = []
+                consumer.return_value.prepare.return_value = root / 'prepared'
+                with patch.object(Config, 'PACKAGE_SOURCE', 'local'):
+                    raw = Build.build_from_directory([appset], '17')[0].package_list[0]
+                with patch.object(Config, 'PACKAGE_SOURCE', 'registry'), \
+                     patch.object(Config, 'OVERLAY_SOURCE', str(root / 'empty')):
+                    registry = Build.build_from_directory([appset], '17')[0].package_list[0]
+            self.assertEqual(raw.install_list, registry.install_list)
+            self.assertEqual(list(raw.file_dict.values()), list(registry.file_dict.values()))
+
     def source(self, root):
         gms = root / 'Core/GmsCore'
         apk(gms / '___priv-app___Gms/Gms.apk')

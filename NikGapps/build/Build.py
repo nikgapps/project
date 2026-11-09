@@ -91,6 +91,13 @@ class Build:
                 generated = generated_go_files(Path(pkg_path), Path(Statics.get_temp_packages_directory(android_version)) / "go-source")
                 source_files = [path for path in source_files if path.relative_to(pkg_path).as_posix() not in generated]
                 source_files.extend(generated.values())
+            # Registry sources carry overlays inside the package; raw sources
+            # add them above. Keep the same install/uninstall order in both modes.
+            def source_order(path):
+                name = path.as_posix()
+                name = name[name.find("___"):]
+                return (not name.startswith("___overlay/"), name)
+            source_files.sort(key=source_order)
             for pkg_files in source_files:
                 if Path(pkg_files).is_dir() or str(pkg_files).__contains__(".git") \
                         or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):
