@@ -72,7 +72,7 @@ def _manifest(
         from NikGapps.build.PackageConstants import PackageConstants
         default_removals = PackageConstants.get_package_deletes(package_name) if package_name else []
         default_clean = PackageConstants.get_package_clean_flash_rule(package_name) if package_name else False
-        default_script = PackageConstants.get_package_script(source.name)
+        default_script = PackageConstants.get_package_script(source.name, config.android_version, source.appset)
     except ImportError:
         default_removals, default_clean, default_script = [], False, None
     remove_files = source.override.remove_files
@@ -153,7 +153,7 @@ def _manifest(
             "additionalInstallerScript": source.override.additional_installer_script
                 if source.override.additional_installer_script is not None else default_script,
             "validationScript": source.override.validation_script,
-            "addonIndex": source.override.addon_index,
+            "addonIndex": "05" if float(config.android_version) >= 17 and source.name == "GmsCore" else source.override.addon_index,
         },
     }
 
@@ -220,6 +220,11 @@ class MigrationPipeline:
         if output == source_root or source_root in output.parents:
             raise PipelineError("Output must be outside the source repository")
         sources = self.scanner.discover(source_root, config)
+        if float(config.android_version) >= 17:
+            from NikGapps.build.GoSupport import SHARED_CORE_PACKAGES
+            sources = [source for source in sources if not (source.appset == "CoreGo" and source.name in SHARED_CORE_PACKAGES)]
+            sources.extend(SourcePackage("CoreGo", source.name, source.root, config.override_for("CoreGo", source.name))
+                           for source in list(sources) if source.appset == "Core" and source.name in SHARED_CORE_PACKAGES)
         if overlay_root is not None:
             overlay_root = overlay_root.resolve()
             if not overlay_root.is_dir():
@@ -246,6 +251,8 @@ class MigrationPipeline:
                     "No packages matched --package. Use a package name such as "
                     "GmsCore or an AppSet/Package value."
                 )
+        if float(config.android_version) >= 17 and any(s.name in {"ExtraFiles", "ExtraFilesGo"} for s in sources):
+            raise PipelineError("Android 17+ support files must be merged into Core/GmsCore before publication")
         support_sources = {
             f"{source.appset}/{source.name}": source
             for source in sources
@@ -262,6 +269,13 @@ class MigrationPipeline:
         appsets: dict[str, list[str]] = defaultdict(list)
         for source in sources:
             files = self.scanner.payload(source)
+            if float(config.android_version) >= 17 and source.appset == "CoreGo" and source.name == "GmsCore":
+                from NikGapps.build.GoSupport import generated_go_files
+                from .util import decode_legacy_path
+                generated = generated_go_files(source.root, output / "generated-go")
+                overrides = {decode_legacy_path(Path(name)): path for name, path in generated.items()}
+                files = [item for item in files if item.path not in overrides]
+                files += [PayloadFile(path, name, file_sha256(path), path.stat().st_size) for name, path in overrides.items()]
             primary = primary_apk(source, files)
             metadata = self.inspector.inspect(primary.source) if primary else None
             if overlay_root is not None and float(config.android_version) >= 12.1:
@@ -282,6 +296,8 @@ class MigrationPipeline:
                             source.name,
                         )
             package_id = source.override.package_id or stable_id(source.name)
+            if float(config.android_version) >= 17 and source.name == "GmsCore":
+                package_id = "gms_core_go_android17" if source.appset == "CoreGo" else "gms_core_android17"
             safe_path(package_id)
             if "/" in package_id:
                 raise PipelineError(f"Package ID must be one path segment: {package_id!r}")

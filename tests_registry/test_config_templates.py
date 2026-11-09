@@ -31,7 +31,7 @@ class ConfigTemplateTests(unittest.TestCase):
             document = RegistryService(client).publish_config_templates('123', Path(directory))
         self.assertEqual(set(['10', '11', '12', '12.1', '13', '14', '15', '16', '17']), set(document['templates']))
         self.assertEqual('38', document['templates']['16']['version'])
-        self.assertEqual('40', document['templates']['17']['version'])
+        self.assertEqual('42', document['templates']['17']['version'])
         for entry in document['templates'].values():
             data = next(data for data in client.uploads if hashlib.sha256(data).hexdigest() == entry['template']['sha256'])
             self.assertEqual(len(data), entry['template']['size'])

@@ -87,12 +87,13 @@ class ConfigRevisionTests(unittest.TestCase):
             changed = {'packages':[], 'appSets':[]}
             client.document = service._update_config_templates('test', metadata, 'main', ['17'], definitions={'17':changed})
             entry = client.document['templates']['17']
-            self.assertEqual(entry['version'], '41')
+            expected_version = str(int(old_entry['version']) + 1)
+            self.assertEqual(entry['version'], expected_version)
             self.assertEqual(client.document['templates']['16'], android16)
             uploaded = next(data for data in client.uploads if hashlib.sha256(data).hexdigest() == entry['template']['sha256'])
-            self.assertIn(b'Version=41\n', uploaded)
+            self.assertIn(f'Version={expected_version}\n'.encode(), uploaded)
             unchanged = service._update_config_templates('test', metadata, 'main', ['17'], definitions={'17':changed})
-            self.assertEqual(unchanged['templates']['17']['version'], '41')
+            self.assertEqual(unchanged['templates']['17']['version'], expected_version)
 
     def test_apk_updates_do_not_change_definition_fingerprint(self):
         with tempfile.TemporaryDirectory() as directory:

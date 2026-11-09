@@ -18,7 +18,7 @@ ENVIRONMENT_TYPE = os.environ.get('ENVIRONMENT_TYPE', 'dev').strip().lower()
 ENVIRONMENT_TYPE = {'release': 'production', 'development': 'dev'}.get(ENVIRONMENT_TYPE, ENVIRONMENT_TYPE)
 
 # Possible Values are ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
-BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
+BUILD_PACKAGE_LIST = ['go', 'corego', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 
 # Send the zip to device after creation, Possible values are True and False
 SEND_ZIP_DEVICE = True if ENVIRONMENT_TYPE == "dev" and RELEASE_TYPE in ("dev", "beta") else False

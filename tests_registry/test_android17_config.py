@@ -8,10 +8,11 @@ class Android17ConfigTests(unittest.TestCase):
         removed = (
             "Books=", ">>GoogleContactsSyncAdapter=",
             ">>GoogleCalendarSyncAdapter=", ">>GoogleOneTimeInitializer=",
+            ">>ExtraFiles=",
         )
         current = NikGappsConfig("17").get_nikgapps_config()
         previous = NikGappsConfig("16").get_nikgapps_config()
-        self.assertIn("Version=40", current)
+        self.assertIn("Version=42", current)
         for entry in removed:
             with self.subTest(entry=entry):
                 self.assertNotIn(entry, current)

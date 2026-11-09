@@ -358,3 +358,6 @@ chmod 755 "$dest"
 # update_addond_filename "$installSource" "$(basename "$dest")"
 mkdir -p "$addon_scripts_logDir"
 cat "$dest" > "$addon_scripts_logDir/$(basename "$dest")"
+if [ "$fileName" = "GmsCore" ] && command -v retire_legacy_gms_owners >/dev/null 2>&1; then
+  retire_legacy_gms_owners
+fi

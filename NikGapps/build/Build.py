@@ -11,6 +11,7 @@ from niklibrary.helper.Cmd import Cmd
 from NikGapps.helper.AppSet import AppSet
 from niklibrary.helper.Statics import Statics
 from niklibrary.helper.T import T
+from NikGapps.build.GoSupport import core_source_appset, generated_go_files
 
 
 class Build:
@@ -58,7 +59,9 @@ class Build:
 
         def process_package(app_set_obj, pkg_obj):
             package_title = pkg_obj.package_title
-            app_set_path = os.path.join(source_directory, app_set_obj.title)
+            source_appset = (core_source_appset(app_set_obj.title, package_title, android_version)
+                             if Config.PACKAGE_SOURCE != "registry" else app_set_obj.title)
+            app_set_path = os.path.join(source_directory, source_appset)
             pkg_path = os.path.join(str(app_set_path), package_title)
 
             print(f"Setting up {app_set_obj.title}/{package_title}")
@@ -83,7 +86,12 @@ class Build:
                         value = str(file_dict_value).split("/")
                         file_dict[str(file)] = "___" + "___".join(value[:len(value) - 1]) + "/" + value[len(value) - 1]
 
-            for pkg_files in Path(pkg_path).rglob("*"):
+            source_files = list(Path(pkg_path).rglob("*"))
+            if float(android_version) >= 17 and app_set_obj.title == "CoreGo" and package_title == "GmsCore" and Config.PACKAGE_SOURCE != "registry":
+                generated = generated_go_files(Path(pkg_path), Path(Statics.get_temp_packages_directory(android_version)) / "go-source")
+                source_files = [path for path in source_files if path.relative_to(pkg_path).as_posix() not in generated]
+                source_files.extend(generated.values())
+            for pkg_files in source_files:
                 if Path(pkg_files).is_dir() or str(pkg_files).__contains__(".git") \
                         or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):
                     continue

@@ -40,6 +40,8 @@ class NikGappsManager:
             for version_info in versions:
                 packages = version_info["packages"]
                 for package in packages:
+                    if float(self.android_version) >= 17 and package in {"ExtraFiles", "ExtraFilesGo"}:
+                        continue
                     if package not in package_to_appset_map:
                         package_to_appset_map[package] = []
                     package_to_appset_map[package].append(appset)
@@ -49,6 +51,8 @@ class NikGappsManager:
         match package_type:
             case 'core':
                 return self.get_core_package()
+            case 'corego':
+                return [appset for appset in self.get_go_package() if appset.title == "CoreGo"]
             case 'basic':
                 return self.get_basic_package()
             case 'omni':
@@ -117,6 +121,7 @@ class NikGappsManager:
         for package in package_list:
             appset_title = self.find_appset_by_package(package.package_title, keyword=keyword,
                                                        fallback_appset=fallback_appset)
+            self.configure_membership(package, appset_title)
             if appset_title not in appset_dict:
                 appset_dict[appset_title] = AppSet(appset_title, [package])
             else:
@@ -128,11 +133,17 @@ class NikGappsManager:
         for package_name in package_name_list:
             package = self.create_package(package_name)
             appset_title = self.find_appset_by_package(package_name, keyword=keyword, fallback_appset=fallback_appset)
+            self.configure_membership(package, appset_title)
             if appset_title not in appset_dict:
                 appset_dict[appset_title] = AppSet(appset_title, [package])
             else:
                 appset_dict[appset_title].package_list.append(package)
         return list(appset_dict.values())
+
+    def configure_membership(self, package, appset):
+        if float(self.android_version) >= 17 and package.package_title == "GmsCore":
+            package.additional_installer_script = PackageConstants.get_package_script("GmsCore", self.android_version, appset)
+            package.addon_index = "05"
 
     def create_package(self, package_name):
         if package_name in self.extra_files_exceptions:
@@ -159,7 +170,7 @@ class NikGappsManager:
             for delete in deletes:
                 package.delete(delete)
             package.clean_flash_only = PackageConstants.get_package_clean_flash_rule(pkg_name)
-        script = PackageConstants.get_package_script(package_name)
+        script = PackageConstants.get_package_script(package_name, self.android_version)
         if script:
             package.additional_installer_script = script
         return package
@@ -362,9 +373,9 @@ class NikGappsManager:
             "GalleryGo",
             "GmailGo"
         ]
-        if float(self.android_version) == 17:
+        if float(self.android_version) >= 17:
             go_packages = [name for name in go_packages if name not in {
-                "GoogleContactsSyncAdapter", "GoogleCalendarSyncAdapter"}]
+                "ExtraFilesGo", "GoogleContactsSyncAdapter", "GoogleCalendarSyncAdapter"}]
         appset_list = self.create_appset_list_from_packages(go_packages, keyword="Go")
         return appset_list
 
@@ -377,9 +388,9 @@ class NikGappsManager:
             "GoogleCalendarSyncAdapter",
             "GmsCore"
         ]
-        if float(self.android_version) == 17:
+        if float(self.android_version) >= 17:
             core_packages = [name for name in core_packages if name not in {
-                "GoogleContactsSyncAdapter", "GoogleCalendarSyncAdapter"}]
+                "ExtraFiles", "GoogleContactsSyncAdapter", "GoogleCalendarSyncAdapter"}]
         package_list = []
         for package_title in core_packages:
             package = self.create_package(package_title)

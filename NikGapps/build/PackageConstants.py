@@ -84,7 +84,19 @@ class PackageConstants:
         return package_deletes.get(package_name, [])
 
     @staticmethod
-    def get_package_script(package_name):
+    def get_package_script(package_name, android_version=None, appset=None):
+        if package_name == "GmsCore" and android_version is not None and float(android_version) >= 17:
+            legacy = "ExtraFilesGo" if appset == "CoreGo" else "ExtraFiles"
+            return PackageConstants.get_package_script(legacy) + '''
+   retire_legacy_gms_owners() {
+     for old_owner in ExtraFiles ExtraFilesGo; do
+       for legacy_script in "$system"/addon.d/0[59]-[0-9]*-"$old_owner".sh "$system"/addon.d/10-[0-9]*-"$old_owner".sh; do
+         [ -f "$legacy_script" ] || continue
+         grep -q AFZC "$legacy_script" && rm -f "$legacy_script"
+       done
+     done
+   }
+'''
         if package_name == "SetupWizardPixel":
             return PackageConstants.get_pixel_setup_script()
 
