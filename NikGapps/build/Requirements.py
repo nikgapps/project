@@ -23,8 +23,4 @@ def required_overlays(package_title, android_version):
         package = NikGappsManager(str(android_version)).create_package(package_title)
     except ValueError:  # Generic pipeline fixtures/custom packages have no NikGapps definition.
         return frozenset()
-    names = {overlay.apk_name for overlay in package.overlay_list}
-    if float(android_version) >= 17 and package_title == 'WebViewGoogle':
-        # This compiled overlay is maintained in overlays_17 outside Library.py.
-        names.add('WebViewGoogleOverlay.apk')
-    return frozenset(names)
+    return frozenset(overlay.apk_name for overlay in package.overlay_list)

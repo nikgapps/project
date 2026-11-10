@@ -17,6 +17,11 @@ from nikgapps_package_pipeline.errors import PipelineError
 
 
 class Android17GoTests(unittest.TestCase):
+    def test_overlay_requirements_follow_package_definitions_without_forcing_webview(self):
+        from NikGapps.build.Requirements import required_overlays
+        self.assertEqual(frozenset(), required_overlays('WebViewGoogle', '17'))
+        self.assertEqual(frozenset({'GmsCoreOverlay.apk'}), required_overlays('GmsCore', '17'))
+
     def test_registry_artifacts_cannot_omit_required_overlay(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
