@@ -3,6 +3,7 @@ from niklibrary.helper.Statics import Statics
 from NikGapps.helper.Package import Package
 from niklibrary.compression.Modes import Modes
 from pathlib import Path
+import math
 
 
 class CompOps:
@@ -27,17 +28,19 @@ class CompOps:
             for x in pkg.file_dict:
                 y = pkg.file_dict[x]
                 file_index = file_index + 1
-                pkg_size += Statics.get_file_bytes(x)
                 if Path(x).suffix.lower() in {".xml", ".prop"}:
                     content = Path(x).read_bytes().replace(b"\r\n", b"\n")
+                    pkg_size += math.ceil(len(content) / 1024)
                     cpkg.add_string(content.decode("utf-8"), y)
                 else:
+                    pkg_size += Statics.get_file_bytes(x)
                     cpkg.add_file(x, y)
             if pkg.clean_flash_only:
                 cpkg.add_string("", "___etc___permissions/" + pkg.package_title + ".prop")
-            pkg.pkg_size = pkg_size
             if pkg.priv_app_permissions_str is not None:
+                pkg_size += math.ceil(len(pkg.priv_app_permissions_str.encode('utf-8')) / 1024)
                 cpkg.add_string(pkg.priv_app_permissions_str, "___etc___permissions/" + pkg.package_name + ".xml")
+            pkg.pkg_size = pkg_size
             cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh")
             cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
             cpkg.close()

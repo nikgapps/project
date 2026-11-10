@@ -49,6 +49,8 @@ class Aapt2Inspector(ApkInspector):
 
     def privileged_permissions(self, apk: Path) -> list[str]:
         output = self._dump(["dump", "permissions", str(apk)], apk)
+        if not re.search(r'^package:\s+\S+', output, re.MULTILINE):
+            raise PipelineError(f'Missing package header in aapt2 permissions output for {apk}')
         permissions: set[str] = set()
         for line in output.splitlines():
             stripped = line.strip()
@@ -57,6 +59,8 @@ class Aapt2Inspector(ApkInspector):
             match = requested or declared
             if match:
                 permissions.add(match.group(1))
+            elif stripped.startswith(('uses-permission:', 'uses-permission-sdk-', 'permission:')):
+                raise PipelineError(f'Unrecognized aapt2 permission output for {apk}: {stripped}')
         return sorted(permissions)
 
     def _dump(self, arguments: list[str], apk: Path) -> str:
@@ -75,6 +79,8 @@ class Aapt2Inspector(ApkInspector):
             raw_detail = exc.stderr or exc.stdout or b""
             detail = raw_detail.decode("utf-8", errors="replace").strip()
             raise PipelineError(f"aapt2 failed for {apk}: {detail}") from exc
+        except OSError as exc:
+            raise PipelineError(f"Cannot execute aapt2 {self.executable!r} for {apk}: {exc}") from exc
         return result.stdout.decode("utf-8", errors="replace")
 
     @staticmethod
@@ -85,8 +91,11 @@ class Aapt2Inspector(ApkInspector):
                 raise PipelineError(f"Missing {name} in aapt2 output for {apk or 'APK'}")
             return match.group(1)
 
+        package_name = required(r"^package: name='([^']+)'", "package name")
+        if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*', package_name):
+            raise PipelineError(f"Invalid Android package name in aapt2 output for {apk or 'APK'}")
         return ApkMetadata(
-            package_name=required(r"^package: name='([^']+)'", "package name"),
+            package_name=package_name,
             version_name=required(r"^package:.*versionName='([^']+)'", "version name"),
             version_code=int(required(r"^package:.*versionCode='(\d+)'", "version code")),
             min_api=int(required(r"^sdkVersion:'(\d+)'", "minimum SDK")),
@@ -101,14 +110,6 @@ def find_aapt2() -> str:
     on_path = shutil.which("aapt2")
     if on_path:
         return on_path
-    project_root = Path(__file__).resolve().parent.parent
-    bundled = (
-        project_root.parent / "nikassets" / "nikassets" / "helper" / "assets"
-        / "bin" / ("Windows" if os.name == "nt" else "Linux")
-        / ("aapt2.exe" if os.name == "nt" else "aapt2")
-    )
-    if bundled.is_file():
-        return str(bundled)
     sdk_roots = [
         os.environ.get("ANDROID_SDK_ROOT"),
         os.environ.get("ANDROID_HOME"),
@@ -133,4 +134,8 @@ def find_aapt2() -> str:
             continue
         if candidates:
             return str(candidates[0])
+    from nikassets.helper.Assets import Assets
+    bundled = Path(Assets.aapt_path)
+    if bundled.is_file() and os.access(bundled, os.X_OK):
+        return str(bundled)
     return "aapt2"

@@ -7,11 +7,11 @@ from threading import Lock
 from NikGapps.helper import Config
 from NikGapps.helper.Package import Package
 from niklibrary.helper.F import F
-from niklibrary.helper.Cmd import Cmd
 from NikGapps.helper.AppSet import AppSet
 from niklibrary.helper.Statics import Statics
 from niklibrary.helper.T import T
 from NikGapps.build.GoSupport import core_source_appset, generated_go_files
+from nikgapps_package_pipeline.apk import Aapt2Inspector, find_aapt2
 
 
 class Build:
@@ -52,7 +52,7 @@ class Build:
                 Config.OVERLAY_SOURCE = str(overlay_path)
         source_directory = Config.APK_SOURCE
         print(f"Building from {source_directory}")
-        cmd = Cmd()
+        inspector = Aapt2Inspector(Config.AAPT2 or find_aapt2())
         app_set_list = []
         max_workers = cpu_count()
         lock = Lock()
@@ -116,7 +116,7 @@ class Build:
                         pkg_files).__contains__("split_") and not str(pkg_files).__contains__("___m") \
                         and not str(pkg_files).__contains__("___overlay"):
                     primary_app_location = pkg_files.absolute()
-                    package_name = cmd.get_package_details(primary_app_location, "name")
+                    package_name = inspector.inspect(primary_app_location).package_name
                     if str(primary_app_location).__contains__("___priv-app___"):
                         app_type = Statics.is_priv_app
                     elif str(primary_app_location).__contains__("___app___"):
@@ -150,10 +150,10 @@ class Build:
             pkg.primary_app_location = primary_app_location
 
             if pkg.primary_app_location is not None and app_type == Statics.is_priv_app:
-                permissions_list = cmd.get_white_list_permissions(primary_app_location)
+                permissions_list = inspector.privileged_permissions(primary_app_location)
                 for perm in pkg_obj.priv_app_permissions:
                     permissions_list.append(perm)
-                if permissions_list and not permissions_list[0].__contains__("Exception"):
+                if permissions_list:
                     pkg.priv_app_permissions_str = pkg.generate_priv_app_whitelist(app_set_obj.title, permissions_list,
                                                                                    android_version=android_version,
                                                                                    pkg_path=source_directory)

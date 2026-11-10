@@ -5,6 +5,7 @@ import unittest
 import xml.etree.ElementTree as ET
 import zipfile
 from unittest.mock import patch
+from types import SimpleNamespace
 
 from NikGapps.build.GoSupport import generated_go_files, core_source_appset
 from NikGapps.config.NikGappsConfig import NikGappsConfig
@@ -31,9 +32,9 @@ class Android17GoTests(unittest.TestCase):
                  patch.object(Config, 'APK_SOURCE', str(root / 'source')), \
                  patch.object(Config, 'OVERLAY_SOURCE', str(root / 'overlays')), \
                  patch.object(Statics, 'get_temp_packages_directory', return_value=str(root / 'temp')), \
-                 patch('NikGapps.build.Build.Cmd') as cmd:
-                cmd.return_value.get_package_details.return_value = 'com.google.android.gms'
-                cmd.return_value.get_white_list_permissions.return_value = []
+                 patch('NikGapps.build.Build.Aapt2Inspector') as inspector:
+                inspector.return_value.inspect.return_value = SimpleNamespace(package_name='com.google.android.gms')
+                inspector.return_value.privileged_permissions.return_value = []
                 package = Build.build_from_directory([appset], '17')[0].package_list[0]
             files = {value: Path(key) for key, value in package.file_dict.items()}
             self.assertIn('___etc___sysconfig/google_go.xml', files)
@@ -65,10 +66,10 @@ class Android17GoTests(unittest.TestCase):
             appset.package_list = [p for p in appset.package_list if p.package_title == 'GmsCore']
             with patch.object(Config, 'APK_SOURCE', str(root / 'source')), \
                  patch.object(Config, 'OVERLAY_SOURCE', str(root / 'overlays')), \
-                 patch('NikGapps.build.Build.Cmd') as cmd, \
+                 patch('NikGapps.build.Build.Aapt2Inspector') as inspector, \
                  patch('nikgapps_package_pipeline.consumer.CatalogPackageSource') as consumer:
-                cmd.return_value.get_package_details.return_value = 'com.google.android.gms'
-                cmd.return_value.get_white_list_permissions.return_value = []
+                inspector.return_value.inspect.return_value = SimpleNamespace(package_name='com.google.android.gms')
+                inspector.return_value.privileged_permissions.return_value = []
                 consumer.return_value.prepare.return_value = root / 'prepared'
                 with patch.object(Config, 'PACKAGE_SOURCE', 'local'):
                     raw = Build.build_from_directory([appset], '17')[0].package_list[0]

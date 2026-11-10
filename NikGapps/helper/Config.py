@@ -5,6 +5,7 @@ load_dotenv()
 
 # The android version that we're targeting this application to run
 TARGET_ANDROID_VERSION = 17
+AAPT2 = os.environ.get('AAPT2', '')
 PACKAGE_ARCH = os.environ.get('PACKAGE_ARCH', 'arm64')
 DEFAULT_PACKAGE_LIST = ['core']
 
