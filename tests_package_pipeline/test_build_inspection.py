@@ -24,6 +24,7 @@ class BuildInspectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             apk(root / 'Core/GmsCore/___priv-app___Gms/Gms.apk')
+            apk(root / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk')
             appset = NikGappsConfig('17').package_manager.get_packages('core')[0]
             appset.package_list = [p for p in appset.package_list if p.package_title == 'GmsCore']
             with patch.object(Config, 'PACKAGE_SOURCE', 'local'), \
@@ -41,6 +42,7 @@ class BuildInspectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             apk(root / 'Core/GmsCore/___priv-app___Gms/Gms.apk')
+            apk(root / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk')
             appset = NikGappsConfig('17').package_manager.get_packages('core')[0]
             appset.package_list = [p for p in appset.package_list if p.package_title == 'GmsCore']
             with patch.object(Config, 'PACKAGE_SOURCE', 'local'), \

@@ -280,6 +280,12 @@ class MigrationPipeline:
             metadata = self.inspector.inspect(primary.source) if primary else None
             if overlay_root is not None and float(config.android_version) >= 12.1:
                 files = self._with_overlays(source, files, overlay_root)
+            if float(config.android_version) >= 17:
+                from NikGapps.build.Requirements import required_overlays
+                present = {Path(item.path).name for item in files if item.path.startswith('overlay/')}
+                missing = required_overlays(source.name, config.android_version) - present
+                if missing:
+                    raise PipelineError(f'{source.appset}/{source.name}: missing required overlays: {sorted(missing)}')
             if primary and self._is_privileged(primary.path):
                 detected = self.inspector.privileged_permissions(primary.source)
                 source.override.privileged_permissions = sorted(set(

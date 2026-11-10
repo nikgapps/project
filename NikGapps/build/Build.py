@@ -12,6 +12,7 @@ from niklibrary.helper.Statics import Statics
 from niklibrary.helper.T import T
 from NikGapps.build.GoSupport import core_source_appset, generated_go_files
 from nikgapps_package_pipeline.apk import Aapt2Inspector, find_aapt2
+from NikGapps.build.Requirements import required_overlays
 
 
 class Build:
@@ -137,6 +138,11 @@ class Build:
                 title = os.path.basename(primary_app_location)[:-4]
             else:
                 title = package_title
+
+            overlays_present = {Path(value).name for value in file_dict.values() if value.startswith('___overlay/')}
+            missing_overlays = required_overlays(package_title, android_version) - overlays_present
+            if missing_overlays:
+                raise ValueError(f'{app_set_obj.title}/{package_title}: missing required overlays: {sorted(missing_overlays)}')
 
             # Create a new Package object with the gathered data
             pkg = Package(title, package_name, app_type, package_title)

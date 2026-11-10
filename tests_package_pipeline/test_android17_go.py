@@ -13,9 +13,20 @@ from nikgapps_package_pipeline.config import PipelineConfig
 from nikgapps_package_pipeline.pipeline import MigrationPipeline
 from nikgapps_package_pipeline.scanner import LegacyRepositoryScanner
 from tests_package_pipeline.test_pipeline import FakeInspector, apk
+from nikgapps_package_pipeline.errors import PipelineError
 
 
 class Android17GoTests(unittest.TestCase):
+    def test_registry_artifacts_cannot_omit_required_overlay(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.source(root / 'source')
+            (root / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk').unlink()
+            with self.assertRaisesRegex(PipelineError, 'missing required overlays'):
+                MigrationPipeline(LegacyRepositoryScanner(), FakeInspector()).migrate(
+                    root / 'source', root / 'output', PipelineConfig(android_version='17', platform_api=37),
+                    artifact_base_url='https://gitlab.test/packages/generic', overlay_root=root / 'overlays')
+
     def test_local_stable_builder_generates_go_files_from_core_only(self):
         from NikGapps.build.Build import Build
         from NikGapps.helper import Config
@@ -56,7 +67,7 @@ class Android17GoTests(unittest.TestCase):
             root = Path(temp)
             self.source(root / 'source')
             overlay = root / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk'
-            overlay.parent.mkdir(parents=True)
+            overlay.parent.mkdir(parents=True, exist_ok=True)
             overlay.write_bytes(b'overlay')
             shutil.copytree(root / 'source/Core', root / 'prepared/Core')
             prepared_overlay = root / 'prepared/Core/GmsCore/___overlay/GmsCoreOverlay.apk'
@@ -85,6 +96,7 @@ class Android17GoTests(unittest.TestCase):
         xml = gms / '___etc___permissions/NikGapps-privapp-permissions-google-p.xml'
         xml.parent.mkdir()
         xml.write_text('<permissions><privapp-permissions package="com.google.android.apps.nexuslauncher"><permission name="KEEP_ON_CORE"/></privapp-permissions><privapp-permissions package="com.google.android.apps.aiwallpapers"><permission name="android.permission.CONFIGURE_WALLPAPERS"/><permission name="KEEP_ON_BOTH"/></privapp-permissions></permissions>')
+        apk(root.parent / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk')
         return gms
 
     def test_config42_has_corego_without_extra_files_but_16_keeps_legacy_packages(self):
@@ -108,7 +120,7 @@ class Android17GoTests(unittest.TestCase):
             before = {p.relative_to(gms).as_posix(): p.read_bytes() for p in gms.rglob('*') if p.is_file()}
             packages = MigrationPipeline(LegacyRepositoryScanner(), FakeInspector()).migrate(
                 root / 'source', root / 'output', PipelineConfig(android_version='17', platform_api=37),
-                artifact_base_url='https://gitlab.test/packages/generic')
+                artifact_base_url='https://gitlab.test/packages/generic', overlay_root=root / 'overlays')
             self.assertEqual({'gms_core_android17', 'gms_core_go_android17'}, {p.package_id for p in packages})
             for p in packages:
                 self.assertEqual([], p.dependencies)
@@ -142,7 +154,7 @@ class Android17GoTests(unittest.TestCase):
             (metadata / 'catalog.json').write_text(json.dumps({'schemaVersion': 1, 'androidVersion': '16', 'platformApi': 36,
                 'architecture': 'arm64-v8a', 'channel': 'stable', 'packages': [old]}))
             MigrationPipeline(LegacyRepositoryScanner(), FakeInspector()).migrate(root / 'source', output,
-                PipelineConfig(android_version='17', platform_api=37), artifact_base_url='https://gitlab.test/packages/generic')
+                PipelineConfig(android_version='17', platform_api=37), artifact_base_url='https://gitlab.test/packages/generic', overlay_root=root / 'overlays')
             saved = json.loads((metadata / 'catalog.json').read_text())
             retained = next(p for p in saved['packages'] if p['id'] == 'gms_core')
             self.assertEqual(old, retained)
