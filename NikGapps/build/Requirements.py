@@ -1,5 +1,15 @@
 """Payload requirements shared by registry publication and ZIP assembly."""
 from functools import lru_cache
+import zipfile
+
+
+def validate_overlay(apk):
+    try:
+        with zipfile.ZipFile(apk) as archive:
+            if 'AndroidManifest.xml' not in archive.namelist() or archive.testzip():
+                raise ValueError('Missing or corrupt AndroidManifest.xml')
+    except (OSError, zipfile.BadZipFile, ValueError) as error:
+        raise ValueError(f'Invalid compiled overlay APK: {apk}: {error}') from error
 
 
 @lru_cache(maxsize=None)

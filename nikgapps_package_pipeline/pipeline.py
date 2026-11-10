@@ -280,6 +280,13 @@ class MigrationPipeline:
             metadata = self.inspector.inspect(primary.source) if primary else None
             if overlay_root is not None and float(config.android_version) >= 12.1:
                 files = self._with_overlays(source, files, overlay_root)
+            from NikGapps.build.Requirements import validate_overlay
+            for item in files:
+                if item.path.startswith('overlay/') and item.path.endswith('.apk'):
+                    try:
+                        validate_overlay(item.source)
+                    except ValueError as error:
+                        raise PipelineError(str(error)) from error
             if float(config.android_version) >= 17:
                 from NikGapps.build.Requirements import required_overlays
                 present = {Path(item.path).name for item in files if item.path.startswith('overlay/')}

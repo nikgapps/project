@@ -27,6 +27,16 @@ class Android17GoTests(unittest.TestCase):
                     root / 'source', root / 'output', PipelineConfig(android_version='17', platform_api=37),
                     artifact_base_url='https://gitlab.test/packages/generic', overlay_root=root / 'overlays')
 
+    def test_registry_artifacts_reject_overlay_lfs_pointers_or_invalid_apks(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.source(root / 'source')
+            (root / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk').write_bytes(b'version https://git-lfs.github.com/spec/v1\n')
+            with self.assertRaisesRegex(PipelineError, 'Invalid compiled overlay APK'):
+                MigrationPipeline(LegacyRepositoryScanner(), FakeInspector()).migrate(
+                    root / 'source', root / 'output', PipelineConfig(android_version='17', platform_api=37),
+                    artifact_base_url='https://gitlab.test/packages/generic', overlay_root=root / 'overlays')
+
     def test_local_stable_builder_generates_go_files_from_core_only(self):
         from NikGapps.build.Build import Build
         from NikGapps.helper import Config
@@ -68,11 +78,11 @@ class Android17GoTests(unittest.TestCase):
             self.source(root / 'source')
             overlay = root / 'overlays/GmsCoreOverlay/GmsCoreOverlay.apk'
             overlay.parent.mkdir(parents=True, exist_ok=True)
-            overlay.write_bytes(b'overlay')
+            apk(overlay)
             shutil.copytree(root / 'source/Core', root / 'prepared/Core')
             prepared_overlay = root / 'prepared/Core/GmsCore/___overlay/GmsCoreOverlay.apk'
             prepared_overlay.parent.mkdir()
-            prepared_overlay.write_bytes(b'overlay')
+            prepared_overlay.write_bytes(overlay.read_bytes())
             appset = NikGappsConfig('17').package_manager.get_packages('core')[0]
             appset.package_list = [p for p in appset.package_list if p.package_title == 'GmsCore']
             with patch.object(Config, 'APK_SOURCE', str(root / 'source')), \

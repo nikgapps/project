@@ -39,6 +39,7 @@ def apk(path: Path, abi: str = "arm64-v8a") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(path, "w") as archive:
         archive.writestr(f"lib/{abi}/libtest.so", b"native")
+        archive.writestr('AndroidManifest.xml', b'fixture-manifest')
 
 
 class UtilityTests(unittest.TestCase):
@@ -369,7 +370,7 @@ class MigrationTests(unittest.TestCase):
             apk(root / "Bundle" / "Example" / "___priv-app___Example" / "App.apk")
             overlay = overlays / "ExampleOverlay" / "ExampleOverlay.apk"
             overlay.parent.mkdir(parents=True)
-            overlay.write_bytes(b"compiled-overlay")
+            apk(overlay)
             packages = MigrationPipeline(
                 LegacyRepositoryScanner(), FakeInspector()
             ).migrate(
@@ -380,7 +381,7 @@ class MigrationTests(unittest.TestCase):
             with zipfile.ZipFile(packages[0].artifact_path) as archive:
                 self.assertEqual(
                     archive.read("___overlay/ExampleOverlay.apk"),
-                    b"compiled-overlay",
+                    overlay.read_bytes(),
                 )
                 descriptor = json.loads(archive.read("package.json"))
                 overlay_row = next(
